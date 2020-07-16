@@ -63,7 +63,7 @@ setlocale(LC_ALL, 'tr_TR.UTF-8');
                             </ol>
                             <div class="carousel-inner">
                                 <div class="carousel-item active">
-                                    <img src="images/as_900x500.jpg" class="d-block w-100" alt="">
+                                    <img src="images/Tirebolu-Hangi-Şehirde.jpg" class="d-block w-100" alt="">
                                     <div class="carousel-caption d-none d-md-block">
                                         <h5>Duyuru 1 Başlık</h5>
                                         <p>Duyuru 1 İçerik</p>
