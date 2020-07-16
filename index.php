@@ -53,7 +53,7 @@ setlocale(LC_ALL, 'tr_TR.UTF-8');
         <div class="row">
             <div class="col-9">
                 <div class="card">
-                    <div class="card-header text-center">Duyurular Panosu</div>
+                    <!--div class="card-header text-center">Duyurular Panosu</div-->
                     <div class="card-body p-0">
                         <div id="carouselExampleCaptions" class="carousel slide" data-ride="carousel">
                             <ol class="carousel-indicators">
@@ -63,33 +63,26 @@ setlocale(LC_ALL, 'tr_TR.UTF-8');
                                 <li data-target="#carouselExampleCaptions" data-slide-to="3" class=""></li>
                             </ol>
                             <div class="carousel-inner">
-                                <div class="carousel-item">
-                                    <img src="images/covid%2014%20kural.png" class="d-block w-100" alt="">
-                                    <div class="carousel-caption d-none d-md-block">
-                                        <h5>Covid - 19</h5>
-                                        <p>14 Temel Kural</p>
-                                    </div>
-                                </div>
                                 <div class="carousel-item active">
                                     <img src="images/as_900x500.jpg" class="d-block w-100" alt="">
                                     <div class="carousel-caption d-none d-md-block">
-                                        <h5>First slide label</h5>
-                                        <p>Nulla vitae elit libero, a pharetra augue mollis interdum.</p>
+                                        <h5>Duyuru 1 Başlık</h5>
+                                        <p>Duyuru 1 İçerik</p>
                                     </div>
                                 </div>
                                 <div class="carousel-item">
                                     <img src="images/how-to-start-a-career-in-digital-marketing-1-900x500.jpg"
                                          class="d-block w-100" alt="">
                                     <div class="carousel-caption d-none d-md-block">
-                                        <h5>Second slide label</h5>
-                                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                                        <h5>Duyuru 2 Başlık</h5>
+                                        <p>Duyuru 2 İçerik</p>
                                     </div>
                                 </div>
                                 <div class="carousel-item">
                                     <img src="images/news-2-28-17-900x500.jpg" class="d-block w-100" alt="">
                                     <div class="carousel-caption d-none d-md-block">
-                                        <h5>Third slide label</h5>
-                                        <p>Praesent commodo cursus magna, vel scelerisque nisl consectetur.</p>
+                                        <h5>Duyuru 3 Başlık</h5>
+                                        <p>Duyuru 3 İçerik</p>
                                     </div>
                                 </div>
                             </div>
