@@ -147,11 +147,7 @@ setlocale(LC_ALL, 'tr_TR.UTF-8');
             <li><span class="bn-loader-text">Loading post from JSON file...</span></li>
         </ul>
     </div>
-    <div class="bn-controls">
-        <button><span class="bn-arrow bn-prev"></span></button>
-        <button><span class="bn-action"></span></button>
-        <button><span class="bn-arrow bn-next"></span></button>
-    </div>
+
 </div>
 <!-- *********************** -->
 <!-- Last Announcements HTML END HERE *** -->
