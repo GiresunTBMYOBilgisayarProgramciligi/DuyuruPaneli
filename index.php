@@ -60,7 +60,6 @@ setlocale(LC_ALL, 'tr_TR.UTF-8');
                                 <li data-target="#carouselExampleCaptions" data-slide-to="0" class="active"></li>
                                 <li data-target="#carouselExampleCaptions" data-slide-to="1" class=""></li>
                                 <li data-target="#carouselExampleCaptions" data-slide-to="2" class=""></li>
-                                <li data-target="#carouselExampleCaptions" data-slide-to="3" class=""></li>
                             </ol>
                             <div class="carousel-inner">
                                 <div class="carousel-item active">
@@ -73,13 +72,13 @@ setlocale(LC_ALL, 'tr_TR.UTF-8');
                                 <div class="carousel-item">
                                     <img src="images/how-to-start-a-career-in-digital-marketing-1-900x500.jpg"
                                          class="d-block w-100" alt="">
-                                    <div class="carousel-caption d-none d-md-block">
-                                        <h5>Duyuru 2 Başlık</h5>
-                                        <p>Duyuru 2 İçerik</p>
-                                    </div>
+
                                 </div>
                                 <div class="carousel-item">
-                                    <img src="images/news-2-28-17-900x500.jpg" class="d-block w-100" alt="">
+                                    <svg width="900" height="500" class="d-block w-100">
+                                        <rect width="900" height="500" style="fill:rgb(0,137,255);" />
+                                        Sorry, your browser does not support inline SVG.
+                                    </svg>
                                     <div class="carousel-caption d-none d-md-block">
                                         <h5>Duyuru 3 Başlık</h5>
                                         <p>Duyuru 3 İçerik</p>
