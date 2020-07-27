@@ -55,42 +55,57 @@ setlocale(LC_ALL, 'tr_TR.UTF-8');
                 <div class="card">
                     <!--div class="card-header text-center">Duyurular Panosu</div-->
                     <div class="card-body p-0">
-                        <div id="carouselExampleCaptions" class="carousel slide" data-ride="carousel">
+                        <div id="afisler" class="carousel slide" data-ride="carousel">
                             <ol class="carousel-indicators">
                                 <li data-target="#carouselExampleCaptions" data-slide-to="0" class="active"></li>
                                 <li data-target="#carouselExampleCaptions" data-slide-to="1" class=""></li>
                                 <li data-target="#carouselExampleCaptions" data-slide-to="2" class=""></li>
+                                <li data-target="#carouselExampleCaptions" data-slide-to="3" class=""></li>
+                                <li data-target="#carouselExampleCaptions" data-slide-to="4" class=""></li>
                             </ol>
                             <div class="carousel-inner">
                                 <div class="carousel-item active">
-                                    <img src="images/Tirebolu-Hangi-Şehirde.jpg" class="d-block w-100" alt="">
+                                    <img src="images/Profesyonel_Yonetici_Gelistirme_Egitimi.jpeg" class="d-block" alt="" style="height: 80vh!important;margin:0 auto;" >
                                     <div class="carousel-caption d-none d-md-block">
-                                        <h5>Duyuru 1 Başlık</h5>
-                                        <p>Duyuru 1 İçerik</p>
+                                        <h5></h5>
+                                        <p></p>
                                     </div>
                                 </div>
                                 <div class="carousel-item">
-                                    <img src="images/how-to-start-a-career-in-digital-marketing-1-900x500.jpg"
-                                         class="d-block w-100" alt="">
-
+                                    <img src="images/Guç_sistemleri_analizi.jpeg" class="d-block" alt="" style="height: 80vh!important;margin:0 auto;">
+                                    <div class="carousel-caption d-none d-md-block">
+                                        <h5></h5>
+                                        <p></p>
+                                    </div>
                                 </div>
                                 <div class="carousel-item">
-                                    <svg width="900" height="500" class="d-block w-100">
-                                        <rect width="900" height="500" style="fill:rgb(0,137,255);" />
-                                        Sorry, your browser does not support inline SVG.
-                                    </svg>
+                                    <img src="images/Is_Ingilizcesi_.jpeg" class="d-block" alt="" style="height: 80vh!important;margin:0 auto;">
                                     <div class="carousel-caption d-none d-md-block">
-                                        <h5>Duyuru 3 Başlık</h5>
-                                        <p>Duyuru 3 İçerik</p>
+                                        <h5></h5>
+                                        <p></p>
+                                    </div>
+                                </div>
+                                <div class="carousel-item">
+                                    <img src="images/Yoga_Baslangiç_Kursu.jpeg" class="d-block" alt="" style="height: 80vh!important;margin:0 auto;">
+                                    <div class="carousel-caption d-none d-md-block">
+                                        <h5></h5>
+                                        <p></p>
+                                    </div>
+                                </div>
+                                <div class="carousel-item">
+                                    <img src="images/Yuksek_Gerilim_Teknigi.jpeg" class="d-block" alt="" style="height: 80vh!important;margin:0 auto;">
+                                    <div class="carousel-caption d-none d-md-block">
+                                        <h5></h5>
+                                        <p></p>
                                     </div>
                                 </div>
                             </div>
-                            <a class="carousel-control-prev" href="#carouselExampleCaptions" role="button"
+                            <a class="carousel-control-prev" href="#afisler" role="button"
                                data-slide="prev">
                                 <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                                 <span class="sr-only">Previous</span>
                             </a>
-                            <a class="carousel-control-next" href="#carouselExampleCaptions" role="button"
+                            <a class="carousel-control-next" href="#afisler" role="button"
                                data-slide="next">
                                 <span class="carousel-control-next-icon" aria-hidden="true"></span>
                                 <span class="sr-only">Next</span>
@@ -137,6 +152,7 @@ setlocale(LC_ALL, 'tr_TR.UTF-8');
                     </div>
                 </div>
             </div>
+        </div>
 </main>
 <!-- Last Announcements HTML STARTS HERE *-->
 <!-- *********************** -->
@@ -182,6 +198,10 @@ setlocale(LC_ALL, 'tr_TR.UTF-8');
             errorMsg: 'Duyurular yüklenemedi. Lütfen ayarları kontrol ediniz.'
         }
     });
+
+    $('#afisler').carousel({
+        interval: 30000
+    })
 </script>
 </body>
 </html>
