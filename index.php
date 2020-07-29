@@ -65,6 +65,13 @@ setlocale(LC_ALL, 'tr_TR.UTF-8');
                             </ol>
                             <div class="carousel-inner">
                                 <div class="carousel-item active">
+                                    <img src="images/sanal%20mezuniyet.jpg" class="d-block w-100" alt="" style="height: 80vh!important;margin:0 auto;" >
+                                    <div class="carousel-caption d-none d-md-block">
+                                        <h5></h5>
+                                        <p></p>
+                                    </div>
+                                </div>
+                                <div class="carousel-item">
                                     <img src="images/Profesyonel_Yonetici_Gelistirme_Egitimi.jpeg" class="d-block" alt="" style="height: 80vh!important;margin:0 auto;" >
                                     <div class="carousel-caption d-none d-md-block">
                                         <h5></h5>
@@ -119,16 +126,16 @@ setlocale(LC_ALL, 'tr_TR.UTF-8');
             <div class="col p-0">
                 <div class="card border-0">
                     <div class="card-header">
-                        Etkinlikler
+                        Haberler
                     </div>
                     <div class="card-body p-0">
                         <div class="list-group">
                             <a href="#" class="list-group-item list-group-item-action">
                                 <div class="d-flex w-100 justify-content-between">
-                                    <h5 class="mb-1">Başlık</h5>
-                                    <small>3 days ago</small>
+                                    <h5 class="mb-1">2020 Mezuniyet Töreni</h5>
+                                    <small></small>
                                 </div>
-                                <p class="mb-1">İçerik</p>
+                                <p class="mb-1">Giresun Üniversitesi 2019-2020 Mezuniyet törenini 29 Temmuz Çarçamba günü saat 15:00'da Giresun Üniversitesi Youtube Kanalından izleyebilirsiniz</p>
                             </a>
                             <div class="list-group">
                                 <a href="#" class="list-group-item list-group-item-action">
