@@ -99,13 +99,6 @@ setlocale(LC_ALL, 'tr_TR.UTF-8');
                                         <p></p>
                                     </div>
                                 </div>
-                                <div class="carousel-item">
-                                    <img src="images/Yuksek_Gerilim_Teknigi.jpeg" class="d-block" alt="" style="height: 80vh!important;margin:0 auto;">
-                                    <div class="carousel-caption d-none d-md-block">
-                                        <h5></h5>
-                                        <p></p>
-                                    </div>
-                                </div>
                             </div>
                             <a class="carousel-control-prev" href="#afisler" role="button"
                                data-slide="prev">
@@ -137,29 +130,12 @@ setlocale(LC_ALL, 'tr_TR.UTF-8');
                                 </div>
                                 <p class="mb-1">Giresun Üniversitesi 2019-2020 Mezuniyet törenini 29 Temmuz Çarçamba günü saat 15:00'da Giresun Üniversitesi Youtube Kanalından izleyebilirsiniz</p>
                             </a>
-                            <div class="list-group">
-                                <a href="#" class="list-group-item list-group-item-action">
-                                    <div class="d-flex w-100 justify-content-between">
-                                        <h5 class="mb-1">Başlık</h5>
-                                        <small>3 days ago</small>
-                                    </div>
-                                    <p class="mb-1">İçerik</p>
-                                </a>
-                                <div class="list-group">
-                                    <a href="#" class="list-group-item list-group-item-action">
-                                        <div class="d-flex w-100 justify-content-between">
-                                            <h5 class="mb-1">Başlık</h5>
-                                            <small>3 days ago</small>
-                                        </div>
-                                        <p class="mb-1">İçerik</p>
-                                    </a>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 </main>
 <!-- Last Announcements HTML STARTS HERE *-->
 <!-- *********************** -->
