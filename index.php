@@ -65,35 +65,14 @@ setlocale(LC_ALL, 'tr_TR.UTF-8');
                             </ol>
                             <div class="carousel-inner">
                                 <div class="carousel-item active">
+                                    <img src="images/rektor_hosgeldin_mesajı.jpeg" class="d-block" alt="" style="height: 80vh!important;margin:0 auto;" >
+                                    <div class="carousel-caption d-none d-md-block">
+                                        <h5></h5>
+                                        <p></p>
+                                    </div>
+                                </div>
+                                <div class="carousel-item ">
                                     <img src="images/sanal%20mezuniyet.jpg" class="d-block" alt="" style="height: 80vh!important;margin:0 auto;" >
-                                    <div class="carousel-caption d-none d-md-block">
-                                        <h5></h5>
-                                        <p></p>
-                                    </div>
-                                </div>
-                                <div class="carousel-item">
-                                    <img src="images/Profesyonel_Yonetici_Gelistirme_Egitimi.jpeg" class="d-block" alt="" style="height: 80vh!important;margin:0 auto;" >
-                                    <div class="carousel-caption d-none d-md-block">
-                                        <h5></h5>
-                                        <p></p>
-                                    </div>
-                                </div>
-                                <div class="carousel-item">
-                                    <img src="images/Guç_sistemleri_analizi.jpeg" class="d-block" alt="" style="height: 80vh!important;margin:0 auto;">
-                                    <div class="carousel-caption d-none d-md-block">
-                                        <h5></h5>
-                                        <p></p>
-                                    </div>
-                                </div>
-                                <div class="carousel-item">
-                                    <img src="images/Is_Ingilizcesi_.jpeg" class="d-block" alt="" style="height: 80vh!important;margin:0 auto;">
-                                    <div class="carousel-caption d-none d-md-block">
-                                        <h5></h5>
-                                        <p></p>
-                                    </div>
-                                </div>
-                                <div class="carousel-item">
-                                    <img src="images/Yoga_Baslangiç_Kursu.jpeg" class="d-block" alt="" style="height: 80vh!important;margin:0 auto;">
                                     <div class="carousel-caption d-none d-md-block">
                                         <h5></h5>
                                         <p></p>
