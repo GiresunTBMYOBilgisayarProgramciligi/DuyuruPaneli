@@ -59,9 +59,6 @@ setlocale(LC_ALL, 'tr_TR.UTF-8');
                             <ol class="carousel-indicators">
                                 <li data-target="#carouselExampleCaptions" data-slide-to="0" class="active"></li>
                                 <li data-target="#carouselExampleCaptions" data-slide-to="1" class=""></li>
-                                <li data-target="#carouselExampleCaptions" data-slide-to="2" class=""></li>
-                                <li data-target="#carouselExampleCaptions" data-slide-to="3" class=""></li>
-                                <li data-target="#carouselExampleCaptions" data-slide-to="4" class=""></li>
                             </ol>
                             <div class="carousel-inner">
                                 <div class="carousel-item active">
