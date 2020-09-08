@@ -63,7 +63,7 @@ setlocale(LC_ALL, 'tr_TR.UTF-8');
                             </ol>
                             <div class="carousel-inner">
                                 <div class="carousel-item active">
-                                    <img src="images/açılış ile ilgili pup-up.jpg" class="d-block" alt="" style="height: 80vh!important;margin:0 auto;" >
+                                    <img src="images/açılış ile ilgili pup-up.jpg" class="d-block w-100" alt="" style="" >
                                     <div class="carousel-caption d-none d-md-block">
                                         <h5></h5>
                                         <p></p>
