@@ -59,9 +59,17 @@ setlocale(LC_ALL, 'tr_TR.UTF-8');
                             <ol class="carousel-indicators">
                                 <li data-target="#carouselExampleCaptions" data-slide-to="0" class="active"></li>
                                 <li data-target="#carouselExampleCaptions" data-slide-to="1" class=""></li>
+                                <li data-target="#carouselExampleCaptions" data-slide-to="2" class=""></li>
                             </ol>
                             <div class="carousel-inner">
                                 <div class="carousel-item active">
+                                    <img src="images/açılış ile ilgili pup-up.jpg" class="d-block" alt="" style="height: 80vh!important;margin:0 auto;" >
+                                    <div class="carousel-caption d-none d-md-block">
+                                        <h5></h5>
+                                        <p></p>
+                                    </div>
+                                </div>
+                                <div class="carousel-item">
                                     <img src="images/rektor_hosgeldin_mesajı.jpeg" class="d-block" alt="" style="height: 80vh!important;margin:0 auto;" >
                                     <div class="carousel-caption d-none d-md-block">
                                         <h5></h5>
