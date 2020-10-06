@@ -11,6 +11,8 @@ body{
 .baslik{
     font-size: 1.5em;
 }
-main{
 
+.carousel-item img {
+    max-height: 75vh !important;
+    margin: 0 auto;
 }

@@ -71,21 +71,21 @@ setlocale(LC_ALL, 'tr_TR.UTF-8');
                                     </div>
                                 </div>
                                 <div class="carousel-item">
-                                    <img src="images/rektor_hosgeldin_mesajı.jpeg" class="d-block" alt="" style="height: 78vh!important;margin:0 auto;" >
+                                    <img src="images/rektor_hosgeldin_mesajı.jpeg" class="d-block" alt="" >
                                     <div class="carousel-caption d-none d-md-block">
                                         <h5></h5>
                                         <p></p>
                                     </div>
                                 </div>
                                 <div class="carousel-item ">
-                                    <img src="images/uzembilgi.jpg" class="d-block" alt="" style="height: 78vh!important;margin:0 auto;" >
+                                    <img src="images/uzembilgi.jpg" class="d-block w-100" alt=""  >
                                     <div class="carousel-caption d-none d-md-block">
                                         <h5></h5>
                                         <p></p>
                                     </div>
                                 </div>
                                 <div class="carousel-item ">
-                                    <img src="images/stajBildiri.jpg" class="d-block" alt="" style="height: 78vh!important;margin:0 auto;" >
+                                    <img src="images/stajBildiri.jpg" class="d-block w-100" alt=""  >
                                     <div class="carousel-caption d-none d-md-block">
                                         <h5></h5>
                                         <p></p>
