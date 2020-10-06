@@ -24,7 +24,7 @@ setlocale(LC_ALL, 'tr_TR.UTF-8');
             <div class="col text-center">
                 <img src="images/logo_230x230.png" alt="logo" class="logo img-fluid">
             </div>
-            <div class="col-6 text-center">
+            <div class="col-5 text-center">
                 <h2 class="baslik">Tirebolu Mehmet Bayrak Meslek Yüksekokulu</h2>
             </div>
             <div class="col" style="height: 100px">
