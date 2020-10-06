@@ -51,7 +51,7 @@ setlocale(LC_ALL, 'tr_TR.UTF-8');
 <main class="mt-2">
     <div class="container-fluid">
         <div class="row">
-            <div class="col-9">
+            <div class="col-12">
                 <div class="card">
                     <!--div class="card-header text-center">Duyurular Panosu</div-->
                     <div class="card-body p-0">
@@ -107,25 +107,7 @@ setlocale(LC_ALL, 'tr_TR.UTF-8');
                 </div>
 
             </div>
-            <!-- Etkinlikler -->
-            <div class="col p-0">
-                <div class="card border-0">
-                    <div class="card-header">
-                        Haberler
-                    </div>
-                    <div class="card-body p-0">
-                        <div class="list-group">
-                            <a href="#" class="list-group-item list-group-item-action">
-                                <div class="d-flex w-100 justify-content-between">
-                                    <h5 class="mb-1"></h5>
-                                    <small></small>
-                                </div>
-                                <p class="mb-1"></p>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
+
         </div>
     </div>
 </main>
