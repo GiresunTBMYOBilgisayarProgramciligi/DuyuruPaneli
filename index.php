@@ -60,6 +60,7 @@ setlocale(LC_ALL, 'tr_TR.UTF-8');
                                 <li data-target="#carouselExampleCaptions" data-slide-to="0" class="active"></li>
                                 <li data-target="#carouselExampleCaptions" data-slide-to="1" class=""></li>
                                 <li data-target="#carouselExampleCaptions" data-slide-to="2" class=""></li>
+                                <li data-target="#carouselExampleCaptions" data-slide-to="3" class=""></li>
                             </ol>
                             <div class="carousel-inner">
                                 <div class="carousel-item active">
@@ -70,14 +71,21 @@ setlocale(LC_ALL, 'tr_TR.UTF-8');
                                     </div>
                                 </div>
                                 <div class="carousel-item">
-                                    <img src="images/rektor_hosgeldin_mesajı.jpeg" class="d-block" alt="" style="height: 80vh!important;margin:0 auto;" >
+                                    <img src="images/rektor_hosgeldin_mesajı.jpeg" class="d-block" alt="" style="height: 78vh!important;margin:0 auto;" >
                                     <div class="carousel-caption d-none d-md-block">
                                         <h5></h5>
                                         <p></p>
                                     </div>
                                 </div>
                                 <div class="carousel-item ">
-                                    <img src="images/sanal%20mezuniyet.jpg" class="d-block" alt="" style="height: 80vh!important;margin:0 auto;" >
+                                    <img src="images/uzembilgi.jpg" class="d-block" alt="" style="height: 78vh!important;margin:0 auto;" >
+                                    <div class="carousel-caption d-none d-md-block">
+                                        <h5></h5>
+                                        <p></p>
+                                    </div>
+                                </div>
+                                <div class="carousel-item ">
+                                    <img src="images/stajBildiri.jpg" class="d-block" alt="" style="height: 78vh!important;margin:0 auto;" >
                                     <div class="carousel-caption d-none d-md-block">
                                         <h5></h5>
                                         <p></p>
@@ -109,10 +117,10 @@ setlocale(LC_ALL, 'tr_TR.UTF-8');
                         <div class="list-group">
                             <a href="#" class="list-group-item list-group-item-action">
                                 <div class="d-flex w-100 justify-content-between">
-                                    <h5 class="mb-1">2020 Mezuniyet Töreni</h5>
+                                    <h5 class="mb-1"></h5>
                                     <small></small>
                                 </div>
-                                <p class="mb-1">Giresun Üniversitesi 2019-2020 Mezuniyet törenini 29 Temmuz Çarçamba günü saat 15:00'da Giresun Üniversitesi Youtube Kanalından izleyebilirsiniz</p>
+                                <p class="mb-1"></p>
                             </a>
                         </div>
                     </div>
