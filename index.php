@@ -29,19 +29,9 @@ setlocale(LC_ALL, 'tr_TR.UTF-8');
             </div>
             <div class="col" style="height: 100px">
                 <!-- Hava Durumu -->
-                <a class="weatherwidget-io" href="https://forecast7.com/tr/41d0138d81/tirebolu/" data-label_1="Tirebolu"
-                   data-label_2="Mehmet Bayrak MYO" data-icons="Climacons Animated" data-mode="Current" data-days="3"
-                   data-theme="pure">Tirebolu Mehmet Bayrak MYO</a>
+                <a class="weatherwidget-io" href="https://forecast7.com/tr/41d0138d81/tirebolu/" data-icons="Climacons Animated" data-mode="Current" data-days="3" data-theme="pure" >Tirebolu Mehmet Bayrak MYO</a>
                 <script>
-                    !function (d, s, id) {
-                        var js, fjs = d.getElementsByTagName(s)[0];
-                        if (!d.getElementById(id)) {
-                            js = d.createElement(s);
-                            js.id = id;
-                            js.src = 'https://weatherwidget.io/js/widget.min.js';
-                            fjs.parentNode.insertBefore(js, fjs);
-                        }
-                    }(document, 'script', 'weatherwidget-io-js');
+                    !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src='https://weatherwidget.io/js/widget.min.js';fjs.parentNode.insertBefore(js,fjs);}}(document,'script','weatherwidget-io-js');
                 </script>
                 <!--/ Hava Durumu -->
             </div>
@@ -61,6 +51,7 @@ setlocale(LC_ALL, 'tr_TR.UTF-8');
                                 <li data-target="#carouselExampleCaptions" data-slide-to="1" class=""></li>
                                 <li data-target="#carouselExampleCaptions" data-slide-to="2" class=""></li>
                                 <li data-target="#carouselExampleCaptions" data-slide-to="3" class=""></li>
+                                <li data-target="#carouselExampleCaptions" data-slide-to="4" class=""></li>
                             </ol>
                             <div class="carousel-inner">
                                 <div class="carousel-item active">
@@ -86,6 +77,13 @@ setlocale(LC_ALL, 'tr_TR.UTF-8');
                                 </div>
                                 <div class="carousel-item ">
                                     <img src="images/stajBildiri.jpg" class="d-block w-100" alt=""  >
+                                    <div class="carousel-caption d-none d-md-block">
+                                        <h5></h5>
+                                        <p></p>
+                                    </div>
+                                </div>
+                                <div class="carousel-item ">
+                                    <img src="images/bilprog.png" class="d-block w-100" alt=""  >
                                     <div class="carousel-caption d-none d-md-block">
                                         <h5></h5>
                                         <p></p>
