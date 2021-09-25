@@ -1,6 +1,26 @@
 <?php
 /* Yereli Türkçe yapalım */
 setlocale(LC_ALL, 'tr_TR.UTF-8');
+require 'vendor/autoload.php';
+
+use App\SlideController;
+
+//(new \App\SQLiteConnection())->pdo->exec("UPDATE slider SET fullWidth=1 where id IN (2,3)");
+
+
+$slides= (new SlideController())->getSlides();
+
+/*$a=new SlideController();
+$a->saveNewSlide(array(
+        "title"=>"",
+        "content"=>"",
+        "image"=>"images/pop up600-02.jpg",
+        "qrCode"=>"images/qr-code.png",
+        "createdDate"=>date("Y-m-d H:i:s"),
+        "userId"=>1,
+        "fullWidth"=>0
+));*/
+
 ?>
 <!doctype html>
 <html lang="tr">
@@ -53,34 +73,25 @@ setlocale(LC_ALL, 'tr_TR.UTF-8');
                                 <li data-target="#carouselExampleCaptions" data-slide-to="3" class=""></li>
                             </ol>
                             <div class="carousel-inner">
-                                <div class="carousel-item active">
-                                    <img src="images/pop up600-02.jpg" class="d-block" alt="" style="" >
+                               <?php
+                                $active=true;
+                                foreach ($slides as $slide){
+                                    $c=$active ? "active":"";
+                                    $w=$slide->fullWidth ? "w-100": "";
+                                    echo '
+                                    <div class="carousel-item '.$c.'">
+                                    <img src="'.$slide->image.'" class="d-block '.$w.'" alt="" >
                                     <div class="carousel-caption d-none d-md-block">
-                                        <h5></h5>
-                                        <p></p>
+                                        <h5>'.$slide->title.'</h5>
+                                        <p>'.$slide->content.'</p>
                                     </div>
                                 </div>
-                                <div class="carousel-item">
-                                    <img src="images/rektorMesaj.png" class="d-block" alt="" >
-                                    <div class="carousel-caption d-none d-md-block">
-                                        <h5></h5>
-                                        <p></p>
-                                    </div>
-                                </div>
-                                <div class="carousel-item">
-                                    <img src="images/asi.jpg".png" class="d-block w-100" alt="" >
-                                    <div class="carousel-caption d-none d-md-block">
-                                        <h5></h5>
-                                        <p></p>
-                                    </div>
-                                </div>
-                                <div class="carousel-item">
-                                    <img src="images/Tirebolu-Hangi-Şehirde.jpg".png" class="d-block w-100" alt="" >
-                                    <div class="carousel-caption d-none d-md-block">
-                                        <h5>Tirebolu'ya Hoş Geldiniz!</h5>
-                                        <p></p>
-                                    </div>
-                                </div>
+                                    ';
+                                    $active=false;
+                                }
+
+                                ?>
+                                
                             </div>
                             <a class="carousel-control-prev" href="#afisler" role="button"
                                data-slide="prev">
