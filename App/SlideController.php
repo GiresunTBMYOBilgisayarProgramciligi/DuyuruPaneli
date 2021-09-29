@@ -23,7 +23,7 @@ class SlideController
     public function getSlides()
     {
         return $this->DB->query(
-            "Select * from slider",PDO::FETCH_OBJ)->fetchAll();
+            "select slider.*, u.name || ' ' || u.lastName as userFullName from slider inner join user u on u.id = slider.userId",PDO::FETCH_OBJ)->fetchAll();
     }
 
     public function saveNewSlide($par){

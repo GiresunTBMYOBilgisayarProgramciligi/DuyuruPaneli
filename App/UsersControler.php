@@ -16,6 +16,11 @@ class UsersControler
         return new User($id);
     }
 
+    public function getUsers(){
+        return $this->DB->query(
+            "select * from user",PDO::FETCH_OBJ)->fetchAll();
+    }
+
     public function saveNewUser($arr) {
         $this->DB->prepare("INSERT INTO user( ) values (:title,:content,:image,:qrCode,:createdDate,:userId)")->execute($arr);
     }

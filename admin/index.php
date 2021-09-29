@@ -45,7 +45,6 @@ $slides = new SlideController();
     <!-- partial:partials/_navbar.html -->
     <nav class="navbar default-layout col-lg-12 col-12 p-0 fixed-top d-flex align-items-top flex-row">
         <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-start">
-
             <div>
                 <a class="navbar-brand brand-logo" href="index.php">
                     DuyuruPaneli
@@ -93,7 +92,7 @@ $slides = new SlideController();
 
         <!-- partial -->
         <div class="main-panel">
-            <div class="content-wrapper duyuru_tabs">
+            <div class="content-wrapper duyuru_tabs bg-white">
                 <div class="row">
                     <ul class="nav nav-tabs" id="duyuruTabs" role="tablist">
                         <li class="nav-item" role="presentation">
