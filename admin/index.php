@@ -107,73 +107,15 @@ $slides = new SlideController();
                         </li>
                     </ul>
                     <div class="tab-content p-0 border-0" id="myTabContent">
-                        <div class="tab-pane fade show active" id="slideTabContent" role="tabpanel" aria-labelledby="slide-tab">
-                            <div class="col-md-12 grid-margin stretch-card">
-                                <div class="card">
-                                    <div class="card-body">
-                                        <div class="d-sm-flex justify-content-between align-items-start">
-                                            <div>
-                                                <h4 class="card-title card-tit-dash">Slide yönetimi</h4>
-                                                <h5 class="card-subtitle card-subtitle-dash">Ekranın ortsında bulunan büyük resim duyuruları ayarları</h5>
-                                            </div>
-                                            <button type="button" class="btn btn-primary btn-icon-text">
-                                                <i class="ti-plus btn-icon-prepend"></i>
-                                                Yeni ekle
-                                            </button>
-                                        </div>
-                                        <div>
-                                            içerik burada<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="tab-pane fade col-md-12 grid-margin stretch-card" id="duyuruTabContent" role="tabpanel" aria-labelledby="duyuru-tab">
-                                <div class="card">
-                                    <div class="card-body">
-                                        <div class="d-sm-flex justify-content-between align-items-start">
-                                            <div>
-                                                <h4 class="card-title card-tit-dash">Duyuru Yönetimi</h4>
-                                                <h5 class="card-subtitle card-subtitle-dash">Ekranın en alt kısmında kayan duyuruların yönetimi</h5>
-                                            </div>
-                                            <button type="button" class="btn btn-primary btn-icon-text">
-                                                <i class="ti-plus btn-icon-prepend"></i>
-                                                Yeni ekle
-                                            </button>
-                                        </div>
-                                        <div>
-                                            içerik burada<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-                                        </div>
-                                    </div>
-                                </div>
-                        </div>
-                        <div class="tab-pane fade" id="kullanıcılarTabContent" role="tabpanel" aria-labelledby="kullanıcılar-tab">
-                            <div class="col-md-12 grid-margin stretch-card">
-                                <div class="card">
-                                    <div class="card-body">
-                                        <div class="d-sm-flex justify-content-between align-items-start">
-                                            <div>
-                                                <h4 class="card-title card-tit-dash">Kullanıcı Yönetimi</h4>
-                                                <h5 class="card-subtitle card-subtitle-dash">Kullanıcı Yönetimi</h5>
-                                            </div>
-                                            <button type="button" class="btn btn-primary btn-icon-text">
-                                                <i class="ti-plus btn-icon-prepend"></i>
-                                                Yeni ekle
-                                            </button>
-                                        </div>
-                                        <div>
-                                            içerik burada<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        <?php include_once "pages/SlideView.php"?>
+                        <?php include_once "pages/DuyuruView.php"?>
+                        <?php include_once "pages/KullanıcıView.php"?>
                     </div>
                 </div>
             </div>
             <!-- content-wrapper ends -->
             <!-- partial:partials/_footer.html -->
-            <footer class="footer">
+            <footer class="footer fixed-bottom">
                 <div class="d-sm-flex justify-content-center justify-content-sm-between">
                     <span class="text-muted text-center text-sm-left d-block d-sm-inline-block">Premium <a
                                 href="https://www.bootstrapdash.com/" target="_blank">Bootstrap admin template</a> from BootstrapDash.</span>
