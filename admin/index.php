@@ -35,7 +35,7 @@ if (!($user = (new UsersControler())->isLoggedIn())) {
     <!-- endinject -->
     <link rel="shortcut icon" href="images/favicon.png"/>
     <link type="text/css" rel="stylesheet" href="vendors/pwstabs/jquery.pwstabs.min.css">
-
+    <link rel="stylesheet" href="css/custom.css">
 </head>
 <body>
 <div class="container-scroller">
@@ -88,7 +88,7 @@ if (!($user = (new UsersControler())->isLoggedIn())) {
         <!-- partial:partials/_sidebar.html -->
 
         <!-- partial -->
-        <div class="main-panel">
+        <div class="main-panel pb-5">
             <div class="content-wrapper duyuru_tabs bg-white">
                 <div class="row">
                     <ul class="nav nav-tabs" id="duyuruTabs" role="tablist">
@@ -142,6 +142,7 @@ if (!($user = (new UsersControler())->isLoggedIn())) {
 <!-- Custom js for this page-->
 <script src="js/dashboard.js"></script>
 <!-- End custom js for this page-->
+<script src="js/custom.js"></script>
 </body>
 
 </html>

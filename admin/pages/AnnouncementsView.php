@@ -34,9 +34,6 @@ $announcements=$announcementController->getAnnouncements();
                                 İçerik
                             </th>
                             <th>
-                                Görsel
-                            </th>
-                            <th>
                                 QR kod
                             </th>
                             <th>
@@ -63,10 +60,7 @@ $announcements=$announcementController->getAnnouncements();
                                     <?= $announcement->content?>
                                 </td>
                                 <td>
-                                    <?= $announcement->image?>
-                                </td>
-                                <td>
-                                    <?= $announcement->qrCode?>
+                                    <?= $announcement->qrCode=="" ? ""  : "<img class='rounded-0' src='{$announcement->qrCode}'>" ?>
                                 </td>
                                 <td>
                                     <?= $announcement->userFullName?>
@@ -99,14 +93,29 @@ $announcements=$announcementController->getAnnouncements();
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form name="newAnnouncementForm" >
-
+                <form name="newAnnouncementForm" id="newAnnouncementForm" method="post" >
+                    <div class="form-group">
+                        <label for="title">Başlık</label>
+                        <input type="text" class="form-control" id="title" name="title" placeholder="Başlık">
+                    </div>
+                    <div class="form-group">
+                        <label for="content">İçerik</label>
+                        <input required type="text" class="form-control" id="content" name="content" placeholder="İçerik">
+                    </div>
+                    <div class="form-group">
+                        <label for="link">Link</label>
+                        <input type="url" class="form-control" id="link" name="link" placeholder="Duyuru linki">
+                    </div>
                 </form>
+
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Vazgeç</button>
-                <button type="button" class="btn btn-primary">Ekle</button>
+                <button type="submit" form="newAnnouncementForm" class="btn btn-primary" >Ekle</button>
             </div>
         </div>
     </div>
 </div>
+<script type="text/javascript">
+
+</script>

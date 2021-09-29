@@ -12,12 +12,26 @@ class AjaxController
 
     public function login($data=[]) {
         $users = new UsersControler();
-        $u = ['userName' => $data['userName'], 'password' => $data['password']];
         try {
-            $users->login($u);
+            $users->login($data);
         } catch (\Exception $e) {
             $this->response ['error'] = $e->getMessage();
         }
+        return json_encode($this->response);
+    }
+
+    /**
+     * @param array $data
+     * @return false|string
+     */
+    public function saveAnnouncement($data=[]){
+        $announcementData=[];
+            foreach ($data as $d){
+                $announcementData[$d["name"]]=$d["value"];
+            }
+            $announcementControler = new AnnouncementController();
+            $announcementControler->saveNewAnnouncement($announcementData);
+
         return json_encode($this->response);
     }
 }

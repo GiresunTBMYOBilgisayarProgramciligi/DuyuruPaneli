@@ -12,4 +12,6 @@ class Config {
      */
     const PATH_TO_SQLITE_FILE = __DIR__.'/../db/phpsqlite.db';
 
+    const LOGIN_COOKIE_NAME="tmyoCookie";
+
 }

@@ -103,7 +103,6 @@ if ($users->isLoggedIn()) {
                     }},
                 dataType:"json",
                 success: function (respons) {
-                    console.log(respons);
                     if (respons.error){
                         document.getElementById("loginError").innerHTML = respons.error+"<br>";
                         return false;
