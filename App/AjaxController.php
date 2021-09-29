@@ -34,4 +34,9 @@ class AjaxController
 
         return json_encode($this->response);
     }
+
+    public function getAnnouncementList($data=[]){
+        $this->response=(array) (new AnnouncementController())->getAnnouncements();
+        return json_encode($this->response);
+    }
 }

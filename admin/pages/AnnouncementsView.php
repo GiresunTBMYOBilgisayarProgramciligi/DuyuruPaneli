@@ -21,7 +21,7 @@ $announcements=$announcementController->getAnnouncements();
             </div>
             <div>
                 <div class="table-responsive pt-3">
-                    <table class="table table-bordered">
+                    <table id="announcmentTable" class="table table-bordered">
                         <thead>
                         <tr>
                             <th>
@@ -73,8 +73,6 @@ $announcements=$announcementController->getAnnouncements();
                             $count++;
                         }
                         ?>
-
-
                         </tbody>
                     </table>
                 </div>
