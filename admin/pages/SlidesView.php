@@ -15,7 +15,7 @@ $slides= $slideControler->getSlides();
                         <h4 class="card-title">Slide yönetimi</h4>
                         <p class="card-description">Ekranın ortsında bulunan büyük resim duyuruları ayarları</p>
                     </div>
-                    <button type="button" class="btn btn-primary btn-icon-text">
+                    <button type="button" class="btn btn-primary btn-icon-text" data-bs-toggle="modal" data-bs-target="#newSlideModal">
                         <i class="ti-plus btn-icon-prepend"></i>
                         Yeni ekle
                     </button>
@@ -50,12 +50,12 @@ $slides= $slideControler->getSlides();
                             </thead>
                             <tbody>
                             <?php
-                                $sayac=1;
+                                $count=1;
                                 foreach ($slides as $slide){
                             ?>
                                     <tr>
                                         <td>
-                                            <?= $sayac?>
+                                            <?= $count?>
                                         </td>
                                         <td>
                                             <?= $slide->title?>
@@ -77,7 +77,7 @@ $slides= $slideControler->getSlides();
                                         </td>
                                     </tr>
                             <?php
-                                    $sayac++;
+                                    $count++;
                                 }
                             ?>
 
@@ -86,6 +86,25 @@ $slides= $slideControler->getSlides();
                         </table>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade " id="newSlideModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel">Yeni Slide Ekle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                ...
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Vazgeç</button>
+                <button type="button" class="btn btn-primary">Ekle</button>
             </div>
         </div>
     </div>

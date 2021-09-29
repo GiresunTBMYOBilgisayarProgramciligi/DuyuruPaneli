@@ -1,7 +1,6 @@
 <?php
 namespace App\Admin;
 
-use App\SlideController;
 use App\UsersControler;
 
 require_once "../vendor/autoload.php";
@@ -9,8 +8,6 @@ require_once "../vendor/autoload.php";
 if (!($user = (new UsersControler())->isLoggedIn())) {
     header("Location: /admin/loginView.php");
 }
-$slides = new SlideController();
-//$user=new User(1);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -106,9 +103,9 @@ $slides = new SlideController();
                         </li>
                     </ul>
                     <div class="tab-content p-0 border-0" id="myTabContent">
-                        <?php include_once "pages/SlideView.php"?>
-                        <?php include_once "pages/DuyuruView.php"?>
-                        <?php include_once "pages/KullanıcıView.php"?>
+                        <?php include_once "pages/SlidesView.php" ?>
+                        <?php include_once "pages/AnnouncementsView.php" ?>
+                        <?php include_once "pages/UsersView.php" ?>
                     </div>
                 </div>
             </div>

@@ -26,7 +26,7 @@ class UsersControler
     }
 
     public function isLoggedIn() {
-        if (isset($_COOKIE["tmyoOturum"])) return new User($_COOKIE["tmyoOturum"]); else
+        if (isset($_COOKIE["tmyoCookie"])) return new User($_COOKIE["tmyoCookie"]); else
             return false;
     }
 
@@ -41,7 +41,7 @@ class UsersControler
         $u=$this->DB->query("Select * from user where userName='$arr->userName' and password='$arr->password'",PDO::FETCH_OBJ)->fetch();
 
         if(is_object($u)){
-            setcookie("tmyoOturum",$u->id,time() + (86400 * 30));
+            setcookie("tmyoCookie",$u->id,time() + (86400 * 30));
         }else{
             throw new \Exception("Girdiğiniz Bilgiler Yalnış");
         }

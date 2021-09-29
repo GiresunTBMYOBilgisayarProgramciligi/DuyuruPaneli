@@ -15,7 +15,7 @@ $users= $userControler->getUsers();
                         <h4 class="card-title card-tit-dash">Kullanıcı Yönetimi</h4>
                         <h5 class="card-subtitle card-subtitle-dash">Kullanıcı Yönetimi</h5>
                     </div>
-                    <button type="button" class="btn btn-primary btn-icon-text">
+                    <button type="button" class="btn btn-primary btn-icon-text" data-bs-toggle="modal" data-bs-target="#newUserModal">
                         <i class="ti-plus btn-icon-prepend"></i>
                         Yeni ekle
                     </button>
@@ -51,12 +51,12 @@ $users= $userControler->getUsers();
                             </thead>
                             <tbody>
                             <?php
-                            $sayac=1;
+                            $count=1;
                             foreach ($users as $user){
                                 ?>
                                 <tr>
                                     <td>
-                                        <?= $sayac?>
+                                        <?= $count?>
                                     </td>
                                     <td>
                                         <?= $user->userName?>
@@ -78,7 +78,7 @@ $users= $userControler->getUsers();
                                     </td>
                                 </tr>
                                 <?php
-                                $sayac++;
+                                $count++;
                             }
                             ?>
 
@@ -87,6 +87,25 @@ $users= $userControler->getUsers();
                         </table>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade " id="newUserModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel">Yeni Kullanıcı Ekle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                ...
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Vazgeç</button>
+                <button type="button" class="btn btn-primary">Ekle</button>
             </div>
         </div>
     </div>

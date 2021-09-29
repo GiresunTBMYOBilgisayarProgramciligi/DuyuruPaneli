@@ -14,7 +14,7 @@ $announcements=$announcementController->getAnnouncements();
                     <h4 class="card-title card-tit-dash">Duyuru Yönetimi</h4>
                     <h5 class="card-subtitle card-subtitle-dash">Ekranın en alt kısmında kayan duyuruların yönetimi</h5>
                 </div>
-                <button type="button" class="btn btn-primary btn-icon-text">
+                <button type="button" class="btn btn-primary btn-icon-text" data-bs-toggle="modal" data-bs-target="#newAnnouncementModal">
                     <i class="ti-plus btn-icon-prepend"></i>
                     Yeni ekle
                 </button>
@@ -49,12 +49,12 @@ $announcements=$announcementController->getAnnouncements();
                         </thead>
                         <tbody>
                         <?php
-                        $sayac=1;
+                        $count=1;
                         foreach ($announcements as $announcement){
                             ?>
                             <tr>
                                 <td>
-                                    <?= $sayac?>
+                                    <?= $count?>
                                 </td>
                                 <td>
                                     <?= $announcement->title?>
@@ -76,7 +76,7 @@ $announcements=$announcementController->getAnnouncements();
                                 </td>
                             </tr>
                             <?php
-                            $sayac++;
+                            $count++;
                         }
                         ?>
 
@@ -84,6 +84,28 @@ $announcements=$announcementController->getAnnouncements();
                         </tbody>
                     </table>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade " id="newAnnouncementModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel">Yeni Duyuru Ekle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form name="newAnnouncementForm" >
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Vazgeç</button>
+                <button type="button" class="btn btn-primary">Ekle</button>
             </div>
         </div>
     </div>
