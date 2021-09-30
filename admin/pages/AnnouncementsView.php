@@ -45,34 +45,7 @@ $announcements=$announcementController->getAnnouncements();
                         </tr>
                         </thead>
                         <tbody>
-                        <?php
-                        $count=1;
-                        foreach ($announcements as $announcement){
-                            ?>
-                            <tr>
-                                <td>
-                                    <?= $count?>
-                                </td>
-                                <td>
-                                    <?= $announcement->title?>
-                                </td>
-                                <td>
-                                    <?= $announcement->content?>
-                                </td>
-                                <td>
-                                    <?= $announcement->qrCode=="" ? ""  : "<img class='rounded-0' src='{$announcement->qrCode}'>" ?>
-                                </td>
-                                <td>
-                                    <?= $announcement->userFullName?>
-                                </td>
-                                <td>
-                                    <?= $announcement->createdDate?>
-                                </td>
-                            </tr>
-                            <?php
-                            $count++;
-                        }
-                        ?>
+
                         </tbody>
                     </table>
                 </div>

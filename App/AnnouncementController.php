@@ -29,7 +29,7 @@ class AnnouncementController
         $data = (object)$arr;
         $data->qrCode = $data->link != "" ? $this->createQrCode($data->link) : "";
 
-        $this->DB->prepare("INSERT INTO announcement(title, content,qrCode, userId) values (:title, :content, :qrCode, :userId)")->execute(array(":title" => $data->title, ":content" => $data->content, ":qrCode" => $data->qrCode, "userId" => (new UsersControler())->getCurrentUserId()));
+        $this->DB->prepare("INSERT INTO announcement(title, content,qrCode, createdDate, userId) values (:title, :content, :qrCode, :createdDate, :userId)")->execute(array(":title" => $data->title, ":content" => $data->content, ":qrCode" => $data->qrCode, ":createdDate"=>date("Y.m.d H:i:s"), "userId" => (new UsersControler())->getCurrentUserId()));
 
     }
 

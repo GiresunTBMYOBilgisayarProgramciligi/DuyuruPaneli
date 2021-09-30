@@ -1,4 +1,4 @@
-var form = $('form[name="newAnnouncementForm"]');
+var newAnnouncementForm = $('form[name="newAnnouncementForm"]');
 var loadingAnimation = $('' +
     '<div class="overlay">' +
     '   <div class="lds-roller"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>' +
@@ -29,7 +29,6 @@ $('form[name="newAnnouncementForm"]').submit(function (event) {
             }
         },
         beforeSend: function () {
-            console.log("gönderim öncesi")
             $(modalEl, " .modal-body").prepend(loadingAnimation)
         },
     });
@@ -66,6 +65,7 @@ function getAnnouncment() {
                         '</tr>'
                 })
                 $("#announcmentTable tbody").html(outHTML)
+                newAnnouncementForm.trigger('reset');
             }
         },
         beforeSend: function () {
