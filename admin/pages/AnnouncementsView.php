@@ -14,7 +14,7 @@ $announcements=$announcementController->getAnnouncements();
                     <h4 class="card-title card-tit-dash">Duyuru Yönetimi</h4>
                     <h5 class="card-subtitle card-subtitle-dash">Ekranın en alt kısmında kayan duyuruların yönetimi</h5>
                 </div>
-                <button type="button" class="btn btn-primary btn-icon-text" data-bs-toggle="modal" data-bs-target="#newAnnouncementModal">
+                <button type="button" class="btn btn-success btn-icon-text" data-bs-toggle="modal" data-bs-target="#newAnnouncementModal">
                     <i class="ti-plus btn-icon-prepend"></i>
                     Yeni ekle
                 </button>
@@ -41,6 +41,9 @@ $announcements=$announcementController->getAnnouncements();
                             </th>
                             <th>
                                 Eklenme Tarihi
+                            </th>
+                            <th>
+                                İşlemler
                             </th>
                         </tr>
                         </thead>

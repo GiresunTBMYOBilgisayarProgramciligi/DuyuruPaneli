@@ -15,14 +15,14 @@ $slides= $slideControler->getSlides();
                         <h4 class="card-title">Slide yönetimi</h4>
                         <p class="card-description">Ekranın ortsında bulunan büyük resim duyuruları ayarları</p>
                     </div>
-                    <button type="button" class="btn btn-primary btn-icon-text" data-bs-toggle="modal" data-bs-target="#newSlideModal">
+                    <button type="button" class="btn btn-success btn-icon-text" data-bs-toggle="modal" data-bs-target="#newSlideModal">
                         <i class="ti-plus btn-icon-prepend"></i>
                         Yeni ekle
                     </button>
                 </div>
                 <div>
                     <div class="table-responsive pt-3">
-                        <table class="table table-bordered">
+                        <table id="slidesTable" class="table table-bordered">
                             <thead>
                             <tr>
                                 <th>
@@ -49,37 +49,6 @@ $slides= $slideControler->getSlides();
                             </tr>
                             </thead>
                             <tbody>
-                            <?php
-                                $count=1;
-                                foreach ($slides as $slide){
-                            ?>
-                                    <tr>
-                                        <td>
-                                            <?= $count?>
-                                        </td>
-                                        <td>
-                                            <?= $slide->title?>
-                                        </td>
-                                        <td>
-                                            <?= $slide->content?>
-                                        </td>
-                                        <td>
-                                            <?= $slide->image?>
-                                        </td>
-                                        <td>
-                                            <?= $slide->qrCode?>
-                                        </td>
-                                        <td>
-                                            <?= $slide->userFullName?>
-                                        </td>
-                                        <td>
-                                            <?= $slide->createdDate?>
-                                        </td>
-                                    </tr>
-                            <?php
-                                    $count++;
-                                }
-                            ?>
 
 
                             </tbody>
