@@ -16,27 +16,59 @@ var islemlerDrop = $('<div class="btn-group">\n' +
 
 $('form[name="newAnnouncementForm"]').submit(function (event) {
     event.preventDefault()
+    var formData = new FormData(this)
+    formData.append('functionName', "saveAnnouncement")
 
     var modalEl = document.getElementById('newAnnouncementModal')
     var modal = bootstrap.Modal.getInstance(modalEl)
     $.ajax({
         method: "POST",
         url: "ajax.php",
-        data: {
-            ajaxData: {
-                functionName: "saveAnnouncement",
-                data: $('form[name="newAnnouncementForm"]').serializeArray()
+        data: formData,
+        dataType: "json",
+        processData: false,
+        contentType: false,
+        success: function (respons) {
+            if (respons.error) {
+                //todo hatlar yazılacak form denetimi olarak sadece boş bırakılamaz işlemini html5 ile yaptım
+
+                return false;
+            } else {
+                console.log("Duyuru yaptım")
+                loadingAnimation.remove();
+                modal.hide()
+                getAnnouncment();
             }
         },
+        beforeSend: function () {
+            $(modalEl, " .modal-body").prepend(loadingAnimation)
+        },
+    });
+});
+$('form[name="newSlideForm"]').submit(function (event) {
+    event.preventDefault()
+    var formData = new FormData(this)
+    formData.append('functionName', "saveSlide")
+
+    var modalEl = document.getElementById('newSlideModal')
+    var modal = bootstrap.Modal.getInstance(modalEl)
+    $.ajax({
+        method: "POST",
+        url: "ajax.php",
+        processData: false,
+        contentType: false,
+        data: formData,
         dataType: "json",
         success: function (respons) {
             if (respons.error) {
+                alert(respons.error);
+
                 //todo hatlar yazılacak form denetimi olarak sadece boş bırakılamaz işlemini html5 ile yaptım
                 return false;
             } else {
                 loadingAnimation.remove();
                 modal.hide()
-                getAnnouncment();
+                getSlides();
             }
         },
         beforeSend: function () {
@@ -50,9 +82,7 @@ function getAnnouncment() {
         method: "POST",
         url: "ajax.php",
         data: {
-            ajaxData: {
-                functionName: "getAnnouncementsList",
-            }
+            functionName: "getAnnouncementsList",
         },
         dataType: "json",
         success: function (respons) {
@@ -68,11 +98,11 @@ function getAnnouncment() {
                         '<tr>' +
                         '<td>' + i + '</td>' +
                         '<td>' + a.title + '</td>' +
-                        '<td>' + a.content + '</td>'+
-                        '<td>' + QR+ '</td>' +
+                        '<td>' + a.content + '</td>' +
+                        '<td>' + QR + '</td>' +
                         '<td>' + a.userFullName + '</td>' +
                         '<td>' + a.createdDate + '</td>' +
-                        '<td>' + islemlerDrop.html() + '</td>'+
+                        '<td>' + islemlerDrop.html() + '</td>' +
                         '</tr>'
 
                 })
@@ -85,14 +115,13 @@ function getAnnouncment() {
         },
     });
 }
-function getSlides(){
+
+function getSlides() {
     $.ajax({
         method: "POST",
         url: "ajax.php",
         data: {
-            ajaxData: {
-                functionName: "getSlidesList",
-            }
+            functionName: "getSlidesList",
         },
         dataType: "json",
         success: function (respons) {
@@ -108,12 +137,12 @@ function getSlides(){
                         '<tr>' +
                         '<td>' + i + '</td>' +
                         '<td>' + a.title + '</td>' +
-                        '<td>' + a.content + '</td>'+
-                        '<td>' + a.image + '</td>'+
-                        '<td>' + QR+ '</td>' +
+                        '<td>' + a.content + '</td>' +
+                        '<td> <img class="rounded-0" src="' + a.image + '"></td>' +
+                        '<td>' + QR + '</td>' +
                         '<td>' + a.userFullName + '</td>' +
                         '<td>' + a.createdDate + '</td>' +
-                        '<td>' + islemlerDrop.html() + '</td>'+
+                        '<td>' + islemlerDrop.html() + '</td>' +
                         '</tr>'
                 })
                 $("#slidesTable tbody").html(outHTML)
@@ -125,14 +154,13 @@ function getSlides(){
         },
     });
 }
-function getUsers(){
+
+function getUsers() {
     $.ajax({
         method: "POST",
         url: "ajax.php",
         data: {
-            ajaxData: {
-                functionName: "getUsersList",
-            }
+            functionName: "getUsersList",
         },
         dataType: "json",
         success: function (respons) {
@@ -148,12 +176,12 @@ function getUsers(){
                         '<tr>' +
                         '<td>' + i + '</td>' +
                         '<td>' + a.userName + '</td>' +
-                        '<td>' + a.mail + '</td>'+
-                        '<td>' + a.name + '</td>'+
-                        '<td>' + a.lastName+ '</td>' +
+                        '<td>' + a.mail + '</td>' +
+                        '<td>' + a.name + '</td>' +
+                        '<td>' + a.lastName + '</td>' +
                         '<td>' + a.profilPicture + '</td>' +
                         '<td>' + a.createdDate + '</td>' +
-                        '<td>' + islemlerDrop.html() + '</td>'+
+                        '<td>' + islemlerDrop.html() + '</td>' +
                         '</tr>'
                 })
                 $("#usersTable tbody").html(outHTML)
@@ -170,4 +198,12 @@ $(function () {
     getAnnouncment();
     getSlides();
     getUsers();
+    $('.dropify').dropify({
+        messages: {
+            'default': 'Dosyayı buraya sürükle bırak yada tıkla',
+            'replace': 'Değiştirmek için tıkla yada dosyayı sürükle bırak ',
+            'remove': 'Sil',
+            'error': 'Bir hata oldu.'
+        }
+    });
 });

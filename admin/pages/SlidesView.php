@@ -3,8 +3,8 @@ namespace App\Admin;
 
 use App\SlideController;
 
-$slideControler=new SlideController();
-$slides= $slideControler->getSlides();
+$slideControler = new SlideController();
+$slides = $slideControler->getSlides();
 ?>
 <div class="tab-pane fade show active" id="slideTabContent" role="tabpanel" aria-labelledby="slide-tab">
     <div class="col-md-12 grid-margin stretch-card">
@@ -69,13 +69,40 @@ $slides= $slideControler->getSlides();
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form name="newSlideForm" id="newSlideForm" method="post">
+                <form name="newSlideForm" id="newSlideForm" method="post" enctype="multipart/form-data">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label for="title">Başlık</label>
+                                <input type="text" class="form-control" id="title" name="title" placeholder="Başlık">
+                            </div>
+                            <div class="form-group">
+                                <label for="content">İçerik</label>
+                                <input required type="text" class="form-control" id="content" name="content"
+                                       placeholder="İçerik">
+                            </div>
+                            <div class="form-group">
+                                <label for="link">Link</label>
+                                <input type="url" class="form-control" id="link" name="link" placeholder="Duyuru linki">
+                            </div>
 
+                        </div>
+                        <div class="col-md-4">
+                            <input  type="file" name="image" id="image" class="dropify" data-show-remove="true"/>
+
+                            <div class="form-check form-check-flat form-check-primary">
+                                <label class="form-check-label">
+                                    <input type="checkbox" class="form-check-input" id="fullWidth" name="fullWidth">
+                                    Tam Genişlik
+                                    <i class="input-helper"></i></label>
+                            </div>
+                        </div>
+                    </div>
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Vazgeç</button>
-                <button type="button" class="btn btn-primary">Ekle</button>
+                <button type="submit" form="newSlideForm" class="btn btn-primary">Ekle</button>
             </div>
         </div>
     </div>

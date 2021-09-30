@@ -7,13 +7,11 @@ use App\AjaxController;
 require_once "../vendor/autoload.php";
 
 
-$ajax= new AjaxController();
+$ajax = new AjaxController();
 
-if($ajax->checkAjax()){
-    $ajaxData= (object) $_POST['ajaxData'];
-
-    echo call_user_func(array($ajax,$ajaxData->functionName),$ajaxData->data);
+if ($ajax->checkAjax()) {
+    $ajaxData = $_POST;
+    $functionName = $ajaxData['functionName'];
+    unset($ajaxData['functionName']);
+    echo call_user_func(array($ajax, $functionName), $ajaxData);
 }
-
-
-

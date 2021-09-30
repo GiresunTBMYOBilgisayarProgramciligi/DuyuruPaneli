@@ -90,6 +90,3 @@ $announcements=$announcementController->getAnnouncements();
         </div>
     </div>
 </div>
-<script type="text/javascript">
-
-</script>

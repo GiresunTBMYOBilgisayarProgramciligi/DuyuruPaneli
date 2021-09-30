@@ -27,7 +27,7 @@ if (!($user = (new UsersControler())->isLoggedIn())) {
     <!-- endinject -->
     <!-- Plugin css for this page -->
     <link rel="stylesheet" href="vendors/datatables.net-bs4/dataTables.bootstrap4.css">
-
+    <link rel="stylesheet" href="vendors/dropify/dropify.min.css">
     <link rel="stylesheet" href="js/select.dataTables.min.css">
     <!-- End plugin css for this page -->
     <!-- inject:css -->
@@ -130,7 +130,7 @@ if (!($user = (new UsersControler())->isLoggedIn())) {
 <script src="vendors/js/vendor.bundle.base.js"></script>
 <!-- endinject -->
 <!-- Plugin js for this page -->
-
+<script src="vendors/dropify/dropify.min.js"></script>
 
 <!-- End plugin js for this page -->
 <!-- inject:js -->
