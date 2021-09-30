@@ -69,7 +69,9 @@ $slides= $slideControler->getSlides();
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                ...
+                <form name="newSlideForm" id="newSlideForm" method="post">
+
+                </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Vazgeç</button>

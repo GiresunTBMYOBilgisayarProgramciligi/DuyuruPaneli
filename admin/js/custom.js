@@ -1,5 +1,6 @@
 var newAnnouncementForm = $('form[name="newAnnouncementForm"]');
 var newSlideForm = $('form[name="newSlideForm"]');
+var newUserForm = $('form[name="newUserForm"]');
 var loadingAnimation = $('' +
     '<div class="overlay">' +
     '   <div class="lds-roller"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>' +
@@ -124,9 +125,49 @@ function getSlides(){
         },
     });
 }
-
+function getUsers(){
+    $.ajax({
+        method: "POST",
+        url: "ajax.php",
+        data: {
+            ajaxData: {
+                functionName: "getUsersList",
+            }
+        },
+        dataType: "json",
+        success: function (respons) {
+            if (respons.error) {
+                return false;
+            } else {
+                loadingAnimation.remove();
+                outHTML = ""
+                respons.forEach(function (a, i) {
+                    i++
+                    var QR = a.qrCode == "" ? "" : "<img class='rounded-0' src=\"" + a.qrCode + "\">"
+                    outHTML +=
+                        '<tr>' +
+                        '<td>' + i + '</td>' +
+                        '<td>' + a.userName + '</td>' +
+                        '<td>' + a.mail + '</td>'+
+                        '<td>' + a.name + '</td>'+
+                        '<td>' + a.lastName+ '</td>' +
+                        '<td>' + a.profilPicture + '</td>' +
+                        '<td>' + a.createdDate + '</td>' +
+                        '<td>' + islemlerDrop.html() + '</td>'+
+                        '</tr>'
+                })
+                $("#usersTable tbody").html(outHTML)
+                newUserForm.trigger('reset');
+            }
+        },
+        beforeSend: function () {
+            $("#usersTable tbody").prepend(loadingAnimation)
+        },
+    });
+}
 
 $(function () {
     getAnnouncment();
     getSlides();
+    getUsers();
 });

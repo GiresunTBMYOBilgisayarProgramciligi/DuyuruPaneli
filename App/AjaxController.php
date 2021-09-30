@@ -44,4 +44,9 @@ class AjaxController
         $this->response=(array) (new SlideController())->getSlides();
         return json_encode($this->response);
     }
+
+    public function getUsersList($data=[]){
+        $this->response=(array) (new UsersControler())->getUsers();
+        return json_encode($this->response);
+    }
 }

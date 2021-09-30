@@ -28,7 +28,7 @@ class UsersControler
     }
 
     public function saveNewUser($arr) {
-        $this->DB->prepare("INSERT INTO user( ) values (:title,:content,:image,:qrCode,:createdDate,:userId)")->execute($arr);
+        $this->DB->prepare("INSERT INTO user(userName, mail, password, name, lastName, createdDate, profilPicture) values (:userName, :mail, :password, :name, :lastName, :createdDate, :profilPicture)")->execute($arr);
     }
 
     public function isLoggedIn() {

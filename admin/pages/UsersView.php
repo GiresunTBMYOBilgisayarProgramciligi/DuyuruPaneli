@@ -15,14 +15,14 @@ $users= $userControler->getUsers();
                         <h4 class="card-title card-tit-dash">Kullanıcı Yönetimi</h4>
                         <h5 class="card-subtitle card-subtitle-dash">Kullanıcı Yönetimi</h5>
                     </div>
-                    <button type="button" class="btn btn-primary btn-icon-text" data-bs-toggle="modal" data-bs-target="#newUserModal">
+                    <button type="button" class="btn btn-success btn-icon-text" data-bs-toggle="modal" data-bs-target="#newUserModal">
                         <i class="ti-plus btn-icon-prepend"></i>
                         Yeni ekle
                     </button>
                 </div>
                 <div>
                     <div class="table-responsive pt-3">
-                        <table class="table table-bordered">
+                        <table id="usersTable" class="table table-bordered">
                             <thead>
                             <tr>
                                 <th>
@@ -50,38 +50,6 @@ $users= $userControler->getUsers();
                             </tr>
                             </thead>
                             <tbody>
-                            <?php
-                            $count=1;
-                            foreach ($users as $user){
-                                ?>
-                                <tr>
-                                    <td>
-                                        <?= $count?>
-                                    </td>
-                                    <td>
-                                        <?= $user->userName?>
-                                    </td>
-                                    <td>
-                                        <?= $user->mail?>
-                                    </td>
-                                    <td>
-                                        <?= $user->name?>
-                                    </td>
-                                    <td>
-                                        <?= $user->lastName?>
-                                    </td>
-                                    <td>
-                                        <?= $user->profilPicture?>
-                                    </td>
-                                    <td>
-                                        <?= $user->createdDate?>
-                                    </td>
-                                </tr>
-                                <?php
-                                $count++;
-                            }
-                            ?>
-
 
                             </tbody>
                         </table>
@@ -101,7 +69,9 @@ $users= $userControler->getUsers();
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                ...
+                <form name="newUserForm" id="newUserForm" method="post">
+
+                </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Vazgeç</button>
