@@ -68,4 +68,10 @@ class AjaxController
         $sC->deleteSlide($data['id']);
         return json_encode($this->response);
     }
+
+    public function deleteAnnouncement($data=[]){
+        $aC= new AnnouncementController();
+        $aC->deleteAnnouncement($data['id']);
+        return json_encode($this->response);
+    }
 }

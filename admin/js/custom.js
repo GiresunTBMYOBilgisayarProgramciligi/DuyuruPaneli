@@ -124,6 +124,38 @@ function getAnnouncment() {
         beforeSend: function () {
             $("#announcmentTable tbody").prepend(loadingAnimation)
         },
+    }).done(function (e){
+        $('form[name*="deleteAnnouncement"]').each(function (index,value){
+            value.addEventListener("submit",function (event){
+                event.preventDefault();
+                var formData = new FormData(this)
+                formData.append('functionName', "deleteAnnouncement")
+                $.ajax({
+                    method: "POST",
+                    url: "ajax.php",
+                    data: formData,
+                    dataType: "json",
+                    processData: false,
+                    contentType: false,
+                    success: function (respons) {
+                        if (respons.error) {
+                            //todo hatlar yazılacak form denetimi olarak sadece boş bırakılamaz işlemini html5 ile yaptım
+
+                            return false;
+                        } else {
+                            loadingAnimation.remove();
+                            getAnnouncment()
+                        }
+                    },
+                    beforeSend: function () {
+                        if(confirm("Silmek istediğinizden emin misiniz")){
+                            $("#announcmentTable tbody").prepend(loadingAnimation)
+                        }else return false;
+
+                    },
+                });
+            })
+        })
     });
 }
 

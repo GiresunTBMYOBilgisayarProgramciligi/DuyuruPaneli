@@ -33,6 +33,11 @@ class AnnouncementController
 
     }
 
+    public function deleteAnnouncement($id=null){
+        if(is_null($id)) return false;
+        $this->DB->query("DELETE FROM announcement WHERE id=:id")->execute(array(":id" => $id));
+    }
+
     public function createQrCode($link = "") {
         $renderer = new ImageRenderer(new RendererStyle(400, 1), new SvgImageBackEnd());
         $writer = new Writer($renderer);
