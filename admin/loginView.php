@@ -46,7 +46,7 @@ if ($users->isLoggedIn()) {
 
                         <h4 class="text-center">Tirebolu Mehmet Bayrak MYO</h4>
                         <h6 class="fw-light text-center">Giriş yapın.</h6>
-                        <form class="pt-3" action="ajax.php" method="post">
+                        <form id="loginForm" name="loginForm" class="pt-3" action="ajax.php" method="post">
                             <div class="form-group">
                                 <input type="userName" class="form-control form-control-lg" id="userName"
                                        name="userName"
@@ -61,8 +61,7 @@ if ($users->isLoggedIn()) {
 
                             </div>
                             <div class="mt-3">
-                                <a class="btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn"
-                                   href="#" onclick="ajaxLogin()">Giriş Yap</a>
+                                <button type="submit" class="btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn">Giriş Yap</button>
                             </div>
                             <div class="my-2 d-flex justify-content-between align-items-center">
                                 <div class="form-check">
@@ -71,7 +70,6 @@ if ($users->isLoggedIn()) {
                                         Beni hatırla
                                     </label>
                                 </div>
-                                <a href="#" class="auth-link text-black">Forgot password?</a>
                             </div>
                         </form>
                     </div>
@@ -84,24 +82,22 @@ if ($users->isLoggedIn()) {
 </div>
 <!-- container-scroller -->
 <script>
-    function ajaxLogin(str) {
+    $('#loginForm').submit(function(event){
+        event.preventDefault();
         let userName = document.getElementsByName("userName")[0].value;
         let password = document.getElementsByName("password")[0].value;
         if (userName.length === 0 || password.length === 0) {
             document.getElementById("loginError").innerHTML = "Lütfen bilgileri girin.<br>";
         } else {
+            var formData =new FormData(this)
+            formData.append('functionName','login')
             $.ajax({
                 method: "POST",
                 url: "ajax.php",
-                data: {
-                    ajaxData:{
-                        functionName:"login",
-                        data:{
-                            userName: userName,
-                            password: password
-                        }
-                    }},
+                data: formData,
                 dataType:"json",
+                processData: false,
+                contentType: false,
                 success: function (respons) {
                     if (respons.error){
                         document.getElementById("loginError").innerHTML = respons.error+"<br>";
@@ -110,7 +106,8 @@ if ($users->isLoggedIn()) {
                 }
             });
         }
-    }
+    })
+
 </script>
 <!-- plugins:js -->
 
