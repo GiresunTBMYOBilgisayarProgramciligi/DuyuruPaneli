@@ -46,7 +46,9 @@ $users= $userControler->getUsers();
                                 <th>
                                     Kayıt Tarihi
                                 </th>
-
+                                <th>
+                                    İşlemler
+                                </th>
                             </tr>
                             </thead>
                             <tbody>

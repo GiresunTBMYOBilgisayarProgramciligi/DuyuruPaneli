@@ -46,6 +46,9 @@ $slides = $slideControler->getSlides();
                                 <th>
                                     Eklenme Tarihi
                                 </th>
+                                <th>
+                                    İşlemler
+                                </th>
                             </tr>
                             </thead>
                             <tbody>
@@ -78,7 +81,7 @@ $slides = $slideControler->getSlides();
                             </div>
                             <div class="form-group">
                                 <label for="content">İçerik</label>
-                                <input required type="text" class="form-control" id="content" name="content"
+                                <input type="text" class="form-control" id="content" name="content"
                                        placeholder="İçerik">
                             </div>
                             <div class="form-group">
@@ -88,7 +91,7 @@ $slides = $slideControler->getSlides();
 
                         </div>
                         <div class="col-md-4">
-                            <input  type="file" name="image" id="image" class="dropify" data-show-remove="true"/>
+                            <input required type="file" name="image" id="image" class="dropify" data-show-remove="true"/>
 
                             <div class="form-check form-check-flat form-check-primary">
                                 <label class="form-check-label">
