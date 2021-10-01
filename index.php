@@ -5,22 +5,7 @@ require 'vendor/autoload.php';
 
 use App\SlideController;
 
-//(new \App\SQLiteConnection())->pdo->exec("UPDATE slider SET fullWidth=1 where id IN (2,3)");
-
-
 $slides= (new SlideController())->getSlides();
-
-/*$a=new SlideController();
-$a->saveNewSlide(array(
-        "title"=>"",
-        "content"=>"",
-        "image"=>"images/pop up600-02.jpg",
-        "qrCode"=>"images/qr-code.png",
-        "createdDate"=>date("Y-m-d H:i:s"),
-        "userId"=>1,
-        "fullWidth"=>0
-));*/
-
 ?>
 <!doctype html>
 <html lang="tr">
@@ -28,7 +13,7 @@ $a->saveNewSlide(array(
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta http-equiv="refresh" content="300">
+    <meta http-equiv="refresh" content="<?= count($slides)*60?>">
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/style.css">
@@ -66,12 +51,6 @@ $a->saveNewSlide(array(
                     <!--div class="card-header text-center">Duyurular Panosu</div-->
                     <div class="card-body p-0">
                         <div id="afisler" class="carousel slide" data-ride="carousel">
-                            <ol class="carousel-indicators">
-                                <li data-target="#carouselExampleCaptions" data-slide-to="0" class="active"></li>
-                                <li data-target="#carouselExampleCaptions" data-slide-to="1" class=""></li>
-                                <li data-target="#carouselExampleCaptions" data-slide-to="2" class=""></li>
-                                <li data-target="#carouselExampleCaptions" data-slide-to="3" class=""></li>
-                            </ol>
                             <div class="carousel-inner">
                                <?php
                                 $active=true;
@@ -89,9 +68,7 @@ $a->saveNewSlide(array(
                                     ';
                                     $active=false;
                                 }
-
                                 ?>
-                                
                             </div>
                             <a class="carousel-control-prev" href="#afisler" role="button"
                                data-slide="prev">
@@ -106,9 +83,7 @@ $a->saveNewSlide(array(
                         </div>
                     </div>
                 </div>
-
             </div>
-
         </div>
     </div>
 </main>
@@ -139,12 +114,12 @@ $a->saveNewSlide(array(
     $('#lastAnnouncements').breakingNews({
         position: 'fixed-bottom',
         borderWidth: 3,
-        height: 50,
+        height: 60,
         themeColor: '#000B98',
         scrollSpeed: 0.5,
         source: {
             type: 'json',
-            url: 'sonDuyurular.json',
+            url: 'admin/ajax.php',
             limit: 10,
             showingField: 'duyuru',
             linkEnabled: false,
