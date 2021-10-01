@@ -32,7 +32,7 @@ class UsersControler
     }
 
     public function isLoggedIn() {
-        if (isset($_COOKIE["Config::LOGIN_COOKIE_NAME"])) return new User($_COOKIE["Config::LOGIN_COOKIE_NAME"]); else
+        if (isset($_COOKIE[Config::LOGIN_COOKIE_NAME])) return new User($_COOKIE[Config::LOGIN_COOKIE_NAME]); else
             return false;
     }
 
@@ -47,7 +47,7 @@ class UsersControler
         $u = $this->DB->query("Select * from user where userName='$arr->userName' and password='$arr->password'", PDO::FETCH_OBJ)->fetch();
 
         if (is_object($u)) {
-            setcookie("Config::LOGIN_COOKIE_NAME", $u->id, time() + (86400 * 30));
+            setcookie(Config::LOGIN_COOKIE_NAME, $u->id, time() + (86400 * 30));
         } else {
             throw new \Exception("Girdiğiniz Bilgiler Yalnış");
         }
