@@ -45,7 +45,11 @@ class SlideController
                 ":fullWidth" => $fullWidth
             )
         );
+    }
 
+    public function deleteSlide($id=null){
+        if(is_null($id)) return false;
+        $this->DB->query("DELETE FROM slider WHERE id=:id")->execute(array(":id" => $id));
     }
 
     public function createQrCode($link = "") {

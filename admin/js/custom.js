@@ -5,13 +5,20 @@ var loadingAnimation = $('' +
     '<div class="overlay">' +
     '   <div class="lds-roller"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>' +
     '</div>')
-var islemlerDrop = $('<div class="btn-group">\n' +
-    '                            <button type="button" class="btn dropdown-toggle btn-primary" data-bs-toggle="dropdown" aria-expanded="false">İşlem Seç</button>\n' +
-    '                            <div class="dropdown-menu" style="">\n' +
-    '                                <a class="dropdown-item ">Sil</a>\n' +
-    '                                <a class="dropdown-item">Güncelle</a>\n' +
-    '                            </div>    \n' +
-    '                        </div>')
+
+function islemlerHTML(drData){
+    dropDownData=drData
+    return $('<div class="btn-group">\n' +
+        '                            <button type="button" class="btn dropdown-toggle btn-primary" data-bs-toggle="dropdown" aria-expanded="false">İşlem Seç</button>\n' +
+        '                            <div class="dropdown-menu" style="">\n' +
+                                        `<form name="${dropDownData.formName}" id="${dropDownData.fromId}" method="post">\n` +
+                                        `    <input type="hidden" name="id" value="${dropDownData.deleteId}">\n` +
+                                        `    <button type="submit" form="${dropDownData.fromId}" class="dropdown-item ">Sil</button>\n` +
+                                        '</form>                                ' +
+        '                                <a class="dropdown-item">Güncelle</a>\n' +
+        '                            </div>    \n' +
+        '                        </div>').html()
+}
 
 
 $('form[name="newAnnouncementForm"]').submit(function (event) {
@@ -102,7 +109,11 @@ function getAnnouncment() {
                         '<td>' + QR + '</td>' +
                         '<td>' + a.userFullName + '</td>' +
                         '<td>' + a.createdDate + '</td>' +
-                        '<td>' + islemlerDrop.html() + '</td>' +
+                        '<td>' + islemlerHTML({
+                            'formName':"deleteAnnouncement-"+a.id,
+                            'fromId':"deleteAnnouncement-"+a.id,
+                            'deleteId': a.id
+                        }) + '</td>' +
                         '</tr>'
 
                 })
@@ -142,7 +153,11 @@ function getSlides() {
                         '<td>' + QR + '</td>' +
                         '<td>' + a.userFullName + '</td>' +
                         '<td>' + a.createdDate + '</td>' +
-                        '<td>' + islemlerDrop.html() + '</td>' +
+                        '<td>' + islemlerHTML({
+                            'formName':"deleteSlide-"+a.id,
+                            'fromId':"deleteSlide-"+a.id,
+                            'deleteId': a.id
+                        }) + '</td>' +
                         '</tr>'
                 })
                 $("#slidesTable tbody").html(outHTML)
@@ -152,6 +167,38 @@ function getSlides() {
         beforeSend: function () {
             $("#slidesTable tbody").prepend(loadingAnimation)
         },
+    }).done(function (e){
+        $('form[name*="deleteSlide"]').each(function (index,value){
+            value.addEventListener("submit",function (event){
+                event.preventDefault();
+                var formData = new FormData(this)
+                formData.append('functionName', "deleteSlide")
+                $.ajax({
+                    method: "POST",
+                    url: "ajax.php",
+                    data: formData,
+                    dataType: "json",
+                    processData: false,
+                    contentType: false,
+                    success: function (respons) {
+                        if (respons.error) {
+                            //todo hatlar yazılacak form denetimi olarak sadece boş bırakılamaz işlemini html5 ile yaptım
+
+                            return false;
+                        } else {
+                            loadingAnimation.remove();
+                            getSlides()
+                        }
+                    },
+                    beforeSend: function () {
+                        if(confirm("Silmek istediğinizden emin misiniz")){
+                            $("#slidesTable tbody").prepend(loadingAnimation)
+                        }else return false;
+
+                    },
+                });
+            })
+        })
     });
 }
 
@@ -181,7 +228,11 @@ function getUsers() {
                         '<td>' + a.lastName + '</td>' +
                         '<td>' + a.profilPicture + '</td>' +
                         '<td>' + a.createdDate + '</td>' +
-                        '<td>' + islemlerDrop.html() + '</td>' +
+                        '<td>' + islemlerHTML({
+                            'formName':"deleteUser-"+a.id,
+                            'fromId':"deleteUser-"+a.id,
+                            'deleteId': a.id
+                        }) + '</td>' +
                         '</tr>'
                 })
                 $("#usersTable tbody").html(outHTML)
@@ -206,4 +257,5 @@ $(function () {
             'error': 'Bir hata oldu.'
         }
     });
+
 });

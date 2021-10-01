@@ -62,4 +62,10 @@ class AjaxController
         $this->response = (array)(new UsersControler())->getUsers();
         return json_encode($this->response);
     }
+
+    public function deleteSlide($data=[]){
+        $sC= new SlideController();
+        $sC->deleteSlide($data['id']);
+        return json_encode($this->response);
+    }
 }
