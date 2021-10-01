@@ -16,3 +16,7 @@ body{
     max-height: 75vh !important;
     margin: 0 auto;
 }
+.breakingQr{
+    width: 50px;
+    margin-left: 3px;
+}

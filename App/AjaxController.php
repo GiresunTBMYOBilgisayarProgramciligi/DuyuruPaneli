@@ -7,7 +7,7 @@ class AjaxController
     public $response = [];
 
     public function checkAjax() {
-        if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strcasecmp($_SERVER['HTTP_X_REQUESTED_WITH'], 'xmlhttprequest') == 0 && $_POST) return true; else return false;
+        if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strcasecmp($_SERVER['HTTP_X_REQUESTED_WITH'], 'xmlhttprequest') == 0) return true; else return false;
     }
 
     public function login($data = []) {
@@ -72,6 +72,20 @@ class AjaxController
     public function deleteAnnouncement($data=[]){
         $aC= new AnnouncementController();
         $aC->deleteAnnouncement($data['id']);
+        return json_encode($this->response);
+    }
+
+    public function getAnnouncementJSON(){
+        $ac= new AnnouncementController();
+        $a= $ac->getAnnouncements();
+
+        foreach ($a as $announcement){
+            $this->response[]=[
+                "prefix"=>$announcement->title,
+                "duyuru"=>$announcement->content,
+                "qrCode"=>$announcement->qrCode
+            ];
+        }
         return json_encode($this->response);
     }
 }
