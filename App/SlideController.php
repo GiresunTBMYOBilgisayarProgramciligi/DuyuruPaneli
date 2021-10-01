@@ -6,6 +6,7 @@ use BaconQrCode\Renderer\Image\SvgImageBackEnd;
 use BaconQrCode\Renderer\ImageRenderer;
 use BaconQrCode\Renderer\RendererStyle\RendererStyle;
 use BaconQrCode\Writer;
+use GabrielKaputa\Bitly\Bitly;
 use PDO;
 
 
@@ -47,6 +48,11 @@ class SlideController
         );
     }
 
+    /**
+     * todo silindiğinde fotoğrafın da silmek lazım
+     * @param null $id
+     * @return false|void
+     */
     public function deleteSlide($id=null){
         if(is_null($id)) return false;
         $this->DB->query("DELETE FROM slider WHERE id=:id")->execute(array(":id" => $id));
@@ -57,7 +63,9 @@ class SlideController
         $writer = new Writer($renderer);
         $qrCode = '/images/QRCodes/slide-' . substr(md5($link), 0, 15) . '.svg';
         $qrCodeFile = Config::ROOT_PATH . 'images/QRCodes/slide-' . substr(md5($link), 0, 15) . '.svg';
-        $writer->writeFile($link, $qrCodeFile);
+        $bitly = Bitly::withGenericAccessToken("34fd0f467aa181b58e72330dacf76726fe7c118f");
+        $short_url = $bitly->shortenUrl($link);
+        $writer->writeFile($short_url, $qrCodeFile);
         return $qrCode;
     }
 }

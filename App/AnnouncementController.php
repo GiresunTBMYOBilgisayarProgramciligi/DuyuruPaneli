@@ -2,6 +2,7 @@
 
 namespace App;
 
+use GabrielKaputa\Bitly\Bitly;
 use PDO;
 use BaconQrCode\Renderer\ImageRenderer;
 use BaconQrCode\Renderer\Image\SvgImageBackEnd;
@@ -33,8 +34,13 @@ class AnnouncementController
 
     }
 
-    public function deleteAnnouncement($id=null){
-        if(is_null($id)) return false;
+    /**
+     * todo varsq qr code silinmeli
+     * @param null $id
+     * @return false|void
+     */
+    public function deleteAnnouncement($id = null) {
+        if (is_null($id)) return false;
         $this->DB->query("DELETE FROM announcement WHERE id=:id")->execute(array(":id" => $id));
     }
 
@@ -43,7 +49,9 @@ class AnnouncementController
         $writer = new Writer($renderer);
         $qrCode = '/images/QRCodes/announcement-' . substr(md5($link), 0, 15) . '.svg';
         $qrCodeFile = Config::ROOT_PATH . 'images/QRCodes/announcement-' . substr(md5($link), 0, 15) . '.svg';
-        $writer->writeFile($link, $qrCodeFile);
+        $bitly = Bitly::withGenericAccessToken("34fd0f467aa181b58e72330dacf76726fe7c118f");
+        $short_url = $bitly->shortenUrl($link);
+        $writer->writeFile($short_url, $qrCodeFile);
         return $qrCode;
     }
 }
