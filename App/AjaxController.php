@@ -2,6 +2,8 @@
 
 namespace App;
 
+use DateTime;
+
 class AjaxController
 {
     public $response = [];
@@ -80,8 +82,10 @@ class AjaxController
         $a= $ac->getAnnouncements();
 
         foreach ($a as $announcement){
+            $myDateTime = DateTime::createFromFormat('Y.m.d H:i:s', $announcement->createdDate);
+            $newDateString = $myDateTime->format('d.m.Y');
             $this->response[]=[
-                "prefix"=>$announcement->title,
+                "prefix"=>$announcement->title ==""? $newDateString :$announcement->title,
                 "duyuru"=>$announcement->content,
                 "qrCode"=>$announcement->qrCode
             ];
