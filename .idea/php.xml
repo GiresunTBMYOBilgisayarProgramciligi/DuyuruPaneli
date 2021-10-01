@@ -5,6 +5,8 @@
       <path value="$PROJECT_DIR$/vendor/composer" />
       <path value="$PROJECT_DIR$/vendor/bacon/bacon-qr-code" />
       <path value="$PROJECT_DIR$/vendor/dasprid/enum" />
+      <path value="$PROJECT_DIR$/vendor/nategood/httpful" />
+      <path value="$PROJECT_DIR$/vendor/gabrielkaputa/bitly" />
     </include_path>
   </component>
   <component name="PhpUnit">
