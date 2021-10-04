@@ -126,7 +126,8 @@ $slides= (new SlideController())->getSlides();
             target: '_blank',
             seperator: '<span class="bn-seperator" style="background-image:url(images/logo_230x230.png);"></span>',
             withPrefix: true,
-            errorMsg: 'Duyurular yüklenemedi. Lütfen ayarları kontrol ediniz.'
+            errorMsg: 'Duyurular yüklenemedi. Lütfen ayarları kontrol ediniz.',
+            effect: 'slide-down',
         }
     });
 
