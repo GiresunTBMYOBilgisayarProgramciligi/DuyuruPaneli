@@ -117,6 +117,7 @@ $slides= (new SlideController())->getSlides();
         height: 60,
         themeColor: '#000B98',
         scrollSpeed: 0.5,
+        effect: 'slide-down',
         source: {
             type: 'json',
             url: 'admin/ajax.php',
@@ -126,8 +127,7 @@ $slides= (new SlideController())->getSlides();
             target: '_blank',
             seperator: '<span class="bn-seperator" style="background-image:url(images/logo_230x230.png);"></span>',
             withPrefix: true,
-            errorMsg: 'Duyurular yüklenemedi. Lütfen ayarları kontrol ediniz.',
-            effect: 'slide-down',
+            errorMsg: 'Duyurular yüklenemedi. Lütfen ayarları kontrol ediniz.'
         }
     });
 
