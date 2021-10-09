@@ -2,7 +2,7 @@
 
 namespace App;
 
-use mysql_xdevapi\Exception;
+use Exception;
 use PDO;
 
 class User
@@ -19,10 +19,6 @@ class User
     public function __construct($id) {
         $this->db = (new SQLiteConnection())->pdo;
         $this->id=$id;
-        $this->getUser();
-    }
-
-    public function getUser() {
         try {
             $u = $this->db->query("select * from user where id={$this->id}")->fetch(PDO::FETCH_OBJ);
             foreach ($u as $k=>$v){
@@ -31,7 +27,6 @@ class User
         } catch (Exception $e) {
             echo $e->getMessage();
         }
-
     }
 
     public function getFullName(){
