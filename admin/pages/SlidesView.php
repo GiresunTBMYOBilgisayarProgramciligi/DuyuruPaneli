@@ -110,3 +110,50 @@ $slides = $slideControler->getSlides();
         </div>
     </div>
 </div>
+
+<div class="modal fade " id="updateSlideModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel">Slide Güncelle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form name="updateSlideForm" id="updateSlideForm" method="post" enctype="multipart/form-data">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label for="title">Başlık</label>
+                                <input type="text" class="form-control" id="title" name="title" placeholder="Başlık" value="">
+                            </div>
+                            <div class="form-group">
+                                <label for="content">İçerik</label>
+                                <input type="text" class="form-control" id="content" name="content"
+                                       placeholder="İçerik">
+                            </div>
+                            <div class="form-group">
+                                <label for="link">Link</label>
+                                <input type="url" class="form-control" id="link" name="link" placeholder="Duyuru linki">
+                            </div>
+
+                        </div>
+                        <div class="col-md-4">
+                            <input required type="file" name="image" id="image" class="dropify" data-show-remove="true"/>
+
+                            <div class="form-check form-check-flat form-check-primary">
+                                <label class="form-check-label">
+                                    <input type="checkbox" class="form-check-input" id="fullWidth" name="fullWidth">
+                                    Tam Genişlik
+                                    <i class="input-helper"></i></label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Vazgeç</button>
+                <button type="submit" form="updateSlideForm" class="btn btn-primary">Güncelle</button>
+            </div>
+        </div>
+    </div>
+</div>

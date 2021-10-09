@@ -90,3 +90,35 @@ $announcements=$announcementController->getAnnouncements();
         </div>
     </div>
 </div>
+
+<div class="modal fade " id="updateAnnouncementModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel">Duyuruyu Güncelle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form name="updateAnnouncementForm" id="updateAnnouncementForm" method="post" >
+                    <div class="form-group">
+                        <label for="title">Başlık</label>
+                        <input type="text" class="form-control" id="title" name="title" placeholder="Başlık">
+                    </div>
+                    <div class="form-group">
+                        <label for="content">İçerik</label>
+                        <input required type="text" class="form-control" id="content" name="content" placeholder="İçerik">
+                    </div>
+                    <div class="form-group">
+                        <label for="link">Link</label>
+                        <input type="url" class="form-control" id="link" name="link" placeholder="Duyuru linki">
+                    </div>
+                </form>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Vazgeç</button>
+                <button type="submit" form="updateAnnouncementForm" class="btn btn-primary" >Güncelle</button>
+            </div>
+        </div>
+    </div>
+</div>

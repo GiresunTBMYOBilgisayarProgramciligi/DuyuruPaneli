@@ -8,15 +8,23 @@ $(function () {
         '</div>')
 
     function islemlerHTML(drData) {
-        dropDownData = drData
+        var deleteData = drData.deleteData;
+        var updateData = drData.updateData;
+        var updateButtonString = '<a class="dropdown-item"  data-bs-toggle="modal" data-bs-target="#' + updateData.modalName + '"'
+        Object.entries(updateData).forEach(entry => {
+            const [k, v] = entry;
+            updateButtonString += ' data-bs-' + k + '="' + v + '" '
+        });
+
+        updateButtonString += '>Güncelle</a>\n';
         return $('<div class="btn-group">\n' +
             '                            <button type="button" class="btn dropdown-toggle btn-primary" data-bs-toggle="dropdown" aria-expanded="false">İşlem Seç</button>\n' +
             '                            <div class="dropdown-menu" style="">\n' +
-            `<form name="${dropDownData.formName}" id="${dropDownData.fromId}" method="post">\n` +
-            `    <input type="hidden" name="id" value="${dropDownData.deleteId}">\n` +
-            `    <button type="submit" form="${dropDownData.fromId}" class="dropdown-item ">Sil</button>\n` +
-            '</form>                                ' +
-            '                                <a class="dropdown-item">Güncelle</a>\n' +
+            `                               <form name="${deleteData.formName}" id="${deleteData.fromId}" method="post">\n` +
+            `                                  <input type="hidden" name="id" value="${deleteData.deleteId}">\n` +
+            `                                  <button type="submit" form="${deleteData.fromId}" class="dropdown-item ">Sil</button>\n` +
+            '                               </form>                                ' +
+            updateButtonString +
             '                            </div>    \n' +
             '                        </div>').html()
     }
@@ -111,9 +119,18 @@ $(function () {
                             '<td>' + a.userFullName + '</td>' +
                             '<td>' + a.createdDate + '</td>' +
                             '<td>' + islemlerHTML({
-                                'formName': "deleteAnnouncement-" + a.id,
-                                'fromId': "deleteAnnouncement-" + a.id,
-                                'deleteId': a.id
+                                'deleteData': {
+                                    'formName': "deleteAnnouncement-" + a.id,
+                                    'fromId': "deleteAnnouncement-" + a.id,
+                                    'deleteId': a.id
+                                },
+                                'updateData': {
+                                    'modalName': 'updateAnnouncementModal',
+                                    'id': a.id,
+                                    'title': a.title,
+                                    'content': a.content,
+                                    'qrCode': a.qrCode
+                                }
                             }) + '</td>' +
                             '</tr>'
 
@@ -175,22 +192,33 @@ $(function () {
                 } else {
                     loadingAnimation.remove();
                     outHTML = ""
-                    respons.forEach(function (a, i) {
+                    respons.forEach(function (slide, i) {
                         i++
-                        var QR = a.qrCode == "" ? "" : "<img class='rounded-0' src=\"" + a.qrCode + "\">"
+                        var QR = slide.qrCode == "" ? "" : "<img class='rounded-0' src=\"" + slide.qrCode + "\">"
                         outHTML +=
                             '<tr>' +
                             '<td>' + i + '</td>' +
-                            '<td>' + a.title + '</td>' +
-                            '<td>' + a.content + '</td>' +
-                            '<td> <img class="rounded-0" src="' + a.image + '"></td>' +
+                            '<td>' + slide.title + '</td>' +
+                            '<td>' + slide.content + '</td>' +
+                            '<td> <img class="rounded-0" src="' + slide.image + '"></td>' +
                             '<td>' + QR + '</td>' +
-                            '<td>' + a.userFullName + '</td>' +
-                            '<td>' + a.createdDate + '</td>' +
+                            '<td>' + slide.userFullName + '</td>' +
+                            '<td>' + slide.createdDate + '</td>' +
                             '<td>' + islemlerHTML({
-                                'formName': "deleteSlide-" + a.id,
-                                'fromId': "deleteSlide-" + a.id,
-                                'deleteId': a.id
+                                'deleteData': {
+                                    'formName': "deleteSlide-" + slide.id,
+                                    'fromId': "deleteSlide-" + slide.id,
+                                    'deleteId': slide.id
+                                },
+                                'updateData': {
+                                    'modalName': 'updateSlideModal',
+                                    'id': slide.id,
+                                    'title': slide.title,
+                                    'content': slide.content,
+                                    'image': slide.image,
+                                    'qrCode': slide.qrCode,
+                                    'fullWidth': slide.fullWidth
+                                }
                             }) + '</td>' +
                             '</tr>'
                     })
@@ -263,9 +291,20 @@ $(function () {
                             '<td>' + a.profilPicture + '</td>' +
                             '<td>' + a.createdDate + '</td>' +
                             '<td>' + islemlerHTML({
-                                'formName': "deleteUser-" + a.id,
-                                'fromId': "deleteUser-" + a.id,
-                                'deleteId': a.id
+                                'deleteData': {
+                                    'formName': "deleteUser-" + a.id,
+                                    'fromId': "deleteUser-" + a.id,
+                                    'deleteId': a.id
+                                },
+                                'updateData':{
+                                    'modalName':"updateUserModal",
+                                    'id':a.id,
+                                    'userName':a.userName,
+                                    'mail':a.mail,
+                                    'name':a.name,
+                                    'lastName':a.lastName,
+                                    'profilPicture':a.profilPicture
+                                }
                             }) + '</td>' +
                             '</tr>'
                     })
@@ -291,5 +330,38 @@ $(function () {
             'error': 'Bir hata oldu.'
         }
     });
+    /**
+     * Güncelleme modalı açıldığında tıklanan butondan alınan veriler mofal içerisindeki forma eklenecek
+     */
+    var updateModals = $("[id^=update]")
+    updateModals.on('show.bs.modal', function (event) {
+        var modal = this;
+        // Button that triggered the modal
+        var button = event.relatedTarget
+        var formData = {};
+        $.each(button.attributes, function (i, attr) {
+            if (!([undefined, 'toggle', 'target'].includes(attr.name.split("data-bs-")[1]))) {
+                formData[attr.name.split("data-bs-")[1]] = attr.value
+
+            }
+
+        })
+        Object.entries(formData).forEach(entry => {
+            const [k, v] = entry;
+            var input = "";
+            if (k === "fullwidth") {//veriyi jafascript ile eklediğim için html içeriğine w küçük olarak yazılıyor.
+                if (v == 1) {
+                    $('input[name="fullWidth"]', modal).attr('checked', 'checked');
+                }
+            } else if (k !== "image") {
+                input = $('input[name="' + k + '"]', modal)[0];
+                if (input) {
+                    input.value = v
+                }
+            }
+
+        });
+
+    })
 
 });
