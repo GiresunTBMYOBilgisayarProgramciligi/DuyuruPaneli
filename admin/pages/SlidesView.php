@@ -120,6 +120,7 @@ $slides = $slideControler->getSlides();
             </div>
             <div class="modal-body">
                 <form name="updateSlideForm" id="updateSlideForm" method="post" enctype="multipart/form-data">
+                    <input type="hidden" id="id" name="id" value="">
                     <div class="row">
                         <div class="col-md-8">
                             <div class="form-group">
@@ -138,7 +139,7 @@ $slides = $slideControler->getSlides();
 
                         </div>
                         <div class="col-md-4">
-                            <input required type="file" name="image" id="image" class="dropify" data-show-remove="true"/>
+                            <input type="file" name="image" id="image" class="dropify" data-show-remove="true"/>
 
                             <div class="form-check form-check-flat form-check-primary">
                                 <label class="form-check-label">

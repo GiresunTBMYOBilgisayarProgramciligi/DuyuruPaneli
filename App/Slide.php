@@ -5,23 +5,26 @@ namespace App;
 use Exception;
 use PDO;
 
-class User
+class Slide
 {
+
     public $id;
-    public $userName;
-    public $password;
-    public $mail;
-    public $name;
-    public $lastName;
+    public $title;
+    public $content;
+    public $image;
+    public $qrCode;
     public $createdDate;
-    private $db;
+    public $userId;
+    public $fullWidth;
+    public $db;
+    public $link;
 
     public function __construct($id = null) {
         if (!is_null($id)) {
             $this->db = (new SQLiteConnection())->pdo;
             $this->id = $id;
             try {
-                $u = $this->db->query("select * from user where id={$this->id}")->fetch(PDO::FETCH_OBJ);
+                $u = $this->db->query("select * from slider where id={$this->id}")->fetch(PDO::FETCH_OBJ);
                 foreach ($u as $k => $v) {
                     $this->$k = $v;
                 }
@@ -29,10 +32,5 @@ class User
                 echo $e->getMessage();
             }
         }
-
-    }
-
-    public function getFullName() {
-        return $this->name . " " . $this->lastName;
     }
 }

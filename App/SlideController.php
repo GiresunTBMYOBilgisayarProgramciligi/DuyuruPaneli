@@ -35,17 +35,31 @@ class SlideController
 
         $data->qrCode = $data->link != "" ? $this->createQrCode($data->link) : "";
         $fullWidth = isset($data->fullWidth) ? 1 : 0;
-        $a=$this->DB->prepare("INSERT INTO slider (title, content, image, qrCode, createdDate, userId, fullWidth) values (:title,:content,:image,:qrCode,:createdDate,:userId,:fullWidth )")->execute(
-            array(
-                ":title" => $data->title,
-                ":content" => $data->content,
-                ":image" => $data->image,
-                ":qrCode" => $data->qrCode,
-                ":createdDate" => date("Y.m.d H:i:s"),
-                ":userId" => (new UsersControler())->getCurrentUserId(),
-                ":fullWidth" => $fullWidth
-            )
-        );
+        $a = $this->DB->prepare("INSERT INTO slider (title, content, image, qrCode, createdDate, userId, fullWidth) values (:title,:content,:image,:qrCode,:createdDate,:userId,:fullWidth )")->execute(array(":title" => $data->title, ":content" => $data->content, ":image" => $data->image, ":qrCode" => $data->qrCode, ":createdDate" => date("Y.m.d H:i:s"), ":userId" => (new UsersControler())->getCurrentUserId(), ":fullWidth" => $fullWidth));
+    }
+
+    /**
+     * @param Slide $slide
+     */
+    public function updateSlide(Slide $slide) {
+        //var_export($slide);
+        $slide->qrCode = $slide->link != "" ? $this->createQrCode($slide->link) : "";
+        $query = "UPDATE slider SET ";
+        foreach ($slide as $k => $v) {
+            if (is_null($v)) unset($slide->$k);
+
+        }
+        //var_export($slide);
+        $numItem = count((array)$slide)-2;// id ve link sorguya kalıtmadığı için 2 çıkartıyorum
+        $i = 0;
+        foreach ($slide as $k => $v) {
+            if ($k !== 'id' && $k !== "link") {
+                if (++$i === $numItem) $query .= $k . "='" . $v . "' "; else $query .= $k . "='" . $v . "', ";
+            }
+        }
+        $query .= " WHERE id=" . $slide->id;
+        //echo $query;
+        $this->DB->query($query);
     }
 
     /**
@@ -53,8 +67,8 @@ class SlideController
      * @param null $id
      * @return false|void
      */
-    public function deleteSlide($id=null){
-        if(is_null($id)) return false;
+    public function deleteSlide($id = null) {
+        if (is_null($id)) return false;
         $this->DB->query("DELETE FROM slider WHERE id=:id")->execute(array(":id" => $id));
     }
 

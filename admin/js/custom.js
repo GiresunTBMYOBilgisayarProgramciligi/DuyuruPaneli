@@ -93,6 +93,38 @@ $(function () {
         });
     });
 
+    $('form[name="updateSlideForm"]').submit(function (event) {
+        event.preventDefault()
+        var formData = new FormData(this)
+        formData.append('functionName', "updateSlide")
+
+        var modalEl = document.getElementById('updateSlideModal')
+        var modal = bootstrap.Modal.getInstance(modalEl)
+        $.ajax({
+            method: "POST",
+            url: "ajax.php",
+            processData: false,
+            contentType: false,
+            data: formData,
+            dataType: "json",
+            success: function (respons) {
+                if (respons.error) {
+                    alert(respons.error);
+
+                    //todo hatlar yazılacak form denetimi olarak sadece boş bırakılamaz işlemini html5 ile yaptım
+                    return false;
+                } else {
+                    loadingAnimation.remove();
+                    modal.hide()
+                    getSlides();
+                }
+            },
+            beforeSend: function () {
+                $(modalEl, " .modal-body").prepend(loadingAnimation)
+            },
+        });
+    });
+
     function getAnnouncment() {
         $.ajax({
             method: "POST",
