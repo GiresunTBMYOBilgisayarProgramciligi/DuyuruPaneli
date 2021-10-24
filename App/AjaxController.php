@@ -106,6 +106,10 @@ class AjaxController
      * @param array $data
      */
     public function updateSlide($data = []) {
+        if (count($data) == 0) {
+            $this->response['error'] = "Gelen veri yok";
+            return json_encode($this->response);
+        }
         $sliderController = new SlideController();
 
         $oldSlide = new Slide($data["id"]);
@@ -114,16 +118,45 @@ class AjaxController
             $newSlide->$k = $data[$k];
         }
         // check image update
-        if ($_FILES['image']['name'] && $oldSlide->image !=="/images/" . $_FILES["image"]['name']) {
+        if ($_FILES['image']['name'] && $oldSlide->image !== "/images/" . $_FILES["image"]['name']) {
 
             $newSlide->image = $this->uploadImage();
         }
         //check fullWidth
-        $newSlide->fullWidth=isset($newSlide->fullWidth) ? 1 : 0;
+        $newSlide->fullWidth = isset($newSlide->fullWidth) ? 1 : 0;
 
         try {
             $newSlide->id = $oldSlide->id;
             $sliderController->updateSlide($newSlide);
+            $this->response['success'] = "Slide güncellendi";
+        } catch (\Exception $e) {
+            $this->response['error'] = $e->getMessage();
+        }
+        return json_encode($this->response);
+    }
+
+    public function updateAnnouncement($data = []) {
+        if (count($data) == 0) {
+            $this->response['error'] = "Gelen veri yok";
+            return json_encode($this->response);
+        }
+        $announcementController = new AnnouncementController();
+
+        $oldAnnouncement = new Announcement($data['id']);
+        $newAnnouncement = new Announcement();
+        foreach ($newAnnouncement as $k => $v) {
+            $newAnnouncement->$k = $data[$k];
+        }
+        // check Link
+        if ($newAnnouncement->link == $oldAnnouncement->link) {
+            $newAnnouncement->link = null;
+            $this->response["message"] = "Link değişmeyecek. new=" . $newAnnouncement->link . " | Eski= " . $oldAnnouncement->link;
+        } else $newAnnouncement->qrCode = $oldAnnouncement->qrCode;
+
+        try {
+            $newAnnouncement->id = $oldAnnouncement->id;
+            $announcementController->updateAnnouncement($newAnnouncement);
+            $this->response['success'] = "Duyuru güncellendi";
         } catch (\Exception $e) {
             $this->response['error'] = $e->getMessage();
         }

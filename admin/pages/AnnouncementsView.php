@@ -100,6 +100,7 @@ $announcements=$announcementController->getAnnouncements();
             </div>
             <div class="modal-body">
                 <form name="updateAnnouncementForm" id="updateAnnouncementForm" method="post" >
+                    <input type="hidden" id="id" name="id" value="">
                     <div class="form-group">
                         <label for="title">Başlık</label>
                         <input type="text" class="form-control" id="title" name="title" placeholder="Başlık">

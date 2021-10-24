@@ -54,4 +54,29 @@ class AnnouncementController
         $writer->writeFile($short_url, $qrCodeFile);
         return $qrCode;
     }
+
+    public function updateAnnouncement(Announcement $announcement) {
+        if (!is_null($announcement->link)) {
+            if ($announcement->link == "") {
+                unlink(Config::ROOT_PATH . substr($announcement->qrCode, 1));
+                $announcement->qrCode = "";
+            } else {
+                $announcement->qrCode = $this->createQrCode($announcement->link);
+            }
+        }
+
+        foreach ($announcement as $k => $v) {
+            if (is_null($v)) unset($announcement->$k);// Remove properties which not updated
+        }
+        $numItem = count((array)$announcement) - 1;// id sorguya kalıtmadığı için 2 çıkartıyorum
+        $i = 0;
+        $query = "UPDATE announcement SET ";
+        foreach ($announcement as $k => $v) {
+            if ($k !== 'id') {
+                if (++$i === $numItem) $query .= $k . "='" . $v . "' "; else $query .= $k . "='" . $v . "', ";
+            }
+        }
+        $query .= " WHERE id=" . $announcement->id;
+        $this->DB->query($query);
+    }
 }

@@ -7,6 +7,11 @@ $(function () {
         '   <div class="lds-roller"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>' +
         '</div>')
 
+    /**
+     * Admin panelde oluşturulan listelerde her bir kayıt için işlemler dropdown butonunu html içeriği
+     * @param drData
+     * @returns {*|jQuery}
+     */
     function islemlerHTML(drData) {
         var deleteData = drData.deleteData;
         var updateData = drData.updateData;
@@ -28,8 +33,10 @@ $(function () {
             '                            </div>    \n' +
             '                        </div>').html()
     }
-
-
+//---------------------
+    /*
+     * Add new forms Start
+     */
     $('form[name="newAnnouncementForm"]').submit(function (event) {
         event.preventDefault()
         var formData = new FormData(this)
@@ -93,6 +100,13 @@ $(function () {
         });
     });
 
+    /*
+     * Add new forms Stop
+     */
+//---------------------
+    /*
+     * Update forms Start
+     */
     $('form[name="updateSlideForm"]').submit(function (event) {
         event.preventDefault()
         var formData = new FormData(this)
@@ -124,6 +138,45 @@ $(function () {
             },
         });
     });
+    $('form[name="updateAnnouncementForm"]').submit(function (event) {
+        event.preventDefault()
+        var formData = new FormData(this)
+        formData.append('functionName', "updateAnnouncement")
+
+        var modalEl = document.getElementById('updateAnnouncementModal')
+        var modal = bootstrap.Modal.getInstance(modalEl)
+        $.ajax({
+            method: "POST",
+            url: "ajax.php",
+            processData: false,
+            contentType: false,
+            data: formData,
+            dataType: "json",
+            success: function (respons) {
+                if (respons.error) {
+                    alert(respons.error);
+
+                    //todo hatlar yazılacak form denetimi olarak sadece boş bırakılamaz işlemini html5 ile yaptım
+                    return false;
+                } else {
+                    loadingAnimation.remove();
+                    modal.hide()
+                    getAnnouncment();
+                }
+            },
+            beforeSend: function () {
+                $(modalEl, " .modal-body").prepend(loadingAnimation)
+            },
+        });
+    });
+
+    /*
+     * Update forms End
+     */
+//---------------------
+    /*
+     *  Lists Start
+     */
 
     function getAnnouncment() {
         $.ajax({
@@ -161,7 +214,7 @@ $(function () {
                                     'id': a.id,
                                     'title': a.title,
                                     'content': a.content,
-                                    'qrCode': a.qrCode
+                                    'link': a.link
                                 }
                             }) + '</td>' +
                             '</tr>'
@@ -248,7 +301,7 @@ $(function () {
                                     'title': slide.title,
                                     'content': slide.content,
                                     'image': slide.image,
-                                    'qrCode': slide.qrCode,
+                                    'link': slide.link,
                                     'fullWidth': slide.fullWidth
                                 }
                             }) + '</td>' +
@@ -328,14 +381,14 @@ $(function () {
                                     'fromId': "deleteUser-" + a.id,
                                     'deleteId': a.id
                                 },
-                                'updateData':{
-                                    'modalName':"updateUserModal",
-                                    'id':a.id,
-                                    'userName':a.userName,
-                                    'mail':a.mail,
-                                    'name':a.name,
-                                    'lastName':a.lastName,
-                                    'profilPicture':a.profilPicture
+                                'updateData': {
+                                    'modalName': "updateUserModal",
+                                    'id': a.id,
+                                    'userName': a.userName,
+                                    'mail': a.mail,
+                                    'name': a.name,
+                                    'lastName': a.lastName,
+                                    'profilPicture': a.profilPicture
                                 }
                             }) + '</td>' +
                             '</tr>'
@@ -354,6 +407,13 @@ $(function () {
     getAnnouncment();
     getSlides();
     getUsers();
+    /*
+     * Lists End
+     */
+
+    /**
+     * Görsel yükleme Alanı
+     */
     $('.dropify').dropify({
         messages: {
             'default': 'Dosyayı buraya sürükle bırak yada tıkla',
@@ -362,8 +422,9 @@ $(function () {
             'error': 'Bir hata oldu.'
         }
     });
+
     /**
-     * Güncelleme modalı açıldığında tıklanan butondan alınan veriler mofal içerisindeki forma eklenecek
+     * Güncelleme modalı açıldığında tıklanan butondan alınan veriler modal içerisindeki forma eklenecek
      */
     var updateModals = $("[id^=update]")
     updateModals.on('show.bs.modal', function (event) {
