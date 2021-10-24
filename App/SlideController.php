@@ -42,18 +42,24 @@ class SlideController
      * @param Slide $slide
      */
     public function updateSlide(Slide $slide) {
-        //var_export($slide);
-        $slide->qrCode = $slide->link != "" ? $this->createQrCode($slide->link) : "";
+        if (!is_null($slide->link)) {
+            if ($slide->link == "") {
+                unlink(Config::ROOT_PATH . substr($slide->qrCode, 1));
+                $slide->qrCode = "";
+            } else {
+                $slide->qrCode = $this->createQrCode($slide->link);
+            }
+        }
         $query = "UPDATE slider SET ";
         foreach ($slide as $k => $v) {
             if (is_null($v)) unset($slide->$k);
 
         }
         //var_export($slide);
-        $numItem = count((array)$slide)-2;// id ve link sorguya kalıtmadığı için 2 çıkartıyorum
+        $numItem = count((array)$slide)-1;// id sorguya kalıtmadığı için 2 çıkartıyorum
         $i = 0;
         foreach ($slide as $k => $v) {
-            if ($k !== 'id' && $k !== "link") {
+            if ($k !== 'id') {
                 if (++$i === $numItem) $query .= $k . "='" . $v . "' "; else $query .= $k . "='" . $v . "', ";
             }
         }

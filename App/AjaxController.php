@@ -125,6 +125,11 @@ class AjaxController
         //check fullWidth
         $newSlide->fullWidth = isset($newSlide->fullWidth) ? 1 : 0;
 
+        // check Link
+        if ($newSlide->link == $oldSlide->link) {
+            $newSlide->link = null;
+            $this->response["message"] = "Link değişmeyecek. new=" . $newSlide->link . " | Eski= " . $oldSlide->link;
+        } else $newSlide->qrCode = $oldSlide->qrCode;
         try {
             $newSlide->id = $oldSlide->id;
             $sliderController->updateSlide($newSlide);
