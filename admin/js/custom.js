@@ -33,6 +33,7 @@ $(function () {
             '                            </div>    \n' +
             '                        </div>').html()
     }
+
 //---------------------
     /*
      * Add new forms Start
@@ -64,7 +65,7 @@ $(function () {
                 }
             },
             beforeSend: function () {
-                $(modalEl, " .modal-body").prepend(loadingAnimation)
+                $(".modal-content", modalEl).prepend(loadingAnimation)
             },
         });
     });
@@ -95,7 +96,7 @@ $(function () {
                 }
             },
             beforeSend: function () {
-                $(modalEl, " .modal-body").prepend(loadingAnimation)
+                $(".modal-content", modalEl).prepend(loadingAnimation)
             },
         });
     });
@@ -134,7 +135,7 @@ $(function () {
                 }
             },
             beforeSend: function () {
-                $(modalEl, " .modal-body").prepend(loadingAnimation)
+                $(".modal-content",modalEl).prepend(loadingAnimation)
             },
         });
     });
@@ -165,7 +166,7 @@ $(function () {
                 }
             },
             beforeSend: function () {
-                $(modalEl, " .modal-body").prepend(loadingAnimation)
+                $(".modal-content",modalEl).prepend(loadingAnimation)
             },
         });
     });
@@ -186,6 +187,14 @@ $(function () {
                 functionName: "getAnnouncementsList",
             },
             dataType: "json",
+            beforeSend: function () {
+                console.log($(".overlay"))
+                console.log($(".overlay").length)
+                if ($(".overlay").length < 1) {
+                    $("#announcmentTable tbody").prepend(loadingAnimation)
+                }
+
+            },
             success: function (respons) {
                 if (respons.error) {
                     return false;
@@ -223,9 +232,6 @@ $(function () {
                     $("#announcmentTable tbody").html(outHTML)
                     newAnnouncementForm.trigger('reset');
                 }
-            },
-            beforeSend: function () {
-                $("#announcmentTable tbody").prepend(loadingAnimation)
             },
         }).done(function (e) {
             $('form[name*="deleteAnnouncement"]').each(function (index, value) {
@@ -271,6 +277,11 @@ $(function () {
                 functionName: "getSlidesList",
             },
             dataType: "json",
+            beforeSend: function () {
+                if ($(".overlay").length < 1) {
+                    $("#slidesTable tbody").prepend(loadingAnimation)
+                }
+            },
             success: function (respons) {
                 if (respons.error) {
                     return false;
@@ -310,9 +321,6 @@ $(function () {
                     $("#slidesTable tbody").html(outHTML)
                     newSlideForm.trigger('reset');
                 }
-            },
-            beforeSend: function () {
-                $("#slidesTable tbody").prepend(loadingAnimation)
             },
         }).done(function (e) {
             $('form[name*="deleteSlide"]').each(function (index, value) {
@@ -357,6 +365,11 @@ $(function () {
                 functionName: "getUsersList",
             },
             dataType: "json",
+            beforeSend: function () {
+                if ($(".overlay").length < 1) {
+                    $("#usersTable tbody").prepend(loadingAnimation)
+                }
+            },
             success: function (respons) {
                 if (respons.error) {
                     return false;
@@ -396,16 +409,13 @@ $(function () {
                     $("#usersTable tbody").html(outHTML)
                     newUserForm.trigger('reset');
                 }
-            },
-            beforeSend: function () {
-                $("#usersTable tbody").prepend(loadingAnimation)
-            },
+            }
         });
     }
 
 
-    getAnnouncment();
     getSlides();
+    getAnnouncment();
     getUsers();
     /*
      * Lists End
