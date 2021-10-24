@@ -55,6 +55,8 @@ class SQLiteConnection {
             qrCode TEXT,
             createdDate TEXT,
             userId integer,
+            fullWidth INTEGER,
+            link TEXT,
             FOREIGN KEY (
                 userId
             )
@@ -69,6 +71,7 @@ class SQLiteConnection {
             qrCode TEXT,
             createdDate TEXT,
             userId INTEGER,
+            link TEXT,            
             FOREIGN KEY (
                         userId
                 )REFERENCES user(id) on delete set null on update cascade
