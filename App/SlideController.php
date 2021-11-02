@@ -27,7 +27,8 @@ class SlideController
      * @return array|false
      */
     public function getSlides() {
-        return $this->DB->query("select slider.*, u.name || ' ' || u.lastName as userFullName from slider inner join user u on u.id = slider.userId", PDO::FETCH_OBJ)->fetchAll();
+        $q = $this->DB->query("select slider.*, u.name || ' ' || u.lastName as userFullName from slider inner join user u on u.id = slider.userId", PDO::FETCH_OBJ);
+        if ($q) return $q->fetchAll();
     }
 
     public function saveNewSlide($data) {
@@ -35,7 +36,7 @@ class SlideController
 
         $data->qrCode = $data->link != "" ? $this->createQrCode($data->link) : "";
         $fullWidth = isset($data->fullWidth) ? 1 : 0;
-        $a = $this->DB->prepare("INSERT INTO slider (title, content, image, qrCode, createdDate, userId, fullWidth, link) values (:title,:content,:image,:qrCode,:createdDate,:userId,:fullWidth, :link )")->execute(array(":title" => $data->title, ":content" => $data->content, ":image" => $data->image, ":qrCode" => $data->qrCode, ":createdDate" => date("Y.m.d H:i:s"), ":userId" => (new UsersControler())->getCurrentUserId(), ":fullWidth" => $fullWidth, ":link"=>$data->link));
+        $a = $this->DB->prepare("INSERT INTO slider (title, content, image, qrCode, createdDate, userId, fullWidth, link) values (:title,:content,:image,:qrCode,:createdDate,:userId,:fullWidth, :link )")->execute(array(":title" => $data->title, ":content" => $data->content, ":image" => $data->image, ":qrCode" => $data->qrCode, ":createdDate" => date("Y.m.d H:i:s"), ":userId" => (new UsersControler())->getCurrentUserId(), ":fullWidth" => $fullWidth, ":link" => $data->link));
     }
 
     /**
@@ -56,7 +57,7 @@ class SlideController
 
         }
         //var_export($slide);
-        $numItem = count((array)$slide)-1;// id sorguya kalıtmadığı için 2 çıkartıyorum
+        $numItem = count((array)$slide) - 1;// id sorguya kalıtmadığı için 2 çıkartıyorum
         $i = 0;
         foreach ($slide as $k => $v) {
             if ($k !== 'id') {
