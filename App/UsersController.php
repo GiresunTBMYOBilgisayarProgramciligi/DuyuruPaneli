@@ -46,21 +46,19 @@ class UsersController
     }
 
     /**
-     * todo şifre hashlenecek
+     *
      * @param $arr
      * @return User
      * @throws \Exception
      */
     public function login($arr) {
         $arr = (object)$arr;
-        $q = $this->DB->query("Select * from user where userName='$arr->userName' and password='$arr->password'", PDO::FETCH_OBJ);
-        if ($q) $u = $q->fetch();
-
-        if (is_object($u)) {
-            setcookie(Config::LOGIN_COOKIE_NAME, $u->id, time() + (86400 * 30));
-        } else {
-            throw new \Exception("Girdiğiniz Bilgiler Yalnış");
-        }
+        $user = $this->DB->query("Select * from user where userName='$arr->userName'", PDO::FETCH_OBJ)->fetch();
+        if (count($user) > 0) {
+            if (password_verify($arr->password, $user->password)) {
+                    setcookie(Config::LOGIN_COOKIE_NAME, $user->id, time() + (86400 * 30));
+            } else throw new \Exception("Şifre Yanlış");
+        }else throw new \Exception("Kullanıcı kayıtlı değil");
 
     }
 }

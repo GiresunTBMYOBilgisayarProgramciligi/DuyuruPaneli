@@ -79,7 +79,7 @@ class SQLiteConnection {
         ");
         $this->pdo->exec("
             INSERT INTO user(userName, mail, password, name, lastName, createdDate) values
-            ('sametatabasch','sametatabasch@gmail.com','123456','Samet','ATABAŞ',datetime('now','localtime'));
+            ('sametatabasch','sametatabasch@gmail.com','".password_hash("123456",PASSWORD_DEFAULT)."','Samet','ATABAŞ',date('Y.m.d H:i:s'));
         ");
     }
 }
