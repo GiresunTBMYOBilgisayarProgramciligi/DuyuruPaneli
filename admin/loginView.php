@@ -3,9 +3,9 @@ namespace App\Admin;
 
 require_once "../vendor/autoload.php";
 
-use App\UsersControler;
+use App\UsersController;
 
-$users = new UsersControler();
+$users = new UsersController();
 
 if ($users->isLoggedIn()) {
     header("Location:/admin/");

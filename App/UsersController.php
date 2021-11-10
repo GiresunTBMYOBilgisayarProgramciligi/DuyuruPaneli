@@ -4,7 +4,7 @@ namespace App;
 
 use PDO;
 
-class UsersControler
+class UsersController
 {
     public $DB;
 
@@ -12,14 +12,14 @@ class UsersControler
         $this->DB = (new SQLiteConnection())->pdo;
     }
 
-    public function getUser($id=null) {
+    public function getUser($id = null) {
         if ($id === null && $_COOKIE[Config::LOGIN_COOKIE_NAME] > 0) {
             return new User($_COOKIE[Config::LOGIN_COOKIE_NAME]);
         } else
             return new User($id);
     }
 
-    public function getCurrentUserId(){
+    public function getCurrentUserId() {
         return $this->getUser()->id;
     }
 
@@ -27,8 +27,17 @@ class UsersControler
         return $this->DB->query("select * from user", PDO::FETCH_OBJ)->fetchAll();
     }
 
-    public function saveNewUser($arr) {
-        $this->DB->prepare("INSERT INTO user(userName, mail, password, name, lastName, createdDate, profilPicture) values (:userName, :mail, :password, :name, :lastName, :createdDate, :profilPicture)")->execute($arr);
+    public function saveNewUser(User $newUser) {
+        $q = $this->DB->prepare("INSERT INTO user(userName, mail, password, name, lastName, createdDate) values  (:userName,:mail,:password,:name,:lastName,:createdDate)");
+        if ($q) {
+            $newUser = (array)$newUser;
+            unset($newUser["db"]);
+            unset($newUser['id']);
+            $newUser["password"] = password_hash($newUser["password"], PASSWORD_DEFAULT);
+            $newUser["createdDate"] = date("Y.m.d H:i:s");
+            //var_export($newUser);
+            $q->execute($newUser);
+        }
     }
 
     public function isLoggedIn() {
@@ -45,7 +54,7 @@ class UsersControler
     public function login($arr) {
         $arr = (object)$arr;
         $q = $this->DB->query("Select * from user where userName='$arr->userName' and password='$arr->password'", PDO::FETCH_OBJ);
-        if($q) $u= $q->fetch();
+        if ($q) $u = $q->fetch();
 
         if (is_object($u)) {
             setcookie(Config::LOGIN_COOKIE_NAME, $u->id, time() + (86400 * 30));

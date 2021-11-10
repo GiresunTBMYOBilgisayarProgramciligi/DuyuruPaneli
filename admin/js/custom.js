@@ -101,6 +101,42 @@ $(function () {
         });
     });
 
+    $('form[name="newUserForm"]').submit(function (event) {
+        event.preventDefault()
+        var formData = new FormData(this)
+        formData.append('functionName', "saveUser")
+        if(formData.get('password')!==formData.get("password2")){
+            alert("şifreler eşleşmiyor");
+            return false;
+        }
+
+        var modalEl = document.getElementById('newUserModal')
+        var modal = bootstrap.Modal.getInstance(modalEl)
+        $.ajax({
+            method: "POST",
+            url: "ajax.php",
+            processData: false,
+            contentType: false,
+            data: formData,
+            dataType: "json",
+            success: function (respons) {
+                if (respons.error) {
+                    alert(respons.error);
+
+                    //todo hatlar yazılacak form denetimi olarak sadece boş bırakılamaz işlemini html5 ile yaptım
+                    return false;
+                } else {
+                    loadingAnimation.remove();
+                    modal.hide()
+                    getUsers();
+                }
+            },
+            beforeSend: function () {
+                $(".modal-content", modalEl).prepend(loadingAnimation)
+            },
+        });
+    });
+
     /*
      * Add new forms Stop
      */

@@ -36,7 +36,7 @@ class SlideController
 
         $data->qrCode = $data->link != "" ? $this->createQrCode($data->link) : "";
         $fullWidth = isset($data->fullWidth) ? 1 : 0;
-        $a = $this->DB->prepare("INSERT INTO slider (title, content, image, qrCode, createdDate, userId, fullWidth, link) values (:title,:content,:image,:qrCode,:createdDate,:userId,:fullWidth, :link )")->execute(array(":title" => $data->title, ":content" => $data->content, ":image" => $data->image, ":qrCode" => $data->qrCode, ":createdDate" => date("Y.m.d H:i:s"), ":userId" => (new UsersControler())->getCurrentUserId(), ":fullWidth" => $fullWidth, ":link" => $data->link));
+        $a = $this->DB->prepare("INSERT INTO slider (title, content, image, qrCode, createdDate, userId, fullWidth, link) values (:title,:content,:image,:qrCode,:createdDate,:userId,:fullWidth, :link )")->execute(array(":title" => $data->title, ":content" => $data->content, ":image" => $data->image, ":qrCode" => $data->qrCode, ":createdDate" => date("Y.m.d H:i:s"), ":userId" => (new UsersController())->getCurrentUserId(), ":fullWidth" => $fullWidth, ":link" => $data->link));
     }
 
     /**

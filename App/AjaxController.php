@@ -18,7 +18,7 @@ class AjaxController
      * @return false|string
      */
     public function login($data = []) {
-        $users = new UsersControler();
+        $users = new UsersController();
         try {
             $users->login($data);
         } catch (\Exception $e) {
@@ -57,6 +57,21 @@ class AjaxController
         return json_encode($this->response);
     }
 
+    public function saveUser($data = []) {
+        $newUser = new User();
+        foreach ($newUser as $k => $v) {
+            if (!is_null($data[$k])) $newUser->$k = $data[$k];
+        }
+        try {
+            $userController = new UsersController();
+            $userController->saveNewUser($newUser);
+        } catch (\Exception $e) {
+            $this->response['error'] = $e->getMessage();
+        }
+
+        return json_encode($this->response);
+    }
+
     /**
      * Duyuruların bilgilerini içeren bir liste oluşturmak için json verisi döndürür.
      * @param array $data
@@ -73,7 +88,7 @@ class AjaxController
     }
 
     public function getUsersList($data = []) {
-        $this->response = (array)(new UsersControler())->getUsers();
+        $this->response = (array)(new UsersController())->getUsers();
         return json_encode($this->response);
     }
 

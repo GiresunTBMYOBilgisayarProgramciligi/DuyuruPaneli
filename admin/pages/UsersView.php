@@ -1,9 +1,9 @@
 <?php
 namespace App\Admin;
 
-use App\UsersControler;
+use App\UsersController;
 
-$userControler = new UsersControler();
+$userControler = new UsersController();
 $users= $userControler->getUsers();
 ?>
 <div class="tab-pane fade" id="kullanıcılarTabContent" role="tabpanel" aria-labelledby="kullanıcılar-tab">
@@ -72,12 +72,43 @@ $users= $userControler->getUsers();
             </div>
             <div class="modal-body">
                 <form name="newUserForm" id="newUserForm" method="post">
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label for="userName">Kullanıcı Adı</label>
+                                <input required type="text" class="form-control" id="userName" name="userName" placeholder="Kullanıcı Adı" minlength="3">
+                            </div>
+                            <div class="form-group">
+                                <label for="password">Şifre</label>
+                                <input required type="password" class="form-control" id="password" name="password" placeholder="Şifre">
+                            </div>
+                            <div class="form-group">
+                                <label for="link">Adı</label>
+                                <input type="text" class="form-control" id="name" name="name" placeholder="Şifre tekrar">
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label for="mail">e-Mail</label>
+                                <input  type="email" class="form-control" id="mail" name="mail" placeholder="Mail adresiniz">
+                            </div>
+                            <div class="form-group">
+                                <label for="link">Şifre (Doğrulama)</label>
+                                <input required type="password" class="form-control" id="password2" name="password2" placeholder="Şifre tekrar">
+                            </div>
+                            <div class="form-group">
+                                <label for="lastName">Soyadı</label>
+                                <input type="text" class="form-control" id="lastName" name="lastName" placeholder="Şifre tekrar">
+                            </div>
+                        </div>
+                    </div>
+
 
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Vazgeç</button>
-                <button type="button" class="btn btn-primary">Ekle</button>
+                <button type="submit" form="newUserForm" class="btn btn-primary">Ekle</button>
             </div>
         </div>
     </div>

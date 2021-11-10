@@ -1,11 +1,11 @@
 <?php
 namespace App\Admin;
 
-use App\UsersControler;
+use App\UsersController;
 
 require_once "../vendor/autoload.php";
 
-if (!($user = (new UsersControler())->isLoggedIn())) {
+if (!($user = (new UsersController())->isLoggedIn())) {
     header("Location: /admin/loginView.php");
 }
 ?>

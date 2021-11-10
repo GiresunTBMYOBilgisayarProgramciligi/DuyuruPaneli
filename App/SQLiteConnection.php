@@ -39,7 +39,7 @@ class SQLiteConnection {
         $this->pdo->exec("
         create table if not exists user(
           id INTEGER PRIMARY KEY,
-          userName TEXT NOT NULL,
+          userName TEXT NOT NULL UNIQUE,
           mail TEXT NOT NULL,
           password TEXT,
           name TEXT,
