@@ -21,9 +21,12 @@ class User
         if (!is_null($id)) {
             $this->id = $id;
             try {
-                $u = $this->db->query("select * from user where id={$this->id}")->fetch(PDO::FETCH_OBJ);
-                foreach ($u as $k => $v) {
-                    $this->$k = $v;
+                $u = $this->db->query("select * from user where id={$this->id}");
+                if ($u) {
+                    $u = $u->fetch(PDO::FETCH_OBJ);
+                    foreach ($u as $k => $v) {
+                        $this->$k = $v;
+                    }
                 }
             } catch (Exception $e) {
                 echo $e->getMessage();

@@ -1,13 +1,14 @@
 <?php
 namespace App\Admin;
 
+use App\User;
 use App\UsersController;
 
 require_once "../vendor/autoload.php";
 
-if (!($user = (new UsersController())->isLoggedIn())) {
+if (!($user = (new UsersController())->isLoggedIn())) :
     header("Location: /admin/loginView.php");
-}
+else:
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -137,4 +138,4 @@ if (!($user = (new UsersController())->isLoggedIn())) {
 </body>
 
 </html>
-
+<?php endif;

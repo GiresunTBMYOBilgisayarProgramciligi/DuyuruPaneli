@@ -53,12 +53,15 @@ class UsersController
      */
     public function login($arr) {
         $arr = (object)$arr;
-        $user = $this->DB->query("Select * from user where userName='$arr->userName'", PDO::FETCH_OBJ)->fetch();
-        if (count($user) > 0) {
-            if (password_verify($arr->password, $user->password)) {
+        $user = $this->DB->query("Select * from user where userName='$arr->userName'", PDO::FETCH_OBJ);
+        if ($user) {
+            $user = $user->fetch();
+            if ($user) {
+                if (password_verify($arr->password, $user->password)) {
                     setcookie(Config::LOGIN_COOKIE_NAME, $user->id, time() + (86400 * 30));
-            } else throw new \Exception("Şifre Yanlış");
-        }else throw new \Exception("Kullanıcı kayıtlı değil");
+                } else throw new \Exception("Şifre Yanlış");
+            } else throw new \Exception("Kullanıcı kayıtlı değil");
+        } else throw new \Exception("Hiçbir kullanıcı kayıtlı değil");
 
     }
 }
