@@ -118,6 +118,7 @@ $slides= (new SlideController())->getSlides();
         themeColor: '#000B98',
         scrollSpeed: 0.5,
         effect: 'slide-down',
+        delayTimer:6000,
         source: {
             type: 'json',
             url: 'admin/ajax.php',
