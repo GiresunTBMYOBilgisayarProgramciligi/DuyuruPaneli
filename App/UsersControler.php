@@ -44,7 +44,8 @@ class UsersControler
      */
     public function login($arr) {
         $arr = (object)$arr;
-        $u = $this->DB->query("Select * from user where userName='$arr->userName' and password='$arr->password'", PDO::FETCH_OBJ)->fetch();
+        $q = $this->DB->query("Select * from user where userName='$arr->userName' and password='$arr->password'", PDO::FETCH_OBJ);
+        if($q) $u= $q->fetch();
 
         if (is_object($u)) {
             setcookie(Config::LOGIN_COOKIE_NAME, $u->id, time() + (86400 * 30));
