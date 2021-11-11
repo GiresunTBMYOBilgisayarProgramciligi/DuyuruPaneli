@@ -100,7 +100,6 @@ $(function () {
             },
         });
     });
-
     $('form[name="newUserForm"]').submit(function (event) {
         event.preventDefault()
         var formData = new FormData(this)
@@ -206,6 +205,37 @@ $(function () {
             },
         });
     });
+    $('form[name="updateUserForm"]').submit(function (event) {
+        event.preventDefault()
+        var formData = new FormData(this)
+        formData.append('functionName', "updateUser")
+
+        var modalEl = document.getElementById('updateUserModal')
+        var modal = bootstrap.Modal.getInstance(modalEl)
+        $.ajax({
+            method: "POST",
+            url: "ajax.php",
+            processData: false,
+            contentType: false,
+            data: formData,
+            dataType: "json",
+            success: function (respons) {
+                if (respons.error) {
+                    alert(respons.error);
+
+                    //todo hatlar yazılacak form denetimi olarak sadece boş bırakılamaz işlemini html5 ile yaptım
+                    return false;
+                } else {
+                    loadingAnimation.remove();
+                    modal.hide()
+                    getUsers();
+                }
+            },
+            beforeSend: function () {
+                $(".modal-content",modalEl).prepend(loadingAnimation)
+            },
+        });
+    });
 
     /*
      * Update forms End
@@ -224,8 +254,6 @@ $(function () {
             },
             dataType: "json",
             beforeSend: function () {
-                console.log($(".overlay"))
-                console.log($(".overlay").length)
                 if ($(".overlay").length < 1) {
                     $("#announcmentTable tbody").prepend(loadingAnimation)
                 }
@@ -305,7 +333,6 @@ $(function () {
     }
 
     function getSlides() {
-        //todo sayfa ilk yüklendiğinde çalıştırıldığında loading animasyonu çalışmıyor. çözemedim
         $.ajax({
             method: "POST",
             url: "ajax.php",
@@ -433,11 +460,10 @@ $(function () {
                                 'updateData': {
                                     'modalName': "updateUserModal",
                                     'id': a.id,
-                                    'userName': a.userName,
+                                    'userName': a.username,
                                     'mail': a.mail,
                                     'name': a.name,
                                     'lastName': a.lastName,
-                                    'profilPicture': a.profilPicture
                                 }
                             }) + '</td>' +
                             '</tr>'
@@ -448,7 +474,6 @@ $(function () {
             }
         });
     }
-
 
     getSlides();
     getAnnouncment();
