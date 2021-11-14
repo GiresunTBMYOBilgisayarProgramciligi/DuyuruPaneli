@@ -23,7 +23,7 @@ else:
     <link rel="stylesheet" href="vendors/css/vendor.bundle.base.css">
     <!-- endinject -->
     <!-- Plugin css for this page -->
-    <link rel="stylesheet" href="vendors/dropify/dropify.min.css">
+    <link rel="stylesheet" href="node_modules/dropify/dist/css/dropify.min.css">
     <!-- End plugin css for this page -->
     <!-- inject:css -->
     <link rel="stylesheet" href="css/vertical-layout-light/style.css">
@@ -122,17 +122,15 @@ else:
 <!-- container-scroller -->
 
 <!-- plugins:js -->
-<script src="vendors/js/vendor.bundle.base.js"></script>
+<script src="js/bundle.js"></script>
 <!-- endinject -->
 <!-- Plugin js for this page -->
-<script src="vendors/dropify/dropify.min.js"></script>
 
 <!-- End plugin js for this page -->
 <!-- inject:js -->
 
 <!-- endinject -->
-<!-- Custom js for this page-->
-<script src="js/dashboard.js"></script>
+
 <!-- End custom js for this page-->
 <script src="js/custom.js"></script>
 </body>

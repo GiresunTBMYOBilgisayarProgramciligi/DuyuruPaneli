@@ -1,4 +1,11 @@
+var $ = require('jquery');
+window.$ = $;
+const bootstrap = require('bootstrap');
+const jsConvert = require('js-convert-case');
+require('dropify')
 $(function () {
+
+    console.log(jsConvert.toCamelCase('param-case')); // paramCase
     var newAnnouncementForm = $('form[name="newAnnouncementForm"]');
     var newSlideForm = $('form[name="newSlideForm"]');
     var newUserForm = $('form[name="newUserForm"]');
@@ -104,7 +111,7 @@ $(function () {
         event.preventDefault()
         var formData = new FormData(this)
         formData.append('functionName', "saveUser")
-        if(formData.get('password')!==formData.get("password2")){
+        if (formData.get('password') !== formData.get("password2")) {
             alert("şifreler eşleşmiyor");
             return false;
         }
@@ -170,7 +177,7 @@ $(function () {
                 }
             },
             beforeSend: function () {
-                $(".modal-content",modalEl).prepend(loadingAnimation)
+                $(".modal-content", modalEl).prepend(loadingAnimation)
             },
         });
     });
@@ -201,7 +208,7 @@ $(function () {
                 }
             },
             beforeSend: function () {
-                $(".modal-content",modalEl).prepend(loadingAnimation)
+                $(".modal-content", modalEl).prepend(loadingAnimation)
             },
         });
     });
@@ -232,7 +239,7 @@ $(function () {
                 }
             },
             beforeSend: function () {
-                $(".modal-content",modalEl).prepend(loadingAnimation)
+                $(".modal-content", modalEl).prepend(loadingAnimation)
             },
         });
     });
@@ -449,7 +456,6 @@ $(function () {
                             '<td>' + a.mail + '</td>' +
                             '<td>' + a.name + '</td>' +
                             '<td>' + a.lastName + '</td>' +
-                            '<td>' + a.profilPicture + '</td>' +
                             '<td>' + a.createdDate + '</td>' +
                             '<td>' + islemlerHTML({
                                 'deleteData': {
