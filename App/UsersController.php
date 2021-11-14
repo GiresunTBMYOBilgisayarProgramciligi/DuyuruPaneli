@@ -35,8 +35,12 @@ class UsersController
             unset($newUser['id']);
             $newUser["password"] = password_hash($newUser["password"], PASSWORD_DEFAULT);
             $newUser["createdDate"] = date("Y.m.d H:i:s");
-            //var_export($newUser);
             $q->execute($newUser);
+            if ($q) {
+                return ['success' => 'Slide eklendi'];
+            } else {
+                return ['error' => "Slide eklenemedi"];
+            }
         }
     }
 

@@ -35,7 +35,7 @@ class AjaxController
      */
     public function saveAnnouncement($data = []) {
         $announcementControler = new AnnouncementController();
-        $announcementControler->saveNewAnnouncement($data);
+        $this->response = $announcementControler->saveNewAnnouncement($data);
         return json_encode($this->response);
     }
 
@@ -49,7 +49,7 @@ class AjaxController
 
         try {
             $sliderController = new SlideController();
-            $sliderController->saveNewSlide($data);
+            $this->response = $sliderController->saveNewSlide($data);
         } catch (\Exception $e) {
             $this->response['error'] = $e->getMessage();
         }
@@ -64,7 +64,7 @@ class AjaxController
         }
         try {
             $userController = new UsersController();
-            $userController->saveNewUser($newUser);
+            $this->response = $userController->saveNewUser($newUser);
         } catch (\Exception $e) {
             $this->response['error'] = $e->getMessage();
         }
