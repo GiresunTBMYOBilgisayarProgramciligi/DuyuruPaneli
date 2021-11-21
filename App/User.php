@@ -14,14 +14,13 @@ class User
     public $name = null;
     public $lastName = null;
     public $createdDate = null;
-    public $db;
 
     public function __construct($id = null) {
-        $this->db = (new SQLiteConnection())->pdo;
+        $db = (new SQLiteConnection())->pdo;
         if (!is_null($id)) {
             $this->id = $id;
             try {
-                $u = $this->db->query("select * from user where id={$this->id}");
+                $u = $db->query("select * from user where id={$this->id}");
                 if ($u) {
                     $u = $u->fetch(PDO::FETCH_OBJ);
                     foreach ($u as $k => $v) {
@@ -33,6 +32,12 @@ class User
             }
         }
 
+    }
+
+    public function fillUser($data=[]){
+        foreach ($this as $k => $v) {
+            if (!is_null($data[$k]))  $this->$k = $data[$k];
+        }
     }
 
     public function getFullName() {
