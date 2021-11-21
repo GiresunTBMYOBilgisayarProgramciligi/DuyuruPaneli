@@ -44,6 +44,43 @@ class UsersController
         }
     }
 
+    public function updateUser(User $user) {
+        if ($user->password == "") {
+            unset($user->password);
+        } else {
+            $user->password = password_hash($user->password, PASSWORD_DEFAULT);
+        }
+        foreach ($user as $k => $v) {
+            if (is_null($user->$k)) unset($user->$k);
+        }
+        $numItem = count((array)$user) - 1;// id sorguya kalıtmadığı için 1 çıkartıyorum
+        $i = 0;
+
+        $query = "UPDATE user SET ";
+        foreach ($user as $k => $v) {
+            if ($k !== 'id') {
+                if (++$i === $numItem) $query .= $k . "='" . $v . "' "; else $query .= $k . "='" . $v . "', ";
+            }
+        }
+        $query .= " WHERE id=" . $user->id;
+
+        $u = $this->DB->query($query);
+        if ($u) {
+            return ['success' => 'Kullanıcı güncellendi'];
+        } else {
+            //return ['error' => "Slide güncellenemedi"];
+            return ['error' => $query];
+
+        }
+    }
+
+    public function deleteUser($id = null) {
+        if (is_null($id)) return ['error' => "ID boş"];
+        if ($id == 1) return ['error' => "Yönetici Silinemez"];
+        $this->DB->query("DELETE FROM user WHERE id=:id")->execute(array(":id" => $id));
+        return ['success' => "Kullanıcı silindi"];
+    }
+
     public function isLoggedIn() {
         if (isset($_COOKIE[Config::LOGIN_COOKIE_NAME])) return new User($_COOKIE[Config::LOGIN_COOKIE_NAME]); else
             return false;

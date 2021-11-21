@@ -120,6 +120,7 @@ $users= $userControler->getUsers();
             </div>
             <div class="modal-body">
                 <form name="updateUserForm" id="updateUserForm" method="post">
+                    <input type="hidden" id="id" name="id" value="">
                     <div class="row">
                         <div class="col-6">
                             <div class="form-group">
@@ -128,7 +129,7 @@ $users= $userControler->getUsers();
                             </div>
                             <div class="form-group">
                                 <label for="password">Şifre</label>
-                                <input required type="password" class="form-control" id="password" name="password" placeholder="Şifre">
+                                <input type="password" class="form-control" id="password" name="password" placeholder="Şifre">
                             </div>
                             <div class="form-group">
                                 <label for="link">Adı</label>
@@ -142,7 +143,7 @@ $users= $userControler->getUsers();
                             </div>
                             <div class="form-group">
                                 <label for="link">Şifre (Doğrulama)</label>
-                                <input required type="password" class="form-control" id="password2" name="password2" placeholder="Şifre tekrar">
+                                <input type="password" class="form-control" id="password2" name="password2" placeholder="Şifre tekrar">
                             </div>
                             <div class="form-group">
                                 <label for="lastName">Soyadı</label>
@@ -156,7 +157,7 @@ $users= $userControler->getUsers();
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Vazgeç</button>
-                <button type="submit" form="updateUserForm" class="btn btn-primary">Ekle</button>
+                <button type="submit" form="updateUserForm" class="btn btn-primary">Güncelle</button>
             </div>
         </div>
     </div>

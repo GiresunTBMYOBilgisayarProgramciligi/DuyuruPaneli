@@ -59,9 +59,7 @@ class AjaxController
 
     public function saveUser($data = []) {
         $newUser = new User();
-        foreach ($newUser as $k => $v) {
-            if (!is_null($data[$k])) $newUser->$k = $data[$k];
-        }
+        $newUser->fillUser($data);
         try {
             $userController = new UsersController();
             $this->response = $userController->saveNewUser($newUser);
@@ -98,6 +96,12 @@ class AjaxController
         return json_encode($this->response);
     }
 
+    public function deleteUser($data=[]){
+        $UC =new UsersController();
+        $this->response=$UC->deleteUser($data['id']);
+        return json_encode($this->response);
+    }
+
     public function deleteAnnouncement($data = []) {
         $aC = new AnnouncementController();
         $aC->deleteAnnouncement($data['id']);
@@ -129,9 +133,7 @@ class AjaxController
 
         $oldSlide = new Slide($data["id"]);
         $newSlide = new Slide();
-        foreach ($newSlide as $k => $v) {
-            $newSlide->$k = $data[$k];
-        }
+        $newSlide->fillSlide($data);
         // check image update
         if ($_FILES['image']['name'] && $oldSlide->image !== "/images/" . $_FILES["image"]['name']) {
 
@@ -164,9 +166,7 @@ class AjaxController
 
         $oldAnnouncement = new Announcement($data['id']);
         $newAnnouncement = new Announcement();
-        foreach ($newAnnouncement as $k => $v) {
-            $newAnnouncement->$k = $data[$k];
-        }
+        $newAnnouncement->fillAnnouncement($data);
         // check Link
         if ($newAnnouncement->link == $oldAnnouncement->link) {
             $newAnnouncement->link = null;
@@ -175,11 +175,29 @@ class AjaxController
 
         try {
             $newAnnouncement->id = $oldAnnouncement->id;
-            $announcementController->updateAnnouncement($newAnnouncement);
-            $this->response['success'] = "Duyuru güncellendi";
+            $this->response = $announcementController->updateAnnouncement($newAnnouncement);
         } catch (\Exception $e) {
             $this->response['error'] = $e->getMessage();
         }
+        return json_encode($this->response);
+    }
+
+    public function updateUser($data = []) {
+        if (count($data) == 0) {
+            $this->response['error'] = "Gelen veri yok";
+            return json_encode($this->response);
+        }
+        $oldUser = new User($data['id']);
+        $newUser = new User();
+        $newUser->fillUser($data);
+
+        try {
+            $userController = new UsersController();
+            $this->response = $userController->updateUser($newUser);
+        } catch (\Exception $e) {
+            $this->response['error'] = $e->getMessage();
+        }
+
         return json_encode($this->response);
     }
 
