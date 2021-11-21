@@ -33,9 +33,9 @@ class AnnouncementController
 
         $q= $this->DB->prepare("INSERT INTO announcement(title, content,qrCode, createdDate, userId, link) values (:title, :content, :qrCode, :createdDate, :userId, :link)")->execute(array(":title" => $data->title, ":content" => $data->content, ":qrCode" => $data->qrCode, ":createdDate" => date("Y.m.d H:i:s"), ":userId" => (new UsersController())->getCurrentUserId(), ":link" => $data->link));
         if ($q) {
-            return ['success' => 'Slide eklendi'];
+            return ['success' => 'Duyuru eklendi'];
         } else {
-            return ['error' => "Slide eklenemedi"];
+            return ['error' => "Duyuru eklenemedi"];
         }
     }
 
@@ -47,17 +47,6 @@ class AnnouncementController
     public function deleteAnnouncement($id = null) {
         if (is_null($id)) return false;
         $this->DB->query("DELETE FROM announcement WHERE id=:id")->execute(array(":id" => $id));
-    }
-
-    public function createQrCode($link = "") {
-        $renderer = new ImageRenderer(new RendererStyle(400, 1), new SvgImageBackEnd());
-        $writer = new Writer($renderer);
-        $qrCode = '/images/QRCodes/announcement-' . substr(md5($link), 0, 15) . '.svg';
-        $qrCodeFile = Config::ROOT_PATH . 'images/QRCodes/announcement-' . substr(md5($link), 0, 15) . '.svg';
-        $bitly = Bitly::withGenericAccessToken("34fd0f467aa181b58e72330dacf76726fe7c118f");
-        $short_url = $bitly->shortenUrl($link);
-        $writer->writeFile($short_url, $qrCodeFile);
-        return $qrCode;
     }
 
     public function updateAnnouncement(Announcement $announcement) {
@@ -73,7 +62,7 @@ class AnnouncementController
         foreach ($announcement as $k => $v) {
             if (is_null($v)) unset($announcement->$k);// Remove properties which not updated
         }
-        $numItem = count((array)$announcement) - 1;// id sorguya kalıtmadığı için 2 çıkartıyorum
+        $numItem = count((array)$announcement) - 1;// id sorguya kalıtmadığı için 1 çıkartıyorum
         $i = 0;
         $query = "UPDATE announcement SET ";
         foreach ($announcement as $k => $v) {
@@ -82,6 +71,22 @@ class AnnouncementController
             }
         }
         $query .= " WHERE id=" . $announcement->id;
-        $this->DB->query($query);
+
+        $q=$this->DB->query($query);
+        if ($q) {
+            return ['success' => 'Duyuru güncellendi'];
+        } else {
+            return ['error' => "Duyuru güncellenemedi"];
+        }
+    }
+    public function createQrCode($link = "") {
+        $renderer = new ImageRenderer(new RendererStyle(400, 1), new SvgImageBackEnd());
+        $writer = new Writer($renderer);
+        $qrCode = '/images/QRCodes/announcement-' . substr(md5($link), 0, 15) . '.svg';
+        $qrCodeFile = Config::ROOT_PATH . 'images/QRCodes/announcement-' . substr(md5($link), 0, 15) . '.svg';
+        $bitly = Bitly::withGenericAccessToken("34fd0f467aa181b58e72330dacf76726fe7c118f");
+        $short_url = $bitly->shortenUrl($link);
+        $writer->writeFile($short_url, $qrCodeFile);
+        return $qrCode;
     }
 }
