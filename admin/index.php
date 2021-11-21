@@ -38,10 +38,10 @@ else:
     <nav class="navbar default-layout col-lg-12 col-12 p-0 fixed-top d-flex align-items-top flex-row">
         <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-start">
             <div>
-                <a class="navbar-brand brand-logo" href="index.php">
+                <a class="navbar-brand brand-logo" href="/">
                     DuyuruPaneli
                 </a>
-                <a class="navbar-brand brand-logo-mini" href="index.php">
+                <a class="navbar-brand brand-logo-mini" href="/">
                     DP
                 </a>
             </div>
