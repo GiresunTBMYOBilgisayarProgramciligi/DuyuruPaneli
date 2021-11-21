@@ -57,10 +57,10 @@ else:
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item dropdown d-none d-lg-block user-dropdown">
                     <a class="nav-link" id="UserDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false">
-                        <img class="img-xs rounded-circle" src="images/faces/face8.jpg" alt="Profile image"> </a>
+                        <img class="img-xs rounded-circle" src="<?=$user->getGravatarURL()?>" alt="Profile image"> </a>
                     <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="UserDropdown">
                         <div class="dropdown-header text-center">
-                            <img class="img-md rounded-circle" src="images/faces/face8.jpg" alt="Profile image">
+                            <img class="img-md rounded-circle" src="<?=$user->getGravatarURL()?>" alt="Profile image">
                             <p class="mb-1 mt-3 font-weight-semibold"><?= $user->getFullName() ?></p>
                             <p class="fw-light text-muted mb-0"><?= $user->mail ?></p>
                         </div>

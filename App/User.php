@@ -43,4 +43,9 @@ class User
     public function getFullName() {
         return $this->name . " " . $this->lastName;
     }
+
+    public function getGravatarURL($size=50){
+        $default=$_SERVER["HTTP_REFERER"]."images/faces/profile_icon.png";
+        return "https://www.gravatar.com/avatar/" . md5( strtolower( trim( $this->mail ) ) ) . "?d=" . urlencode( $default ) . "&s=" . $size;
+    }
 }
