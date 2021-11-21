@@ -15,7 +15,7 @@ class SQLiteConnection
 
     function __construct() {
         if (!file_exists(\App\Config::ROOT_PATH . "/db")) {
-            mkdir(\App\Config::ROOT_PATH . "/db");
+            mkdir(\App\Config::ROOT_PATH . "/db",0777);
             $this->connect();
             try {
                 $this->setup();
