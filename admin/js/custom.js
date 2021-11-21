@@ -1,11 +1,10 @@
 var $ = require('jquery');
 window.$ = $;
+window.jQuery = $
 const bootstrap = require('bootstrap');
 const jsConvert = require('js-convert-case');
 require('dropify')
 $(function () {
-
-    console.log(jsConvert.toCamelCase('param-case')); // paramCase
     var newAnnouncementForm = $('form[name="newAnnouncementForm"]');
     var newSlideForm = $('form[name="newSlideForm"]');
     var newUserForm = $('form[name="newUserForm"]');
@@ -383,7 +382,7 @@ $(function () {
                                     'content': slide.content,
                                     'image': slide.image,
                                     'link': slide.link,
-                                    'fullWidth': slide.fullWidth
+                                    'full-width': slide.fullWidth
                                 }
                             }) + '</td>' +
                             '</tr>'
@@ -446,30 +445,29 @@ $(function () {
                 } else {
                     loadingAnimation.remove();
                     outHTML = ""
-                    respons.forEach(function (a, i) {
+                    respons.forEach(function (user, i) {
                         i++
-                        var QR = a.qrCode == "" ? "" : "<img class='rounded-0' src=\"" + a.qrCode + "\">"
                         outHTML +=
                             '<tr>' +
                             '<td>' + i + '</td>' +
-                            '<td>' + a.userName + '</td>' +
-                            '<td>' + a.mail + '</td>' +
-                            '<td>' + a.name + '</td>' +
-                            '<td>' + a.lastName + '</td>' +
-                            '<td>' + a.createdDate + '</td>' +
+                            '<td>' + user.userName + '</td>' +
+                            '<td>' + user.mail + '</td>' +
+                            '<td>' + user.name + '</td>' +
+                            '<td>' + user.lastName + '</td>' +
+                            '<td>' + user.createdDate + '</td>' +
                             '<td>' + islemlerHTML({
                                 'deleteData': {
-                                    'formName': "deleteUser-" + a.id,
-                                    'fromId': "deleteUser-" + a.id,
-                                    'deleteId': a.id
+                                    'formName': "deleteUser-" + user.id,
+                                    'fromId': "deleteUser-" + user.id,
+                                    'deleteId': user.id
                                 },
-                                'updateData': {
+                                'updateData': {// Burada input isimleri snake case olarak yazılmalı. Bu sayede sonradan camelcase e dönüştürülebilirler
                                     'modalName': "updateUserModal",
-                                    'id': a.id,
-                                    'userName': a.username,
-                                    'mail': a.mail,
-                                    'name': a.name,
-                                    'lastName': a.lastName,
+                                    'id': user.id,
+                                    'user-name': user.userName,
+                                    'mail': user.mail,
+                                    'name': user.name,
+                                    'last-name': user.lastName,
                                 }
                             }) + '</td>' +
                             '</tr>'
@@ -509,17 +507,25 @@ $(function () {
         // Button that triggered the modal
         var button = event.relatedTarget
         var formData = {};
+
+        /**
+         * Modal açmak için kullanılan butonda bulunan data-bs-* öznitelikleri FormData nesnesine ekleniyor.
+         * data-bs-* öz nitelik olarak yazılırken camelcase veriler lowercase olarak yazılıyor. Bu yüzden bu veriler snakecase olarak alınıp burada camelcase e dönüştürülüyor.
+         */
         $.each(button.attributes, function (i, attr) {
             if (!([undefined, 'toggle', 'target'].includes(attr.name.split("data-bs-")[1]))) {
-                formData[attr.name.split("data-bs-")[1]] = attr.value
 
+                formData[jsConvert.toCamelCase(attr.name.split("data-bs-")[1])] = attr.value
             }
 
         })
+        /**
+         * FormData nesnesindeki veriler modal içerisindeki inputlara ekleniyor.
+         */
         Object.entries(formData).forEach(entry => {
             const [k, v] = entry;
             var input = "";
-            if (k === "fullwidth") {//veriyi jafascript ile eklediğim için html içeriğine w küçük olarak yazılıyor.
+            if (k === "fullWidth") {
                 if (v == 1) {
                     $('input[name="fullWidth"]', modal).attr('checked', 'checked');
                 }

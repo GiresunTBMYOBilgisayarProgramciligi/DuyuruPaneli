@@ -14,9 +14,10 @@
     "perfect-scrollbar": "^1.4.0",
     "ti-icons": "^0.1.2"
   },
-  "devDependencies": {},
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "install": "browserify ./js/custom.js -o js/bundle.js -d",
+    "init": "browserify ./js/custom.js -o js/bundle.js -d"
   },
   "author": "bootstrapdash",
   "url": "http://www.bootstrapdash.com/",
