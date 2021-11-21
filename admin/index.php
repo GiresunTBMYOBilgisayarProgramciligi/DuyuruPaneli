@@ -121,17 +121,7 @@ else:
 </div>
 <!-- container-scroller -->
 
-<!-- plugins:js -->
 <script src="js/bundle.js"></script>
-<!-- endinject -->
-<!-- Plugin js for this page -->
-
-<!-- End plugin js for this page -->
-<!-- inject:js -->
-
-<!-- endinject -->
-
-<!-- End custom js for this page-->
 
 </body>
 
