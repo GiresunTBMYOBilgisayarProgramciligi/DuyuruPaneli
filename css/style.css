@@ -1,5 +1,5 @@
 body{
-    margin: 20px;
+    margin: 0;
 }
 .logo{
     width: 80px;
@@ -19,4 +19,10 @@ body{
 .breakingQr{
     width: 50px;
     margin-left: 3px;
+}
+main{
+    min-height: calc(100vh - 10px);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }

@@ -22,28 +22,27 @@ $slides= (new SlideController())->getSlides();
     <title>Tirebolu MYO Duyurular</title>
 </head>
 <body>
-
-<header>
-    <div class="container-fluid">
-        <div class="row align-items-center">
-            <div class="col text-center">
-                <img src="images/logo_230x230.png" alt="logo" class="logo img-fluid">
-            </div>
-            <div class="col-5 text-center">
-                <h2 class="baslik">Tirebolu Mehmet Bayrak Meslek Yüksekokulu</h2>
-            </div>
-            <div class="col" style="height: 100px">
-                <!-- Hava Durumu -->
-                <a class="weatherwidget-io" href="https://forecast7.com/tr/41d0138d81/tirebolu/" data-icons="Climacons Animated" data-mode="Current" data-days="3" data-theme="pure" >Tirebolu Mehmet Bayrak MYO</a>
-                <script>
-                    !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src='https://weatherwidget.io/js/widget.min.js';fjs.parentNode.insertBefore(js,fjs);}}(document,'script','weatherwidget-io-js');
-                </script>
-                <!--/ Hava Durumu -->
+<main class="mt-2">
+    <header>
+        <div class="container-fluid">
+            <div class="row align-items-center">
+                <div class="col text-center">
+                    <img src="images/logo_230x230.png" alt="logo" class="logo img-fluid">
+                </div>
+                <div class="col-5 text-center">
+                    <h2 class="baslik">Tirebolu Mehmet Bayrak Meslek Yüksekokulu</h2>
+                </div>
+                <div class="col" style="height: 100px">
+                    <!-- Hava Durumu -->
+                    <a class="weatherwidget-io" href="https://forecast7.com/tr/41d0138d81/tirebolu/" data-icons="Climacons Animated" data-mode="Current" data-days="3" data-theme="pure" >Tirebolu Mehmet Bayrak MYO</a>
+                    <script>
+                        !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src='https://weatherwidget.io/js/widget.min.js';fjs.parentNode.insertBefore(js,fjs);}}(document,'script','weatherwidget-io-js');
+                    </script>
+                    <!--/ Hava Durumu -->
+                </div>
             </div>
         </div>
-    </div>
-</header>
-<main class="mt-2">
+    </header>
     <div class="container-fluid">
         <div class="row">
             <div class="col-12">
@@ -86,20 +85,21 @@ $slides= (new SlideController())->getSlides();
             </div>
         </div>
     </div>
-</main>
-<!-- Last Announcements HTML STARTS HERE *-->
-<!-- *********************** -->
-<div class="breaking-news-ticker" id="lastAnnouncements">
-    <div class="bn-label">Son Duyurular</div>
-    <div class="bn-news">
-        <ul>
-            <li><span class="bn-loader-text">Loading post from JSON file...</span></li>
-        </ul>
-    </div>
+    <!-- Last Announcements HTML STARTS HERE *-->
+    <!-- *********************** -->
+    <div class="breaking-news-ticker" id="lastAnnouncements">
+        <div class="bn-label">Son Duyurular</div>
+        <div class="bn-news">
+            <ul>
+                <li><span class="bn-loader-text">Loading post from JSON file...</span></li>
+            </ul>
+        </div>
 
-</div>
-<!-- *********************** -->
-<!-- Last Announcements HTML END HERE *** -->
+    </div>
+    <!-- *********************** -->
+    <!-- Last Announcements HTML END HERE *** -->
+</main>
+
 
 
 <!-- Optional JavaScript -->
@@ -111,8 +111,11 @@ $slides= (new SlideController())->getSlides();
 <script src="js/bootstrap.min.js"></script>
 <script src="js/breaking-news-ticker.min.js"></script>
 <script type="text/javascript">
+    /**
+     * @link http://tevratgundogdu.com/works/ideabox-breaking-news-ticker/
+     */
     $('#lastAnnouncements').breakingNews({
-        position: 'fixed-bottom',
+        /*position: 'fixed-bottom',*/
         borderWidth: 3,
         height: 60,
         themeColor: '#000B98',
