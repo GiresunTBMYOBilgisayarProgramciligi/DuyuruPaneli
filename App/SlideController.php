@@ -2,11 +2,7 @@
 
 namespace App;
 
-use BaconQrCode\Renderer\Image\SvgImageBackEnd;
-use BaconQrCode\Renderer\ImageRenderer;
-use BaconQrCode\Renderer\RendererStyle\RendererStyle;
-use BaconQrCode\Writer;
-use GabrielKaputa\Bitly\Bitly;
+use App\ShortlinkAndQRController;
 use PDO;
 
 
@@ -17,8 +13,11 @@ class SlideController
      */
     private $DB;
 
-
-    public function __construct() {
+    /**
+     *
+     */
+    public function __construct()
+    {
         $this->DB = (new SQLiteConnection())->pdo;
 
     }
@@ -26,17 +25,23 @@ class SlideController
     /**
      * @return array|false
      */
-    public function getSlides() {
+    public function getSlides()
+    {
         $q = $this->DB->query("select slider.*, u.name || ' ' || u.lastName as userFullName from slider inner join user u on u.id = slider.userId", PDO::FETCH_OBJ);
         if ($q) return $q->fetchAll();
     }
 
-    public function saveNewSlide($data) {
+    /**
+     * @param $data
+     * @return array|string[]
+     */
+    public function saveNewSlide($data)
+    {
         $data = (object)$data;
-
-        $data->qrCode = $data->link != "" ? $this->createQrCode($data->link) : "";
-        $fullWidth = isset($data->fullWidth) ? 1 : 0;
         try {
+            $short = new ShortlinkAndQRController();
+            $data->qrCode = $data->link != "" ? $short->get_qrcode_with_long_url($data->link) : "";
+            $fullWidth = isset($data->fullWidth) ? 1 : 0;
             $a = $this->DB->prepare("INSERT INTO slider (title, content, image, qrCode, createdDate, userId, fullWidth, link) values (:title,:content,:image,:qrCode,:createdDate,:userId,:fullWidth, :link )")->execute(
                 array(
                     ":title" => $data->title,
@@ -60,32 +65,36 @@ class SlideController
 
     /**
      * @param Slide $slide
+     * @return array|true
      */
-    public function updateSlide(Slide $slide) {
-        if (!is_null($slide->link)) {
-            if ($slide->link == "") {
-                unlink(Config::ROOT_PATH . substr($slide->qrCode, 1));
-                $slide->qrCode = "";
-            } else {
-                $slide->qrCode = $this->createQrCode($slide->link);
-            }
-        }
-        $query = "UPDATE slider SET ";
-        foreach ($slide as $k => $v) {
-            if (is_null($v)) unset($slide->$k);
+    public function updateSlide(Slide $slide)
+    {
+        try {
+            if (!is_null($slide->link)) {
+                $short = new ShortlinkAndQRController();
 
-        }
-        //var_export($slide);
-        $numItem = count((array)$slide) - 1;// id sorguya kalıtmadığı için 2 çıkartıyorum
-        $i = 0;
-        foreach ($slide as $k => $v) {
-            if ($k !== 'id') {
-                if (++$i === $numItem) $query .= $k . "='" . $v . "' "; else $query .= $k . "='" . $v . "', ";
+                $slide->qrCode = $slide->link != "" ? $short->get_qrcode_with_long_url($slide->link) : "";
             }
+            $query = "UPDATE slider SET ";
+            foreach ($slide as $k => $v) {
+                if (is_null($v)) unset($slide->$k);
+
+            }
+            //var_export($slide);
+            $numItem = count((array)$slide) - 1;// id sorguya kalıtmadığı için 2 çıkartıyorum
+            $i = 0;
+            foreach ($slide as $k => $v) {
+                if ($k !== 'id') {
+                    if (++$i === $numItem) $query .= $k . "='" . $v . "' "; else $query .= $k . "='" . $v . "', ";
+                }
+            }
+            $query .= " WHERE id=" . $slide->id;
+            //echo $query;
+            $this->DB->query($query);
+        } catch (\Exception $e) {
+            return ['error' => $e->getMessage()];
         }
-        $query .= " WHERE id=" . $slide->id;
-        //echo $query;
-        $this->DB->query($query);
+        return true;
     }
 
     /**
@@ -93,19 +102,9 @@ class SlideController
      * @param null $id
      * @return false|void
      */
-    public function deleteSlide($id = null) {
+    public function deleteSlide($id = null)
+    {
         if (is_null($id)) return false;
         $this->DB->query("DELETE FROM slider WHERE id=:id")->execute(array(":id" => $id));
-    }
-
-    public function createQrCode($link = "") {
-        $renderer = new ImageRenderer(new RendererStyle(400, 1), new SvgImageBackEnd());
-        $writer = new Writer($renderer);
-        $qrCode = '/images/QRCodes/slide-' . substr(md5($link), 0, 15) . '.svg';
-        $qrCodeFile = Config::ROOT_PATH . 'images/QRCodes/slide-' . substr(md5($link), 0, 15) . '.svg';
-        $bitly = Bitly::withGenericAccessToken("34fd0f467aa181b58e72330dacf76726fe7c118f");
-        $short_url = $bitly->shortenUrl($link);
-        $writer->writeFile($short_url, $qrCodeFile);
-        return $qrCode;
     }
 }
