@@ -120,3 +120,5 @@ fabric.properties
 db
 
 images/QRCodes/
+
+.env

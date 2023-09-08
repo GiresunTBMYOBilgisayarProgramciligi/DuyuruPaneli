@@ -11,7 +11,9 @@
   ],
   "require": {
     "bacon/bacon-qr-code": "^2.0",
-    "gabrielkaputa/bitly": "^1.0"
+    "gabrielkaputa/bitly": "^1.0",
+    "guzzlehttp/guzzle": "^7.8",
+    "vlucas/phpdotenv": "^5.5"
   },
   "autoload": {
     "psr-4": {
