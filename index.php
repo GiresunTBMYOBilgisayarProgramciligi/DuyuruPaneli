@@ -5,7 +5,7 @@ namespace App;
 setlocale(LC_ALL, 'tr_TR.UTF-8');
 require 'vendor/autoload.php';
 
-$slides= (new SlideController())->getSlides();
+$slides = (new SlideController())->getSlides();
 ?>
 <!doctype html>
 <html lang="tr">
@@ -13,7 +13,11 @@ $slides= (new SlideController())->getSlides();
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta http-equiv="refresh" content="<?= count($slides)*60?>">
+    <?php
+    if (count($slides) > 0) {
+        echo '<meta http-equiv="refresh" content="' . count($slides) * 60 . '">';
+    }
+    ?>
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/style.css">
@@ -34,9 +38,19 @@ $slides= (new SlideController())->getSlides();
                 </div>
                 <div class="col" style="height: 100px">
                     <!-- Hava Durumu -->
-                    <a class="weatherwidget-io" href="https://forecast7.com/tr/41d0138d81/tirebolu/" data-icons="Climacons Animated" data-mode="Current" data-days="3" data-theme="pure" >Tirebolu Mehmet Bayrak MYO</a>
+                    <a class="weatherwidget-io" href="https://forecast7.com/tr/41d0138d81/tirebolu/"
+                       data-icons="Climacons Animated" data-mode="Current" data-days="3" data-theme="pure">Tirebolu
+                        Mehmet Bayrak MYO</a>
                     <script>
-                        !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src='https://weatherwidget.io/js/widget.min.js';fjs.parentNode.insertBefore(js,fjs);}}(document,'script','weatherwidget-io-js');
+                        !function (d, s, id) {
+                            var js, fjs = d.getElementsByTagName(s)[0];
+                            if (!d.getElementById(id)) {
+                                js = d.createElement(s);
+                                js.id = id;
+                                js.src = 'https://weatherwidget.io/js/widget.min.js';
+                                fjs.parentNode.insertBefore(js, fjs);
+                            }
+                        }(document, 'script', 'weatherwidget-io-js');
                     </script>
                     <!--/ Hava Durumu -->
                 </div>
@@ -51,21 +65,34 @@ $slides= (new SlideController())->getSlides();
                     <div class="card-body p-0">
                         <div id="afisler" class="carousel slide" data-ride="carousel">
                             <div class="carousel-inner">
-                               <?php
-                                $active=true;
-                                foreach ($slides as $slide){
-                                    $c=$active ? "active":"";
-                                    $w=$slide->fullWidth ? "w-100": "";
+                                <?php
+                                if (count($slides) > 0) {
+
+                                    $active = true;
+                                    foreach ($slides as $slide) {
+                                        $c = $active ? "active" : "";
+                                        $w = $slide->fullWidth ? "w-100" : "";
+                                        echo '
+                                        <div class="carousel-item ' . $c . '">
+                                            <img src="' . $slide->image . '" class="d-block ' . $w . '" alt="" >
+                                            <div class="carousel-caption d-none d-md-block">
+                                                <h5>' . $slide->title . '</h5>
+                                                <p>' . $slide->content . '</p>
+                                            </div>
+                                        </div>
+                                        ';
+                                        $active = false;
+                                    }
+                                } else{
                                     echo '
-                                    <div class="carousel-item '.$c.'">
-                                    <img src="'.$slide->image.'" class="d-block '.$w.'" alt="" >
-                                    <div class="carousel-caption d-none d-md-block">
-                                        <h5>'.$slide->title.'</h5>
-                                        <p>'.$slide->content.'</p>
-                                    </div>
-                                </div>
-                                    ';
-                                    $active=false;
+                                        <div class="carousel-item active">
+                                            <img src="" class="d-block " alt="" height="500px">
+                                            <div class="carousel-caption d-none d-md-block">
+                                                <h5 style="color: #000000">Duyuru Yok</h5>
+                                                <p style="color: #000000">Gösterilecek duyuru yok</p>
+                                            </div>
+                                        </div>
+                                        ';
                                 }
                                 ?>
                             </div>
@@ -101,7 +128,6 @@ $slides= (new SlideController())->getSlides();
 </main>
 
 
-
 <!-- Optional JavaScript -->
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->
 <script src="js/jquery.min.js"></script>
@@ -121,7 +147,7 @@ $slides= (new SlideController())->getSlides();
         themeColor: '#000B98',
         scrollSpeed: 0.5,
         effect: 'slide-down',
-        delayTimer:10000,
+        delayTimer: 10000,
         source: {
             type: 'json',
             url: 'admin/ajax.php',
