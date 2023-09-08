@@ -1,9 +1,9 @@
 <?php
+namespace App;
+
 /* Yereli Türkçe yapalım */
 setlocale(LC_ALL, 'tr_TR.UTF-8');
 require 'vendor/autoload.php';
-
-use App\SlideController;
 
 $slides= (new SlideController())->getSlides();
 ?>
