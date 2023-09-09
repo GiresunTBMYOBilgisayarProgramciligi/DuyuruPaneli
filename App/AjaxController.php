@@ -3,6 +3,7 @@
 namespace App;
 
 use DateTime;
+use Upload;
 
 class AjaxController
 {
@@ -45,11 +46,12 @@ class AjaxController
      * @return false|string
      */
     public function saveSlide($data = []) {
-        $data['image'] = $this->uploadImage();
-
         try {
+            if ($this->uploadImage()) {
+                $data['image'] = $this->uploadImage();
+            } else return json_encode($this->response);
             $sliderController = new SlideController();
-            $this->response = $sliderController->saveNewSlide($data);
+            $this->response[] = $sliderController->saveNewSlide($data);
         } catch (\Exception $e) {
             $this->response['error'] = $e->getMessage();
         }
@@ -96,9 +98,9 @@ class AjaxController
         return json_encode($this->response);
     }
 
-    public function deleteUser($data=[]){
-        $UC =new UsersController();
-        $this->response=$UC->deleteUser($data['id']);
+    public function deleteUser($data = []) {
+        $UC = new UsersController();
+        $this->response = $UC->deleteUser($data['id']);
         return json_encode($this->response);
     }
 
@@ -201,13 +203,48 @@ class AjaxController
         return json_encode($this->response);
     }
 
+    /**
+     * @return string|void
+     *
+     */
     public function uploadImage() {
         if ($_FILES['image']['name']) {
+            $storage = new Upload\Storage\FileSystem(Config::ROOT_PATH . "images/");
+            $file = new Upload\File('image', $storage);
+
+            // Validate file upload
+            // MimeType List => http://www.iana.org/assignments/media-types/media-types.xhtml
+            $file->addValidations(array(
+                // Ensure file is of type "image/png"
+                new Upload\Validation\Mimetype(array('image/png', 'image/jpeg')),
+
+                //You can also add multi mimetype validation
+                //new \Upload\Validation\Mimetype(array('image/png', 'image/gif'))
+
+                // Ensure file is no larger than 5M (use "B", "K", M", or "G")
+                new Upload\Validation\Size('5M')
+            ));
+
+            // Access data about the file that has been uploaded
+            $data = array(
+                'name' => $file->getNameWithExtension(),
+                'extension' => $file->getExtension(),
+                'mime' => $file->getMimetype(),
+                'size' => $file->getSize(),
+                'md5' => $file->getMd5(),
+                'dimensions' => $file->getDimensions()
+            );
+
+            // Try to upload file
             try {
-                move_uploaded_file($_FILES["image"]["tmp_name"], Config::ROOT_PATH . "images/" . $_FILES['image']['name']);
-                return "/images/" . $_FILES["image"]['name'];
+                // Success!
+                $file->upload();
+                return "/images/" . $file->getNameWithExtension();
+
             } catch (\Exception $e) {
-                $this->response['error'] = "Fotoğraf Yüklenemedi. Hata->" . $e->getMessage();
+                // Fail!
+                $this->response['error'] = $file->getErrors();
+                return false;
             }
         }
     }
