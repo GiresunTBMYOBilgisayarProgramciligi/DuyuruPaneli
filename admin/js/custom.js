@@ -285,13 +285,12 @@ $(function () {
                         outHTML = ""
                         respons.forEach(function (a, i) {
                             i++
-                            var QR = a.qrCode == "" ? "" : "<img class='rounded-0' src=\"" + a.qrCode + "\">"
                             outHTML +=
                                 '<tr>' +
                                 '<td>' + i + '</td>' +
                                 '<td>' + a.title + '</td>' +
                                 '<td>' + a.content + '</td>' +
-                                '<td>' + QR + '</td>' +
+                                '<td>' + a.qrCode + '</td>' +
                                 '<td>' + a.userFullName + '</td>' +
                                 '<td>' + a.createdDate + '</td>' +
                                 '<td>' + islemlerHTML({
@@ -371,14 +370,13 @@ $(function () {
                         outHTML = ""
                         respons.forEach(function (slide, i) {
                             i++
-                            var QR = slide.qrCode == "" ? "" : "<img class='rounded-0' src=\"" + slide.qrCode + "\">"
                             outHTML +=
                                 '<tr>' +
                                 '<td>' + i + '</td>' +
                                 '<td>' + slide.title + '</td>' +
                                 '<td>' + slide.content + '</td>' +
                                 '<td> <img class="rounded-0" src="' + slide.image + '"></td>' +
-                                '<td>' + QR + '</td>' +
+                                '<td>' + slide.qrCode + '</td>' +
                                 '<td>' + slide.userFullName + '</td>' +
                                 '<td>' + slide.createdDate + '</td>' +
                                 '<td>' + islemlerHTML({

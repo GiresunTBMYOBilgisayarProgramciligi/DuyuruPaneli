@@ -2,7 +2,6 @@
 
 namespace App;
 
-use GabrielKaputa\Bitly\Bitly;
 use PDO;
 use BaconQrCode\Renderer\ImageRenderer;
 use BaconQrCode\Renderer\Image\SvgImageBackEnd;
@@ -34,7 +33,7 @@ class AnnouncementController
         try {
             $data = (object)$arr;
             $short = new ShortlinkAndQRController();
-            $data->qrCode = $data->link != "" ? $short->get_qrcode_with_long_url($data->link) : "";
+            $data->qrCode = $data->link != "" ? $this->createQrCode($short->create_short_link($data->link)) : "";
 
             $q = $this->DB->prepare("INSERT INTO announcement(title, content,qrCode, createdDate, userId, link) values (:title, :content, :qrCode, :createdDate, :userId, :link)")->execute(array(":title" => $data->title, ":content" => $data->content, ":qrCode" => $data->qrCode, ":createdDate" => date("Y.m.d H:i:s"), ":userId" => (new UsersController())->getCurrentUserId(), ":link" => $data->link));
             if ($q) {
@@ -72,7 +71,7 @@ class AnnouncementController
                     $announcement->qrCode = "";
                 } else {
                     $short = new ShortlinkAndQRController();
-                    $announcement->qrCode = $announcement->link != "" ? $short->get_qrcode_with_long_url($announcement->link) : "";
+                    $announcement->qrCode = $announcement->link != "" ? $this->createQrCode($short->create_short_link($announcement->link)) : "";
                 }
             }
 
@@ -98,6 +97,13 @@ class AnnouncementController
         } catch (\Exception $e) {
             return ['error' => $e->getMessage()];
         }
-
+    }
+    public function createQrCode($short_url = "") {
+        $renderer = new ImageRenderer(new RendererStyle(50, 1), new SvgImageBackEnd());
+        $writer = new Writer($renderer);
+        /** @var TYPE_NAME $writer */
+        $qrCode= $writer->writeString($short_url);
+        $qrCode = substr($qrCode, strpos($qrCode, "\n") + 1);
+        return $qrCode;
     }
 }

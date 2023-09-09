@@ -2,9 +2,11 @@
 
 namespace App;
 
-use App\ShortlinkAndQRController;
 use PDO;
-
+use BaconQrCode\Renderer\ImageRenderer;
+use BaconQrCode\Renderer\Image\SvgImageBackEnd;
+use BaconQrCode\Renderer\RendererStyle\RendererStyle;
+use BaconQrCode\Writer;
 
 class SlideController
 {
@@ -40,7 +42,7 @@ class SlideController
         $data = (object)$data;
         try {
             $short = new ShortlinkAndQRController();
-            $data->qrCode = $data->link != "" ? $short->get_qrcode_with_long_url($data->link) : "";
+            $data->qrCode = $data->link != "" ? $this->createQrCode($short->create_short_link($data->link)) : "";
             $fullWidth = isset($data->fullWidth) ? 1 : 0;
             $a = $this->DB->prepare("INSERT INTO slider (title, content, image, qrCode, createdDate, userId, fullWidth, link) values (:title,:content,:image,:qrCode,:createdDate,:userId,:fullWidth, :link )")->execute(
                 array(
@@ -73,7 +75,7 @@ class SlideController
             if (!is_null($slide->link)) {
                 $short = new ShortlinkAndQRController();
 
-                $slide->qrCode = $slide->link != "" ? $short->get_qrcode_with_long_url($slide->link) : "";
+                $slide->qrCode = $slide->link != "" ? $this->createQrCode($short->create_short_link($slide->link)) : "";
             }
             $query = "UPDATE slider SET ";
             foreach ($slide as $k => $v) {
@@ -106,5 +108,15 @@ class SlideController
     {
         if (is_null($id)) return false;
         $this->DB->query("DELETE FROM slider WHERE id=:id")->execute(array(":id" => $id));
+    }
+
+    public function createQrCode($short_url = "")
+    {
+        $renderer = new ImageRenderer(new RendererStyle(50, 1), new SvgImageBackEnd());
+        $writer = new Writer($renderer);
+        /** @var TYPE_NAME $writer */
+        $qrCode = $writer->writeString($short_url);
+        $qrCode = substr($qrCode, strpos($qrCode, "\n") + 1);
+        return $qrCode;
     }
 }
