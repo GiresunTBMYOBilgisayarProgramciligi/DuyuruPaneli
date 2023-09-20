@@ -3,7 +3,7 @@
 namespace App;
 
 use DateTime;
-use Upload;
+use App\Helper;
 
 class AjaxController
 {
@@ -47,11 +47,11 @@ class AjaxController
      */
     public function saveSlide($data = []) {
         try {
-            if ($this->uploadImage()) {
-                $data['image'] = $this->uploadImage();
+            if ($image = $this->uploadImage()) {
+                $data['image'] = $image;
             } else return json_encode($this->response);
             $sliderController = new SlideController();
-            $this->response[] = $sliderController->saveNewSlide($data);
+            $this->response = $sliderController->saveNewSlide($data);
         } catch (\Exception $e) {
             $this->response['error'] = $e->getMessage();
         }
@@ -138,8 +138,8 @@ class AjaxController
         $newSlide->fillSlide($data);
         // check image update
         if ($_FILES['image']['name'] && $oldSlide->image !== "/images/" . $_FILES["image"]['name']) {
-
-            $newSlide->image = $this->uploadImage();
+            if ($image = $this->uploadImage())
+                $newSlide->image = $image;
         }
         //check fullWidth
         $newSlide->fullWidth = isset($newSlide->fullWidth) ? 1 : 0;
@@ -209,41 +209,33 @@ class AjaxController
      */
     public function uploadImage() {
         if ($_FILES['image']['name']) {
-            $storage = new Upload\Storage\FileSystem(Config::ROOT_PATH . "images/");
-            $file = new Upload\File('image', $storage);
+            $file = Config::ROOT_PATH."images/" . basename($_FILES["image"]["name"]);
 
-            // Validate file upload
-            // MimeType List => http://www.iana.org/assignments/media-types/media-types.xhtml
-            $file->addValidations(array(
-                // Ensure file is of type "image/png"
-                new Upload\Validation\Mimetype(array('image/png', 'image/jpeg')),
+            // Dosya türünü kontrol etmek için izin verilen dosya uzantıları
+            $allowedExtensions = array("jpg", "jpeg", "png", "gif");
 
-                //You can also add multi mimetype validation
-                //new \Upload\Validation\Mimetype(array('image/png', 'image/gif'))
-
-                // Ensure file is no larger than 5M (use "B", "K", M", or "G")
-                new Upload\Validation\Size('5M')
-            ));
-
-            // Access data about the file that has been uploaded
-            $data = array(
-                'name' => $file->getNameWithExtension(),
-                'extension' => $file->getExtension(),
-                'mime' => $file->getMimetype(),
-                'size' => $file->getSize(),
-                'md5' => $file->getMd5(),
-                'dimensions' => $file->getDimensions()
-            );
+            // Dosya uzantısını al
+            $fileExtension = strtolower(pathinfo($file, PATHINFO_EXTENSION));
 
             // Try to upload file
             try {
-                // Success!
-                $file->upload();
-                return "/images/" . $file->getNameWithExtension();
+                // Dosyanın izin verilen uzantılardan birine sahip olup olmadığını kontrol et
+                if (!in_array($fileExtension, $allowedExtensions)) {
+                    throw new \Exception("Hata: Sadece JPG, JPEG, PNG ve GIF dosyaları yüklenebilir.");
+                } elseif ($_FILES["image"]["size"] > Helper::getUploadMaxSizeToBytes()) {
+                    throw new \Exception("Hata: Dosya boyutu çok büyük.");
+                } else {
+                    // Dosyayı yükle
+                    if (!move_uploaded_file($_FILES["image"]["tmp_name"], $file)) {
+                        $error = error_get_last();
+                        throw new \Exception("Hata: Dosya yüklenirken bir sorun oluştu.\n" . $error['message'] . "\n" . $error['file'] . ":" . $error['line']);
+                    }
+                }
+                return "/images/" . $_FILES["image"]['name'];
 
             } catch (\Exception $e) {
                 // Fail!
-                $this->response['error'] = $file->getErrors();
+                $this->response['error'] = $e->getMessage();
                 return false;
             }
         }
