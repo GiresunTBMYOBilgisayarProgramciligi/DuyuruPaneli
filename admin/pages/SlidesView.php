@@ -91,7 +91,7 @@ $slides = $slideControler->getSlides();
 
                         </div>
                         <div class="col-md-4">
-                            <input required type="file" name="image" id="image" class="dropify" data-show-remove="true"/>
+                            <input required type="file" name="image" id="image" class="dropify" data-show-remove="true" accept="image/*"/>
 
                             <div class="form-check form-check-flat form-check-primary">
                                 <label class="form-check-label">
@@ -139,7 +139,7 @@ $slides = $slideControler->getSlides();
 
                         </div>
                         <div class="col-md-4">
-                            <input type="file" name="image" id="image" class="dropify" data-show-remove="true"/>
+                            <input type="file" name="image" id="image" class="dropify" data-show-remove="true" accept="image/*"/>
 
                             <div class="form-check form-check-flat form-check-primary">
                                 <label class="form-check-label">
