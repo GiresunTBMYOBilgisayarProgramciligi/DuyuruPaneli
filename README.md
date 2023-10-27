@@ -8,6 +8,12 @@ Bu proje, okullarda bir ekran aracılığı ile duyurular göztermek için hazı
 - Afiş Yönetimi
 - Duyuru Yönetimi
 
+# Gereksinimler
+
+-php sqllite3
+-npm
+-composer
+
 # Kurulum
 
 git clone [https://github.com/GiresunTBMYOBilgisayarProgramciligi/DuyuruPaneli.git](https://github.com/GiresunTBMYOBilgisayarProgramciligi/DuyuruPaneli.git)
