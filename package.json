@@ -1,0 +1,16 @@
+{
+  "name": "unipano",
+  "version": "2.3.0",
+  "description": "UniPano - Dijital Kampüs Bilgilendirme ve Akıllı Duyuru Panosu",
+  "main": "index.php",
+  "scripts": {
+    "postinstall": "node -e \"const fs=require('fs'); fs.mkdirSync('assets/vendor/bootstrap', {recursive:true}); fs.copyFileSync('node_modules/bootstrap/dist/css/bootstrap.min.css', 'assets/vendor/bootstrap/bootstrap.min.css'); fs.copyFileSync('node_modules/bootstrap/dist/js/bootstrap.bundle.min.js', 'assets/vendor/bootstrap/bootstrap.bundle.min.js'); console.log('✅ Bootstrap vendor assets synchronized to assets/vendor/');\"",
+    "build:assets": "npm run postinstall"
+  },
+  "dependencies": {
+    "@popperjs/core": "^2.11.8",
+    "bootstrap": "^5.3.3"
+  },
+  "author": "Giresun Üniversitesi TBMYO",
+  "license": "MIT"
+}
