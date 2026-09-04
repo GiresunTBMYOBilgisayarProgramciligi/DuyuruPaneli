@@ -1,56 +1,36 @@
 <?php
+declare(strict_types=1);
+
 namespace App\Admin;
-
-use App\UsersController;
-
-$userControler = new UsersController();
-$users= $userControler->getUsers();
 ?>
 <div class="tab-pane fade" id="kullanıcılarTabContent" role="tabpanel" aria-labelledby="kullanıcılar-tab">
     <div class="col-md-12 grid-margin stretch-card">
-        <div class="card">
+        <div class="card shadow-sm border-0">
             <div class="card-body">
-                <div class="d-sm-flex justify-content-between align-items-start">
+                <div class="d-sm-flex justify-content-between align-items-center mb-3">
                     <div>
-                        <h4 class="card-title card-tit-dash">Kullanıcı Yönetimi</h4>
-                        <h5 class="card-subtitle card-subtitle-dash">Kullanıcı Yönetimi</h5>
+                        <h4 class="card-title fw-bold text-dark">Yönetici ve Kullanıcı Hesapları</h4>
+                        <h5 class="card-subtitle text-muted mb-0">Panoyu yönetebilecek yetkili kullanıcılar</h5>
                     </div>
-                    <button type="button" class="btn btn-success btn-icon-text" data-bs-toggle="modal" data-bs-target="#newUserModal">
-                        <i class="ti-plus btn-icon-prepend"></i>
-                        Yeni ekle
+                    <button type="button" class="btn btn-primary btn-icon-text" data-bs-toggle="modal" data-bs-target="#newUserModal">
+                        <i class="ti-plus btn-icon-prepend"></i> Yeni Kullanıcı Ekle
                     </button>
                 </div>
                 <div>
-                    <div class="table-responsive pt-3">
-                        <table id="usersTable" class="table table-bordered">
-                            <thead>
+                    <div class="table-responsive pt-2">
+                        <table id="usersTable" class="table table-hover align-middle">
+                            <thead class="table-light">
                             <tr>
-                                <th>
-                                    #
-                                </th>
-                                <th>
-                                    Kullanıcı Adı
-                                </th>
-                                <th>
-                                    Mail Adresi
-                                </th>
-                                <th>
-                                    Adı
-                                </th>
-                                <th>
-                                    Soyadı
-                                </th>
-                                <th>
-                                    Kayıt Tarihi
-                                </th>
-                                <th>
-                                    İşlemler
-                                </th>
+                                <th>#</th>
+                                <th>Kullanıcı Adı</th>
+                                <th>E-Posta Adresi</th>
+                                <th>Adı</th>
+                                <th>Soyadı</th>
+                                <th>Kayıt Tarihi</th>
+                                <th class="text-center">İşlemler</th>
                             </tr>
                             </thead>
-                            <tbody>
-
-                            </tbody>
+                            <tbody></tbody>
                         </table>
                     </div>
                 </div>
@@ -59,105 +39,102 @@ $users= $userControler->getUsers();
     </div>
 </div>
 
-<!-- Modal -->
-<div class="modal fade " id="newUserModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-xl">
+<!-- Modal: Yeni Kullanıcı -->
+<div class="modal fade" id="newUserModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="newUserLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="staticBackdropLabel">Yeni Kullanıcı Ekle</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title fw-bold" id="newUserLabel">Yeni Yönetici Ekle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
             </div>
             <div class="modal-body">
                 <form name="newUserForm" id="newUserForm" method="post">
-                    <div class="row">
-                        <div class="col-6">
-                            <div class="form-group">
-                                <label for="userName">Kullanıcı Adı</label>
-                                <input required type="text" class="form-control" id="userName" name="userName" placeholder="Kullanıcı Adı" minlength="3">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="user_userName" class="form-label fw-semibold">Kullanıcı Adı *</label>
+                                <input required type="text" class="form-control" id="user_userName" name="userName" placeholder="Kullanıcı adı" minlength="3">
                             </div>
-                            <div class="form-group">
-                                <label for="password">Şifre</label>
-                                <input required type="password" class="form-control" id="password" name="password" placeholder="Şifre">
+                            <div class="form-group mb-3">
+                                <label for="user_name" class="form-label fw-semibold">Adı *</label>
+                                <input required type="text" class="form-control" id="user_name" name="name" placeholder="Adınız">
                             </div>
-                            <div class="form-group">
-                                <label for="link">Adı</label>
-                                <input type="text" class="form-control" id="name" name="name" placeholder="Şifre tekrar">
+                            <div class="form-group mb-3">
+                                <label for="user_password" class="form-label fw-semibold">Şifre *</label>
+                                <input required type="password" class="form-control" id="user_password" name="password" placeholder="En az 6 karakter" minlength="6">
                             </div>
                         </div>
-                        <div class="col-6">
-                            <div class="form-group">
-                                <label for="mail">e-Mail</label>
-                                <input  type="email" class="form-control" id="mail" name="mail" placeholder="Mail adresiniz">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="user_mail" class="form-label fw-semibold">E-Posta Adresi *</label>
+                                <input required type="email" class="form-control" id="user_mail" name="mail" placeholder="ornek@edu.tr">
                             </div>
-                            <div class="form-group">
-                                <label for="link">Şifre (Doğrulama)</label>
-                                <input required type="password" class="form-control" id="password2" name="password2" placeholder="Şifre tekrar">
+                            <div class="form-group mb-3">
+                                <label for="user_lastName" class="form-label fw-semibold">Soyadı *</label>
+                                <input required type="text" class="form-control" id="user_lastName" name="lastName" placeholder="Soyadınız">
                             </div>
-                            <div class="form-group">
-                                <label for="lastName">Soyadı</label>
-                                <input type="text" class="form-control" id="lastName" name="lastName" placeholder="Şifre tekrar">
+                            <div class="form-group mb-3">
+                                <label for="user_password2" class="form-label fw-semibold">Şifre (Tekrar) *</label>
+                                <input required type="password" class="form-control" id="user_password2" name="password2" placeholder="Şifrenizi tekrar girin" minlength="6">
                             </div>
                         </div>
                     </div>
-
-
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Vazgeç</button>
-                <button type="submit" form="newUserForm" class="btn btn-primary">Ekle</button>
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Vazgeç</button>
+                <button type="submit" form="newUserForm" class="btn btn-primary">Kullanıcıyı Oluştur</button>
             </div>
         </div>
     </div>
 </div>
-<!-- Update Modal-->
-<div class="modal fade " id="updateUserModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-xl">
+
+<!-- Modal: Kullanıcı Güncelle -->
+<div class="modal fade" id="updateUserModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="updateUserLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="staticBackdropLabel">Kullanıcı Güncelle</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title fw-bold" id="updateUserLabel">Kullanıcı Bilgilerini Düzenle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
             </div>
             <div class="modal-body">
                 <form name="updateUserForm" id="updateUserForm" method="post">
-                    <input type="hidden" id="id" name="id" value="">
-                    <div class="row">
-                        <div class="col-6">
-                            <div class="form-group">
-                                <label for="userName">Kullanıcı Adı</label>
-                                <input required type="text" class="form-control" id="userName" name="userName" placeholder="Kullanıcı Adı" minlength="3">
+                    <input type="hidden" id="update_user_id" name="id" value="">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="update_user_userName" class="form-label fw-semibold">Kullanıcı Adı *</label>
+                                <input required type="text" class="form-control" id="update_user_userName" name="userName" minlength="3">
                             </div>
-                            <div class="form-group">
-                                <label for="password">Şifre</label>
-                                <input type="password" class="form-control" id="password" name="password" placeholder="Şifre">
+                            <div class="form-group mb-3">
+                                <label for="update_user_name" class="form-label fw-semibold">Adı *</label>
+                                <input required type="text" class="form-control" id="update_user_name" name="name">
                             </div>
-                            <div class="form-group">
-                                <label for="link">Adı</label>
-                                <input type="text" class="form-control" id="name" name="name" placeholder="Şifre tekrar">
+                            <div class="form-group mb-3">
+                                <label for="update_user_password" class="form-label fw-semibold">Yeni Şifre (İsteğe Bağlı)</label>
+                                <input type="password" class="form-control" id="update_user_password" name="password" placeholder="Değiştirmek istemiyorsanız boş bırakın">
                             </div>
                         </div>
-                        <div class="col-6">
-                            <div class="form-group">
-                                <label for="mail">e-Mail</label>
-                                <input  type="email" class="form-control" id="mail" name="mail" placeholder="Mail adresiniz">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="update_user_mail" class="form-label fw-semibold">E-Posta Adresi *</label>
+                                <input required type="email" class="form-control" id="update_user_mail" name="mail">
                             </div>
-                            <div class="form-group">
-                                <label for="link">Şifre (Doğrulama)</label>
-                                <input type="password" class="form-control" id="password2" name="password2" placeholder="Şifre tekrar">
+                            <div class="form-group mb-3">
+                                <label for="update_user_lastName" class="form-label fw-semibold">Soyadı *</label>
+                                <input required type="text" class="form-control" id="update_user_lastName" name="lastName">
                             </div>
-                            <div class="form-group">
-                                <label for="lastName">Soyadı</label>
-                                <input type="text" class="form-control" id="lastName" name="lastName" placeholder="Şifre tekrar">
+                            <div class="form-group mb-3">
+                                <label for="update_user_password2" class="form-label fw-semibold">Yeni Şifre (Tekrar)</label>
+                                <input type="password" class="form-control" id="update_user_password2" name="password2" placeholder="Şifre tekrarı">
                             </div>
                         </div>
                     </div>
-
-
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Vazgeç</button>
-                <button type="submit" form="updateUserForm" class="btn btn-primary">Güncelle</button>
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Vazgeç</button>
+                <button type="submit" form="updateUserForm" class="btn btn-primary">Değişiklikleri Kaydet</button>
             </div>
         </div>
     </div>
