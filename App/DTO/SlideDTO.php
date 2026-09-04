@@ -16,6 +16,8 @@ class SlideDTO
     public int $isActive;
     public ?string $startsAt;
     public ?string $expiresAt;
+    public int $showCaption;
+    public string $qrPosition;
 
     public function __construct(
         ?int $id,
@@ -28,7 +30,9 @@ class SlideDTO
         int $orderNumber = 0,
         int $isActive = 1,
         ?string $startsAt = null,
-        ?string $expiresAt = null
+        ?string $expiresAt = null,
+        int $showCaption = 1,
+        string $qrPosition = 'bottom-right'
     ) {
         $this->id = $id;
         $this->title = trim($title);
@@ -39,12 +43,44 @@ class SlideDTO
         $this->userId = $userId;
         $this->orderNumber = $orderNumber;
         $this->isActive = $isActive;
-        $this->startsAt = $startsAt !== null && trim($startsAt) !== '' ? trim($startsAt) : null;
-        $this->expiresAt = $expiresAt !== null && trim($expiresAt) !== '' ? trim($expiresAt) : null;
+        $this->startsAt = self::normalizeDateTime($startsAt);
+        $this->expiresAt = self::normalizeDateTime($expiresAt);
+        $this->showCaption = $showCaption;
+        $this->qrPosition = in_array($qrPosition, ['bottom-right', 'bottom-left', 'top-right', 'top-left', 'none'], true) ? $qrPosition : 'bottom-right';
+    }
+
+    public static function normalizeDateTime(?string $dateTime): ?string
+    {
+        if ($dateTime === null) {
+            return null;
+        }
+        $trimmed = trim($dateTime);
+        if ($trimmed === '') {
+            return null;
+        }
+        $clean = str_replace('T', ' ', $trimmed);
+        $ts = strtotime($clean);
+        if ($ts === false) {
+            return $clean;
+        }
+        return date('Y-m-d H:i:s', $ts);
     }
 
     public static function fromArray(array $data): self
     {
+        // HTML formlarında checkbox seçili olmadığında POST verisine dahil edilmez.
+        // Form gönderimi sırasında (title veya id varken) checkbox gönderilmediyse 0 kabul edilir.
+        $isFormSubmit = array_key_exists('title', $data) || array_key_exists('id', $data);
+        $showCaption = $isFormSubmit ? 0 : 1;
+
+        if (!empty($data['showCaption']) || !empty($data['show-caption'])) {
+            $showCaption = 1;
+        } elseif (isset($data['showCaption']) && ((string)$data['showCaption'] === '0' || (int)$data['showCaption'] === 0)) {
+            $showCaption = 0;
+        }
+
+        $qrPosition = (string)($data['qrPosition'] ?? $data['qr-position'] ?? 'bottom-right');
+
         return new self(
             isset($data['id']) && is_numeric($data['id']) ? (int)$data['id'] : null,
             (string)($data['title'] ?? ''),
@@ -56,7 +92,9 @@ class SlideDTO
             isset($data['orderNumber']) ? (int)$data['orderNumber'] : 0,
             isset($data['isActive']) ? (int)$data['isActive'] : 1,
             isset($data['startsAt']) ? (string)$data['startsAt'] : null,
-            isset($data['expiresAt']) ? (string)$data['expiresAt'] : null
+            isset($data['expiresAt']) ? (string)$data['expiresAt'] : null,
+            $showCaption,
+            $qrPosition
         );
     }
 }

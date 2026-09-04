@@ -32,9 +32,25 @@ class AnnouncementDTO
         $this->link = $link !== null && trim($link) !== '' ? trim($link) : null;
         $this->userId = $userId;
         $this->orderNumber = $orderNumber;
-        $this->isActive = $isActive;
-        $this->startsAt = $startsAt !== null && trim($startsAt) !== '' ? trim($startsAt) : null;
-        $this->expiresAt = $expiresAt !== null && trim($expiresAt) !== '' ? trim($expiresAt) : null;
+        $this->startsAt = self::normalizeDateTime($startsAt);
+        $this->expiresAt = self::normalizeDateTime($expiresAt);
+    }
+
+    public static function normalizeDateTime(?string $dateTime): ?string
+    {
+        if ($dateTime === null) {
+            return null;
+        }
+        $trimmed = trim($dateTime);
+        if ($trimmed === '') {
+            return null;
+        }
+        $clean = str_replace('T', ' ', $trimmed);
+        $ts = strtotime($clean);
+        if ($ts === false) {
+            return $clean;
+        }
+        return date('Y-m-d H:i:s', $ts);
     }
 
     public static function fromArray(array $data): self

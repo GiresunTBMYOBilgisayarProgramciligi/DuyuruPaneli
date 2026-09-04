@@ -51,8 +51,8 @@ class AnnouncementRepository
             LEFT JOIN user u ON u.id = a.userId
             LEFT JOIN short_link sl ON sl.code = a.shortCode
             WHERE a.isActive = 1 
-              AND (a.startsAt IS NULL OR a.startsAt = '' OR a.startsAt <= :now)
-              AND (a.expiresAt IS NULL OR a.expiresAt = '' OR a.expiresAt > :now)
+              AND (a.startsAt IS NULL OR a.startsAt = '' OR REPLACE(a.startsAt, 'T', ' ') <= :now)
+              AND (a.expiresAt IS NULL OR a.expiresAt = '' OR REPLACE(a.expiresAt, 'T', ' ') > :now)
             ORDER BY CASE WHEN a.orderNumber > 0 THEN a.orderNumber ELSE 999999 END ASC, a.id DESC
         ";
         $stmt = $this->db->prepare($sql);
@@ -150,7 +150,7 @@ class AnnouncementRepository
     {
         $now = date('Y-m-d H:i:s');
         // Süresi dolan duyuruları silmek yerine durumunu pasif (0 - Duraklatıldı) yap
-        $stmt = $this->db->prepare("UPDATE announcement SET isActive = 0 WHERE expiresAt IS NOT NULL AND expiresAt != '' AND expiresAt <= :now AND isActive = 1");
+        $stmt = $this->db->prepare("UPDATE announcement SET isActive = 0 WHERE expiresAt IS NOT NULL AND expiresAt != '' AND REPLACE(expiresAt, 'T', ' ') <= :now AND isActive = 1");
         $stmt->execute([':now' => $now]);
         return $stmt->rowCount();
     }

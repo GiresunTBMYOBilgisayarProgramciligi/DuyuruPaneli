@@ -24,7 +24,7 @@ class SlideRepository
             SELECT 
                 s.id, s.title, s.content, s.image, s.qrCode, s.createdDate, 
                 s.userId, s.fullWidth, s.link, s.shortCode,
-                s.orderNumber, s.isActive, s.startsAt, s.expiresAt,
+                s.orderNumber, s.isActive, s.startsAt, s.expiresAt, s.showCaption, s.qrPosition,
                 COALESCE(u.name || ' ' || u.lastName, 'Sistem') AS userFullName,
                 COALESCE(sl.scanCount, 0) AS scanCount
             FROM slider s
@@ -44,15 +44,15 @@ class SlideRepository
             SELECT 
                 s.id, s.title, s.content, s.image, s.qrCode, s.createdDate, 
                 s.userId, s.fullWidth, s.link, s.shortCode,
-                s.orderNumber, s.isActive, s.startsAt, s.expiresAt,
+                s.orderNumber, s.isActive, s.startsAt, s.expiresAt, s.showCaption, s.qrPosition,
                 COALESCE(u.name || ' ' || u.lastName, 'Sistem') AS userFullName,
                 COALESCE(sl.scanCount, 0) AS scanCount
             FROM slider s
             LEFT JOIN user u ON u.id = s.userId
             LEFT JOIN short_link sl ON sl.code = s.shortCode
             WHERE s.isActive = 1 
-              AND (s.startsAt IS NULL OR s.startsAt = '' OR s.startsAt <= :now)
-              AND (s.expiresAt IS NULL OR s.expiresAt = '' OR s.expiresAt > :now)
+              AND (s.startsAt IS NULL OR s.startsAt = '' OR REPLACE(s.startsAt, 'T', ' ') <= :now)
+              AND (s.expiresAt IS NULL OR s.expiresAt = '' OR REPLACE(s.expiresAt, 'T', ' ') > :now)
             ORDER BY CASE WHEN s.orderNumber > 0 THEN s.orderNumber ELSE 999999 END ASC, s.id DESC
         ";
         $stmt = $this->db->prepare($sql);
@@ -71,8 +71,8 @@ class SlideRepository
     public function create(SlideDTO $dto, string $qrSvg = '', ?string $shortCode = null): int
     {
         $stmt = $this->db->prepare("
-            INSERT INTO slider (title, content, image, qrCode, createdDate, userId, fullWidth, link, shortCode, orderNumber, isActive, startsAt, expiresAt)
-            VALUES (:title, :content, :image, :qrCode, :createdDate, :userId, :fullWidth, :link, :shortCode, :orderNumber, :isActive, :startsAt, :expiresAt)
+            INSERT INTO slider (title, content, image, qrCode, createdDate, userId, fullWidth, link, shortCode, orderNumber, isActive, startsAt, expiresAt, showCaption, qrPosition)
+            VALUES (:title, :content, :image, :qrCode, :createdDate, :userId, :fullWidth, :link, :shortCode, :orderNumber, :isActive, :startsAt, :expiresAt, :showCaption, :qrPosition)
         ");
 
         $stmt->execute([
@@ -88,7 +88,9 @@ class SlideRepository
             ':orderNumber' => $dto->orderNumber,
             ':isActive' => $dto->isActive,
             ':startsAt' => $dto->startsAt,
-            ':expiresAt' => $dto->expiresAt
+            ':expiresAt' => $dto->expiresAt,
+            ':showCaption' => $dto->showCaption,
+            ':qrPosition' => $dto->qrPosition
         ]);
 
         return (int)$this->db->lastInsertId();
@@ -108,7 +110,9 @@ class SlideRepository
             'orderNumber = :orderNumber',
             'isActive = :isActive',
             'startsAt = :startsAt',
-            'expiresAt = :expiresAt'
+            'expiresAt = :expiresAt',
+            'showCaption = :showCaption',
+            'qrPosition = :qrPosition'
         ];
 
         $params = [
@@ -120,6 +124,8 @@ class SlideRepository
             ':isActive' => $dto->isActive,
             ':startsAt' => $dto->startsAt,
             ':expiresAt' => $dto->expiresAt,
+            ':showCaption' => $dto->showCaption,
+            ':qrPosition' => $dto->qrPosition,
             ':id' => $dto->id
         ];
 
@@ -159,7 +165,7 @@ class SlideRepository
     {
         $now = date('Y-m-d H:i:s');
         // Süresi dolan afişleri kalıcı silmek yerine durumunu pasif (0 - Duraklatıldı) yap
-        $stmt = $this->db->prepare("UPDATE slider SET isActive = 0 WHERE expiresAt IS NOT NULL AND expiresAt != '' AND expiresAt <= :now AND isActive = 1");
+        $stmt = $this->db->prepare("UPDATE slider SET isActive = 0 WHERE expiresAt IS NOT NULL AND expiresAt != '' AND REPLACE(expiresAt, 'T', ' ') <= :now AND isActive = 1");
         $stmt->execute([':now' => $now]);
         return $stmt->rowCount();
     }

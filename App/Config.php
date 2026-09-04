@@ -26,6 +26,7 @@ class Config
     public const WEATHER_CACHE_TTL = 900;    // 15 dakika (saniye)
 
     // Kiosk Döngü Yapılandırması
+    public const TIMEZONE = "Europe/Istanbul";
     public const SLIDE_INTERVAL_MS = 20000;  // Slayt geçiş süresi (20 saniye)
     public const KIOSK_POLL_INTERVAL_MS = 25000; // Arka plan güncelleme kontrolü
 

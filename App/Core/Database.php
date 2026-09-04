@@ -25,6 +25,10 @@ class Database
     public static function getConnection(): PDO
     {
         if (self::$instance === null) {
+            if (date_default_timezone_get() !== Config::TIMEZONE) {
+                date_default_timezone_set(Config::TIMEZONE);
+            }
+
             $dbDir = Config::ROOT_PATH . "db";
             if (!file_exists($dbDir)) {
                 mkdir($dbDir, 0775, true);
@@ -77,6 +81,8 @@ class Database
                 isActive INTEGER DEFAULT 1,
                 startsAt TEXT DEFAULT NULL,
                 expiresAt TEXT DEFAULT NULL,
+                showCaption INTEGER DEFAULT 1,
+                qrPosition TEXT DEFAULT 'bottom-right',
                 FOREIGN KEY (userId) REFERENCES user (id) ON DELETE SET NULL ON UPDATE CASCADE
             );
 
@@ -151,6 +157,12 @@ class Database
         if (!in_array('expiresAt', $sliderCols, true)) {
             $pdo->exec("ALTER TABLE slider ADD COLUMN expiresAt TEXT DEFAULT NULL;");
         }
+        if (!in_array('showCaption', $sliderCols, true)) {
+            $pdo->exec("ALTER TABLE slider ADD COLUMN showCaption INTEGER DEFAULT 1;");
+        }
+        if (!in_array('qrPosition', $sliderCols, true)) {
+            $pdo->exec("ALTER TABLE slider ADD COLUMN qrPosition TEXT DEFAULT 'bottom-right';");
+        }
 
         // 2. announcement tablosu sütunları
         $annCols = array_column($pdo->query("PRAGMA table_info(announcement)")->fetchAll(PDO::FETCH_ASSOC), 'name');
@@ -166,6 +178,12 @@ class Database
         if (!in_array('expiresAt', $annCols, true)) {
             $pdo->exec("ALTER TABLE announcement ADD COLUMN expiresAt TEXT DEFAULT NULL;");
         }
+
+        // 3. Veritabanındaki 'T' ayraçlı tarihleri SQLite standart 'YYYY-MM-DD HH:MM:SS' formatına normalize et
+        $pdo->exec("UPDATE slider SET startsAt = REPLACE(startsAt, 'T', ' ') WHERE startsAt LIKE '%T%'");
+        $pdo->exec("UPDATE slider SET expiresAt = REPLACE(expiresAt, 'T', ' ') WHERE expiresAt LIKE '%T%'");
+        $pdo->exec("UPDATE announcement SET startsAt = REPLACE(startsAt, 'T', ' ') WHERE startsAt LIKE '%T%'");
+        $pdo->exec("UPDATE announcement SET expiresAt = REPLACE(expiresAt, 'T', ' ') WHERE expiresAt LIKE '%T%'");
     }
 }
 
