@@ -229,6 +229,12 @@ document.addEventListener('DOMContentLoaded', function () {
                     if (key === 'full-width' || key === 'fullwidth') {
                         const fwInput = modalEl.querySelector('input[name="fullWidth"]');
                         if (fwInput) fwInput.checked = (val == 1 || val === 'true');
+                    } else if (key === 'show-caption' || key === 'showcaption') {
+                        const scInput = modalEl.querySelector('input[name="showCaption"]');
+                        if (scInput) scInput.checked = (val == 1 || val === 'true');
+                    } else if (key === 'qr-position' || key === 'qrposition') {
+                        const qrSelect = modalEl.querySelector('select[name="qrPosition"]');
+                        if (qrSelect) qrSelect.value = String(val);
                     } else if (key === 'isactive' || key === 'is-active') {
                         const activeSelect = modalEl.querySelector('select[name="isActive"]');
                         if (activeSelect) activeSelect.value = String(val);
@@ -568,7 +574,10 @@ document.addEventListener('DOMContentLoaded', function () {
                         '<td>' + orderInput + '</td>' +
                         '<td>' + imgHtml + '</td>' +
                         '<td>' +
-                        '  <div class="fw-bold text-dark">' + escapeHtml(slide.title) + '</div>' +
+                        '  <div class="fw-bold text-dark d-flex align-items-center gap-2">' +
+                        '    <span>' + escapeHtml(slide.title) + '</span>' +
+                        (slide.showCaption == 1 ? '<span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25" style="font-size:0.68rem;" title="Kiosk ekranında başlık ve açıklama kartı gösteriliyor">📺 Başlık Açık</span>' : '<span class="badge bg-light text-muted border" style="font-size:0.68rem;" title="Kiosk ekranında afiş sade gösteriliyor (Başlık kartı kapalı)">📺 Başlık Gizli</span>') +
+                        '  </div>' +
                         contentSummary +
                         '</td>' +
                         '<td>' + statusBadge + '</td>' +
@@ -584,6 +593,8 @@ document.addEventListener('DOMContentLoaded', function () {
                             content: slide.content,
                             link: slide.link,
                             'full-width': slide.fullWidth,
+                            'show-caption': slide.showCaption ?? 1,
+                            'qr-position': slide.qrPosition || 'bottom-right',
                             ordernumber: slide.orderNumber || 0,
                             isactive: slide.isActive ?? 1,
                             startsat: slide.startsAt || '',

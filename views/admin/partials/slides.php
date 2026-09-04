@@ -58,9 +58,18 @@ declare(strict_types=1);
                                 <textarea class="form-control" id="slide_content" name="content" rows="3" placeholder="Afiş hakkında kısa bilgilendirme"></textarea>
                             </div>
                             <div class="mb-3">
-                                <label for="slide_link" class="form-label">Detay Bağlantısı (QR Kod İçin)</label>
-                                <input type="url" class="form-control" id="slide_link" name="link" placeholder="https://ornek.edu.tr/etkinlik">
-                                <div class="form-text text-muted">Link girildiğinde afiş için otomatik taranabilir QR kod ve okutulma analitiği oluşturulur.</div>
+                                <label for="slide_link" class="form-label fw-semibold">Detay Bağlantısı & QR Kod Konumu</label>
+                                <div class="input-group">
+                                    <input type="url" class="form-control" id="slide_link" name="link" placeholder="https://ornek.edu.tr/etkinlik">
+                                    <select class="form-select" id="slide_qrPosition" name="qrPosition" style="max-width: 205px;" title="QR Kodun Kiosk Ekranındaki Konumu">
+                                        <option value="bottom-right" selected>↘️ Sağ Alt (Önerilen)</option>
+                                        <option value="bottom-left">↙️ Sol Alt</option>
+                                        <option value="top-right">↗️ Sağ Üst</option>
+                                        <option value="top-left">↖️ Sol Üst</option>
+                                        <option value="none">🚫 Gösterme (Gizle)</option>
+                                    </select>
+                                </div>
+                                <div class="form-text text-muted">Link girildiğinde afiş için otomatik QR kod oluşturulur. Afiş tasarımınıza göre QR konumunu seçebilir veya gizleyebilirsiniz.</div>
                             </div>
                             <div class="row g-2 mb-3">
                                 <div class="col-md-6">
@@ -89,11 +98,25 @@ declare(strict_types=1);
                                     <div class="form-text text-muted">Ayarlandığı tarih geldiğinde afiş otomatik durdurulur. Boşsa süresiz kalır.</div>
                                 </div>
                             </div>
-                            <div class="form-check mt-3 p-2 bg-light rounded-3 border">
-                                <input class="form-check-input ms-1" type="checkbox" id="fullWidth" name="fullWidth" value="1">
-                                <label class="form-check-label fw-bold ms-2" for="fullWidth">
-                                    Tam Genişlik (Görsel ekranı kaplasın)
-                                </label>
+                            <div class="row g-2 mt-1">
+                                <div class="col-md-6">
+                                    <div class="form-check p-2 bg-light rounded-3 border h-100">
+                                        <input class="form-check-input ms-1" type="checkbox" id="fullWidth" name="fullWidth" value="1">
+                                        <label class="form-check-label fw-bold ms-2" for="fullWidth">
+                                            Tam Genişlik
+                                        </label>
+                                        <div class="form-text text-muted ms-2 small">Görsel ekranı kaplasın</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check p-2 bg-light rounded-3 border h-100">
+                                        <input class="form-check-input ms-1" type="checkbox" id="slide_showCaption" name="showCaption" value="1" checked>
+                                        <label class="form-check-label fw-bold ms-2" for="slide_showCaption">
+                                            Başlık ve Açıklama Göster
+                                        </label>
+                                        <div class="form-text text-muted ms-2 small">Kiosk ekranında sol altta gösterilsin</div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="col-md-5">
@@ -140,8 +163,18 @@ declare(strict_types=1);
                                 <textarea class="form-control" id="update_slide_content" name="content" rows="3"></textarea>
                             </div>
                             <div class="mb-3">
-                                <label for="update_slide_link" class="form-label">Detay Bağlantısı (URL)</label>
-                                <input type="url" class="form-control" id="update_slide_link" name="link">
+                                <label for="update_slide_link" class="form-label fw-semibold">Detay Bağlantısı & QR Kod Konumu</label>
+                                <div class="input-group">
+                                    <input type="url" class="form-control" id="update_slide_link" name="link">
+                                    <select class="form-select" id="update_slide_qrPosition" name="qrPosition" style="max-width: 205px;">
+                                        <option value="bottom-right">↘️ Sağ Alt (Önerilen)</option>
+                                        <option value="bottom-left">↙️ Sol Alt</option>
+                                        <option value="top-right">↗️ Sağ Üst</option>
+                                        <option value="top-left">↖️ Sol Üst</option>
+                                        <option value="none">🚫 Gösterme (Gizle)</option>
+                                    </select>
+                                </div>
+                                <div class="form-text text-muted">Afiş üzerindeki QR kodun konumunu seçebilir veya gizleyebilirsiniz.</div>
                             </div>
                             <div class="row g-2 mb-3">
                                 <div class="col-md-6">
@@ -168,12 +201,24 @@ declare(strict_types=1);
                                     <div class="form-text text-muted">Tarih dolduğunda otomatik durdurulur. Boşsa süresiz kalır.</div>
                                 </div>
                             </div>
-                            <div class="form-check mt-3 p-2 bg-light rounded-3 border">
-                                <input class="form-check-input ms-1" type="checkbox" id="update_fullWidth" name="fullWidth" value="1">
-                                <label class="form-check-label fw-bold ms-2" for="update_fullWidth">
-                                    Tam Genişlik
-                                </label>
-                            </div>
+                            <div class="row g-2 mt-1">
+                                 <div class="col-md-6">
+                                     <div class="form-check p-2 bg-light rounded-3 border h-100">
+                                         <input class="form-check-input ms-1" type="checkbox" id="update_fullWidth" name="fullWidth" value="1">
+                                         <label class="form-check-label fw-bold ms-2" for="update_fullWidth">
+                                             Tam Genişlik
+                                         </label>
+                                     </div>
+                                 </div>
+                                 <div class="col-md-6">
+                                     <div class="form-check p-2 bg-light rounded-3 border h-100">
+                                         <input class="form-check-input ms-1" type="checkbox" id="update_showCaption" name="showCaption" value="1">
+                                         <label class="form-check-label fw-bold ms-2" for="update_showCaption">
+                                             Başlık ve Açıklama Göster
+                                         </label>
+                                     </div>
+                                 </div>
+                             </div>
                         </div>
                         <div class="col-md-5">
                             <label class="form-label">Görseli Değiştir (İsteğe Bağlı)</label>

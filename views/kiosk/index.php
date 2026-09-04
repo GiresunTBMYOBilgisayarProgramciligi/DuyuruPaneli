@@ -73,7 +73,37 @@ use App\Config;
          2. ORTA SAHNE & KIRPIŞMASIZ CAROUSEL (1024x768 & HD/4K DİNAMİK ORAN)
          ==================================================================== -->
     <main class="kiosk-stage">
+        <!-- Sağ Üst Rozet: Afiş Sayacı (örn: Afiş 1 / 2) -->
+        <div class="slide-counter-badge" id="slideCounterBadge" style="<?= count($slides) > 0 ? '' : 'display: none;' ?>">
+            <span class="counter-badge-icon">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/>
+                    <circle cx="9" cy="9" r="2"/>
+                    <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
+                </svg>
+            </span>
+            <span class="counter-badge-label">Afiş</span>
+            <span class="counter-badge-current" id="counterCurrent">1</span>
+            <span class="counter-badge-divider">/</span>
+            <span class="counter-badge-total" id="counterTotal"><?= count($slides) ?></span>
+            <div class="counter-badge-pills" id="counterBadgePills">
+                <?php foreach ($slides as $idx => $slide): ?>
+                    <span class="mini-pill <?= $idx === 0 ? 'active' : '' ?>" data-index="<?= $idx ?>"></span>
+                <?php endforeach; ?>
+            </div>
+        </div>
+
         <div id="kioskCarousel" class="kiosk-carousel carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="<?= Config::SLIDE_INTERVAL_MS ?>">
+            <?php if (count($slides) > 1): ?>
+            <div class="carousel-indicators" id="carouselIndicators">
+                <?php foreach ($slides as $idx => $slide): ?>
+                    <button type="button" data-bs-target="#kioskCarousel" data-bs-slide-to="<?= $idx ?>" class="<?= $idx === 0 ? 'active' : '' ?>" aria-current="<?= $idx === 0 ? 'true' : 'false' ?>" aria-label="Afiş <?= $idx + 1 ?>"></button>
+                <?php endforeach; ?>
+            </div>
+            <?php else: ?>
+            <div class="carousel-indicators" id="carouselIndicators" style="display: none;"></div>
+            <?php endif; ?>
+
             <div class="carousel-inner" id="carouselContent">
                 <?php if (count($slides) > 0): ?>
                     <?php foreach ($slides as $idx => $slide): ?>
@@ -87,14 +117,34 @@ use App\Config;
                             <div class="slide-image-wrapper <?= $fullWidthClass ?>">
                                 <img src="<?= htmlspecialchars($imageSrc, ENT_QUOTES, 'UTF-8') ?>" class="slide-image <?= $fullWidthClass ?>" alt="<?= htmlspecialchars($slide->title ?? '', ENT_QUOTES, 'UTF-8') ?>">
                             </div>
-                            <?php if (!empty($slide->title) || !empty($slide->content)): ?>
+                            <?php 
+                                $showCaption = !isset($slide->showCaption) || (int)$slide->showCaption === 1;
+                                $hasText = !empty($slide->title) || !empty($slide->content);
+                                $qrPos = $slide->qrPosition ?? 'bottom-right';
+                                $hasQr = !empty($slide->qrCode) && $qrPos !== 'none';
+                            ?>
+                            <?php if ($showCaption && $hasText): ?>
                                 <div class="slide-caption-card">
                                     <?php if (!empty($slide->title)): ?>
-                                        <h3 class="slide-caption-title"><?= htmlspecialchars($slide->title, ENT_QUOTES, 'UTF-8') ?></h3>
+                                        <h3 class="slide-caption-title">
+                                            <span class="slide-caption-title-dot"></span>
+                                            <span><?= htmlspecialchars($slide->title, ENT_QUOTES, 'UTF-8') ?></span>
+                                        </h3>
                                     <?php endif; ?>
                                     <?php if (!empty($slide->content)): ?>
                                         <p class="slide-caption-content"><?= htmlspecialchars($slide->content, ENT_QUOTES, 'UTF-8') ?></p>
                                     <?php endif; ?>
+                                </div>
+                            <?php endif; ?>
+                            <?php if ($hasQr): ?>
+                                <div class="slide-qr-card pos-<?= htmlspecialchars($qrPos, ENT_QUOTES, 'UTF-8') ?>">
+                                    <div class="slide-qr-box">
+                                        <?= $slide->qrCode ?>
+                                    </div>
+                                    <div class="slide-qr-text">
+                                        <span class="slide-qr-title">DETAYLAR İÇİN</span>
+                                        <span class="slide-qr-sub">KODU OKUTUN</span>
+                                    </div>
                                 </div>
                             <?php endif; ?>
                         </div>
@@ -183,7 +233,71 @@ use App\Config;
             setInterval(updateClock, 1000);
         }
 
-        // 2. Modüler Duyuru Rotasyonu ve Senkronize QR Kartı
+        // 2. Kiosk Carousel Yönetimi & Afiş Sayacı (Indicator Controller)
+        const kioskCarouselEl = document.getElementById('kioskCarousel');
+        const counterCurrentEl = document.getElementById('counterCurrent');
+        const counterTotalEl = document.getElementById('counterTotal');
+        const counterBadgePillsEl = document.getElementById('counterBadgePills');
+        const slideCounterBadgeEl = document.getElementById('slideCounterBadge');
+        const carouselIndicatorsEl = document.getElementById('carouselIndicators');
+
+        let kioskCarouselInstance = null;
+
+        function updateSlideCounter(activeIndex, totalCount) {
+            if (counterCurrentEl) {
+                counterCurrentEl.textContent = String(activeIndex + 1);
+            }
+            if (counterTotalEl && typeof totalCount === 'number') {
+                counterTotalEl.textContent = String(totalCount);
+            }
+            if (counterBadgePillsEl) {
+                const pills = counterBadgePillsEl.querySelectorAll('.mini-pill');
+                pills.forEach((pill, idx) => {
+                    if (idx === activeIndex) {
+                        pill.classList.add('active');
+                    } else {
+                        pill.classList.remove('active');
+                    }
+                });
+            }
+        }
+
+        function initKioskCarousel() {
+            if (!kioskCarouselEl || typeof bootstrap === 'undefined') return;
+
+            if (kioskCarouselInstance) {
+                try {
+                    kioskCarouselInstance.dispose();
+                } catch (e) {}
+            }
+
+            const items = kioskCarouselEl.querySelectorAll('.carousel-inner .carousel-item');
+            if (items.length > 1) {
+                kioskCarouselInstance = new bootstrap.Carousel(kioskCarouselEl, {
+                    interval: <?= Config::SLIDE_INTERVAL_MS ?>,
+                    ride: 'carousel',
+                    pause: false,
+                    wrap: true,
+                    touch: false
+                });
+                kioskCarouselInstance.cycle();
+            }
+        }
+
+        if (kioskCarouselEl) {
+            kioskCarouselEl.addEventListener('slid.bs.carousel', function (e) {
+                const items = kioskCarouselEl.querySelectorAll('.carousel-inner .carousel-item');
+                let activeIndex = typeof e.to === 'number' ? e.to : 0;
+                if (typeof e.to !== 'number' && e.relatedTarget) {
+                    activeIndex = Array.from(items).indexOf(e.relatedTarget);
+                }
+                updateSlideCounter(activeIndex, items.length);
+            });
+
+            initKioskCarousel();
+        }
+
+        // 3. Modüler Duyuru Rotasyonu ve Senkronize QR Kartı
         let announcementsData = <?= json_encode($initialTickerData, JSON_UNESCAPED_UNICODE) ?>;
         let currentAnnouncementIndex = 0;
         let announcementTimer = null;
@@ -243,7 +357,7 @@ use App\Config;
 
         startAnnouncementRotation();
 
-        // 3. Kırpışmasız Arka Plan İzleyicisi (Flicker-Free Watchdog - Native Fetch)
+        // 4. Kırpışmasız Arka Plan İzleyicisi (Flicker-Free Watchdog - Native Fetch)
         let lastContentHash = "<?= $initialContentHash ?>";
 
         async function checkKioskUpdates() {
@@ -265,15 +379,31 @@ use App\Config;
 
                     if (res.slides && res.slides.length > 0) {
                         let slideHtml = "";
+                        let indicatorsHtml = "";
+                        let pillsHtml = "";
+                        const total = res.slides.length;
+
                         res.slides.forEach(function (slide, idx) {
                             const active = idx === 0 ? "active" : "";
                             const fullW = slide.fullWidth == 1 ? "full-width" : "";
                             const imgSrc = '/' + slide.image.replace(/^\/+/, '');
                             let caption = "";
-                            if (slide.title || slide.content) {
+                            const showCaption = slide.showCaption === undefined || slide.showCaption == 1;
+                            if (showCaption && (slide.title || slide.content)) {
                                 caption = '<div class="slide-caption-card">' +
-                                    (slide.title ? '<h3 class="slide-caption-title">' + escapeHtml(slide.title) + '</h3>' : '') +
+                                    (slide.title ? '<h3 class="slide-caption-title"><span class="slide-caption-title-dot"></span><span>' + escapeHtml(slide.title) + '</span></h3>' : '') +
                                     (slide.content ? '<p class="slide-caption-content">' + escapeHtml(slide.content) + '</p>' : '') +
+                                    '</div>';
+                            }
+                            let qrHtml = "";
+                            const qrPos = slide.qrPosition || 'bottom-right';
+                            if (slide.qrCode && qrPos !== 'none') {
+                                qrHtml = '<div class="slide-qr-card pos-' + escapeHtml(qrPos) + '">' +
+                                    '<div class="slide-qr-box">' + slide.qrCode + '</div>' +
+                                    '<div class="slide-qr-text">' +
+                                    '<span class="slide-qr-title">DETAYLAR İÇİN</span>' +
+                                    '<span class="slide-qr-sub">KODU OKUTUN</span>' +
+                                    '</div>' +
                                     '</div>';
                             }
                             slideHtml += '<div class="carousel-item ' + active + '">' +
@@ -282,10 +412,46 @@ use App\Config;
                                 '<img src="' + imgSrc + '" class="slide-image ' + fullW + '" alt="">' +
                                 '</div>' +
                                 caption +
+                                qrHtml +
                                 '</div>';
+
+                            if (total > 1) {
+                                indicatorsHtml += '<button type="button" data-bs-target="#kioskCarousel" data-bs-slide-to="' + idx + '" class="' + active + '" aria-current="' + (idx === 0 ? 'true' : 'false') + '" aria-label="Afiş ' + (idx + 1) + '"></button>';
+                            }
+                            pillsHtml += '<span class="mini-pill ' + active + '" data-index="' + idx + '"></span>';
                         });
+
                         const carouselEl = document.getElementById('carouselContent');
                         if (carouselEl) carouselEl.innerHTML = slideHtml;
+
+                        if (carouselIndicatorsEl) {
+                            carouselIndicatorsEl.innerHTML = indicatorsHtml;
+                            carouselIndicatorsEl.style.display = total > 1 ? 'flex' : 'none';
+                        }
+
+                        if (counterTotalEl) counterTotalEl.textContent = String(total);
+                        if (counterCurrentEl) counterCurrentEl.textContent = "1";
+                        if (counterBadgePillsEl) counterBadgePillsEl.innerHTML = pillsHtml;
+                        if (slideCounterBadgeEl) slideCounterBadgeEl.style.display = total > 0 ? 'inline-flex' : 'none';
+
+                        initKioskCarousel();
+                    } else {
+                        const carouselEl = document.getElementById('carouselContent');
+                        if (carouselEl) {
+                            carouselEl.innerHTML = '<div class="carousel-item active">' +
+                                '<div class="empty-stage-card">' +
+                                '<div class="empty-icon">🎓</div>' +
+                                '<h2 class="empty-title"><?= htmlspecialchars(Config::APP_NAME, ENT_QUOTES, 'UTF-8') ?></h2>' +
+                                '<p class="empty-desc">Şu anda yayında aktif bir görsel veya afiş bulunmamaktadır.</p>' +
+                                '</div>' +
+                                '</div>';
+                        }
+                        if (carouselIndicatorsEl) carouselIndicatorsEl.style.display = 'none';
+                        if (slideCounterBadgeEl) slideCounterBadgeEl.style.display = 'none';
+                        if (kioskCarouselInstance) {
+                            try { kioskCarouselInstance.dispose(); } catch (e) {}
+                            kioskCarouselInstance = null;
+                        }
                     }
 
                     if (res.tickerNews) {
