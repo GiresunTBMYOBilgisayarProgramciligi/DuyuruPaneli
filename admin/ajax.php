@@ -51,6 +51,12 @@ if ($action === 'getKioskData') {
     exit;
 }
 
+if ($action === 'getWeatherData') {
+    $apiController = new ApiController();
+    $apiController->getWeatherData($request);
+    exit;
+}
+
 // 3. Yönetim Paneli Eylemleri - Zorunlu Oturum Kontrolü
 AuthMiddleware::handle($request);
 
