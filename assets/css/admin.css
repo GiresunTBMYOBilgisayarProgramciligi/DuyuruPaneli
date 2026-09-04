@@ -47,20 +47,30 @@ body {
 /* ==========================================================================
    1. ÜST NAVİGASYON (TOPBAR)
    ========================================================================== */
-.admin-navbar {
+.admin-navbar,
+.admin-topbar {
     background: #ffffff;
     border-bottom: 1px solid var(--border-color);
     box-shadow: var(--shadow-sm);
     position: sticky;
     top: 0;
     z-index: 1000;
-    padding: 0.75rem 1.5rem;
+    padding: 0.65rem 0;
 }
 
-.admin-brand {
+.topbar-logo {
+    width: 42px;
+    height: 42px;
+    object-fit: contain;
+    display: block;
+    border-radius: 8px;
+}
+
+.admin-brand,
+.topbar-brand {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     text-decoration: none;
 }
 
@@ -69,7 +79,8 @@ body {
     line-height: 1;
 }
 
-.admin-brand-title {
+.admin-brand-title,
+.brand-title {
     font-size: 1.3rem;
     font-weight: 800;
     background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
@@ -77,9 +88,11 @@ body {
     -webkit-text-fill-color: transparent;
     letter-spacing: -0.5px;
     margin: 0;
+    line-height: 1.2;
 }
 
-.admin-brand-badge {
+.admin-brand-badge,
+.brand-badge {
     font-size: 0.65rem;
     font-weight: 700;
     background: var(--brand-primary-light);
@@ -88,6 +101,7 @@ body {
     border-radius: 20px;
     letter-spacing: 0.5px;
     border: 1px solid #bfdbfe;
+    text-transform: uppercase;
 }
 
 .kiosk-preview-link {
@@ -111,18 +125,23 @@ body {
     border-color: #bfdbfe;
 }
 
-.user-profile-menu {
+.user-profile-menu,
+.user-profile-badge {
     display: flex;
     align-items: center;
     gap: 10px;
     padding: 4px 10px;
     border-radius: var(--radius-md);
     cursor: pointer;
-    transition: background 0.2s;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    user-select: none;
 }
 
-.user-profile-menu:hover {
+.user-profile-menu:hover,
+.user-profile-badge:hover {
     background: #f1f5f9;
+    border-color: #e2e8f0;
 }
 
 .user-avatar {
@@ -131,6 +150,22 @@ body {
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid #e2e8f0;
+}
+
+.user-avatar-circle {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 0.95rem;
+    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
+    text-transform: uppercase;
 }
 
 .user-meta-name {

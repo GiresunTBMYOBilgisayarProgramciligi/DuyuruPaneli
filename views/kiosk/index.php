@@ -29,7 +29,7 @@ use App\Config;
 
 <div class="kiosk-wrapper">
     <!-- ====================================================================
-         1. MODÜLER ÜST BAŞLIK BANDI (KUSURSUZ 1fr auto 1fr ORTALAMA)
+         1. MODÜLER ÜST BAŞLIK BANDI (İki Kutuplu Ultra Minimalist Tasarım)
          ==================================================================== -->
     <header class="kiosk-header">
         <!-- Sol Modül: Kurum & Kampüs / Birim Bilgisi -->
@@ -39,15 +39,6 @@ use App\Config;
                 <span class="institution-name"><?= htmlspecialchars(Config::INSTITUTION_NAME, ENT_QUOTES, 'UTF-8') ?></span>
                 <span class="campus-name"><?= htmlspecialchars(Config::CAMPUS_NAME, ENT_QUOTES, 'UTF-8') ?></span>
             </div>
-        </div>
-
-        <!-- Orta Modül: Matematiksel Olarak %50 Ekran Merkezinde UniPano Başlığı -->
-        <div class="header-center">
-            <div class="panel-brand">
-                <span class="brand-icon">🎓</span>
-                <span class="brand-title"><?= htmlspecialchars(Config::APP_NAME, ENT_QUOTES, 'UTF-8') ?></span>
-            </div>
-            <span class="brand-tagline"><?= htmlspecialchars(Config::APP_TAGLINE, ENT_QUOTES, 'UTF-8') ?></span>
         </div>
 
         <!-- Sağ Modül: Canlı Tarih & Saat + Özel Yerel Hava Durumu -->
