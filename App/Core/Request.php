@@ -10,12 +10,12 @@ class Request
     private array $files;
     private array $server;
 
-    public function __construct()
+    public function __construct(?array $get = null, ?array $post = null, ?array $files = null, ?array $server = null)
     {
-        $this->get = $_GET;
-        $this->post = $_POST;
-        $this->files = $_FILES;
-        $this->server = $_SERVER;
+        $this->get = $get ?? $_GET;
+        $this->post = $post ?? $_POST;
+        $this->files = $files ?? $_FILES;
+        $this->server = $server ?? $_SERVER;
 
         // JSON body desteği
         $contentType = $this->server['CONTENT_TYPE'] ?? '';

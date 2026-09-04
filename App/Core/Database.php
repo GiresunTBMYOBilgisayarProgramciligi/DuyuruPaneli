@@ -70,9 +70,13 @@ class Database
                 qrCode TEXT,
                 createdDate TEXT,
                 userId INTEGER,
-                fullWidth INTEGER,
+                fullWidth INTEGER DEFAULT 0,
                 link TEXT,
                 shortCode TEXT,
+                orderNumber INTEGER DEFAULT 0,
+                isActive INTEGER DEFAULT 1,
+                startsAt TEXT DEFAULT NULL,
+                expiresAt TEXT DEFAULT NULL,
                 FOREIGN KEY (userId) REFERENCES user (id) ON DELETE SET NULL ON UPDATE CASCADE
             );
 
@@ -85,6 +89,10 @@ class Database
                 userId INTEGER,
                 link TEXT,
                 shortCode TEXT,
+                orderNumber INTEGER DEFAULT 0,
+                isActive INTEGER DEFAULT 1,
+                startsAt TEXT DEFAULT NULL,
+                expiresAt TEXT DEFAULT NULL,
                 FOREIGN KEY (userId) REFERENCES user (id) ON DELETE SET NULL ON UPDATE CASCADE
             );
 
@@ -108,6 +116,9 @@ class Database
             );
         ");
 
+        // Mevcut veritabanları için güvenli şema güncellemesi (Otomatik migrasyon)
+        self::migrateColumns($pdo);
+
         $userCount = (int)$pdo->query("SELECT COUNT(*) FROM user")->fetchColumn();
         if ($userCount === 0) {
             $stmt = $pdo->prepare("
@@ -118,6 +129,42 @@ class Database
                 ':password' => password_hash("123456", PASSWORD_DEFAULT),
                 ':createdDate' => date('Y.m.d H:i:s')
             ]);
+        }
+    }
+
+    /**
+     * Eksik sütunları güvenli şekilde tabloya ekler
+     */
+    private static function migrateColumns(PDO $pdo): void
+    {
+        // 1. slider tablosu sütunları
+        $sliderCols = array_column($pdo->query("PRAGMA table_info(slider)")->fetchAll(PDO::FETCH_ASSOC), 'name');
+        if (!in_array('orderNumber', $sliderCols, true)) {
+            $pdo->exec("ALTER TABLE slider ADD COLUMN orderNumber INTEGER DEFAULT 0;");
+        }
+        if (!in_array('isActive', $sliderCols, true)) {
+            $pdo->exec("ALTER TABLE slider ADD COLUMN isActive INTEGER DEFAULT 1;");
+        }
+        if (!in_array('startsAt', $sliderCols, true)) {
+            $pdo->exec("ALTER TABLE slider ADD COLUMN startsAt TEXT DEFAULT NULL;");
+        }
+        if (!in_array('expiresAt', $sliderCols, true)) {
+            $pdo->exec("ALTER TABLE slider ADD COLUMN expiresAt TEXT DEFAULT NULL;");
+        }
+
+        // 2. announcement tablosu sütunları
+        $annCols = array_column($pdo->query("PRAGMA table_info(announcement)")->fetchAll(PDO::FETCH_ASSOC), 'name');
+        if (!in_array('orderNumber', $annCols, true)) {
+            $pdo->exec("ALTER TABLE announcement ADD COLUMN orderNumber INTEGER DEFAULT 0;");
+        }
+        if (!in_array('isActive', $annCols, true)) {
+            $pdo->exec("ALTER TABLE announcement ADD COLUMN isActive INTEGER DEFAULT 1;");
+        }
+        if (!in_array('startsAt', $annCols, true)) {
+            $pdo->exec("ALTER TABLE announcement ADD COLUMN startsAt TEXT DEFAULT NULL;");
+        }
+        if (!in_array('expiresAt', $annCols, true)) {
+            $pdo->exec("ALTER TABLE announcement ADD COLUMN expiresAt TEXT DEFAULT NULL;");
         }
     }
 }

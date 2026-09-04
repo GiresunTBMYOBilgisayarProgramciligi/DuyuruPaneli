@@ -29,8 +29,8 @@ class KioskController
     {
         date_default_timezone_set('Europe/Istanbul');
 
-        $slides = $this->slideRepo->getAll();
-        $announcements = $this->announcementRepo->getAll();
+        $slides = $this->slideRepo->getActiveSlides();
+        $announcements = $this->announcementRepo->getActiveAnnouncements();
         $weather = $this->weatherService->getCurrentWeather();
 
         $initialTickerData = [];

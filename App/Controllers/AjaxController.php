@@ -54,7 +54,11 @@ class AjaxController
         AuthMiddleware::handle($request);
 
         // Değişiklik yapan POST eylemlerinde CSRF doğrulaması
-        if (in_array($action, ['saveSlide', 'updateSlide', 'deleteSlide', 'saveAnnouncement', 'updateAnnouncement', 'deleteAnnouncement', 'saveUser', 'updateUser', 'deleteUser'], true)) {
+        if (in_array($action, [
+            'saveSlide', 'updateSlide', 'deleteSlide', 'toggleSlideStatus', 'updateSlideOrder',
+            'saveAnnouncement', 'updateAnnouncement', 'deleteAnnouncement', 'toggleAnnouncementStatus', 'updateAnnouncementOrder',
+            'saveUser', 'updateUser', 'deleteUser'
+        ], true)) {
             CsrfMiddleware::handle($request);
         }
 
@@ -77,6 +81,14 @@ class AjaxController
                 (new SlideController())->delete($request);
                 break;
 
+            case 'toggleSlideStatus':
+                (new SlideController())->toggleStatus($request);
+                break;
+
+            case 'updateSlideOrder':
+                (new SlideController())->updateOrder($request);
+                break;
+
             // Kayan Duyuru İşlemleri
             case 'getAnnouncementsList':
                 (new AnnouncementController())->list($request);
@@ -92,6 +104,14 @@ class AjaxController
 
             case 'deleteAnnouncement':
                 (new AnnouncementController())->delete($request);
+                break;
+
+            case 'toggleAnnouncementStatus':
+                (new AnnouncementController())->toggleStatus($request);
+                break;
+
+            case 'updateAnnouncementOrder':
+                (new AnnouncementController())->updateOrder($request);
                 break;
 
             // Kullanıcı Hesap İşlemleri

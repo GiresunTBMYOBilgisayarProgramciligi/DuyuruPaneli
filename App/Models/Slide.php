@@ -17,6 +17,10 @@ class Slide
     public ?string $shortCode = null;
     public string $userFullName = '';
     public int $scanCount = 0;
+    public int $orderNumber = 0;
+    public int $isActive = 1;
+    public ?string $startsAt = null;
+    public ?string $expiresAt = null;
 
     public function __construct(?object $data = null)
     {
@@ -33,6 +37,10 @@ class Slide
             $this->shortCode = isset($data->shortCode) ? (string)$data->shortCode : null;
             $this->userFullName = (string)($data->userFullName ?? '');
             $this->scanCount = isset($data->scanCount) ? (int)$data->scanCount : 0;
+            $this->orderNumber = isset($data->orderNumber) ? (int)$data->orderNumber : 0;
+            $this->isActive = isset($data->isActive) ? (int)$data->isActive : 1;
+            $this->startsAt = isset($data->startsAt) ? (string)$data->startsAt : null;
+            $this->expiresAt = isset($data->expiresAt) ? (string)$data->expiresAt : null;
         }
     }
 }

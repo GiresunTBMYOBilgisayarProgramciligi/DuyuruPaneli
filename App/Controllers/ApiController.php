@@ -29,8 +29,8 @@ class ApiController
      */
     public function getKioskData(Request $request): void
     {
-        $slides = $this->slideRepository->getAll();
-        $announcements = $this->announcementRepository->getAll();
+        $slides = $this->slideRepository->getActiveSlides();
+        $announcements = $this->announcementRepository->getActiveAnnouncements();
         $weather = $this->weatherService->getCurrentWeather();
 
         $tickerNews = [];
@@ -87,7 +87,7 @@ class ApiController
      */
     public function getAnnouncementJSON(Request $request): void
     {
-        $announcements = $this->announcementRepository->getAll();
+        $announcements = $this->announcementRepository->getActiveAnnouncements();
         $response = [];
 
         foreach ($announcements as $announcement) {

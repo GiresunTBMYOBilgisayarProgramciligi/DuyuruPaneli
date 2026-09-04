@@ -139,4 +139,53 @@ class SlideController
 
         Response::success('Slide ve ilişkili görsel başarıyla silindi.');
     }
+
+    public function toggleStatus(Request $request): void
+    {
+        AuthMiddleware::handle($request);
+        CsrfMiddleware::handle($request);
+
+        $id = (int)$request->input('id', 0);
+        if ($id <= 0) {
+            Response::error('Geçersiz slide ID.');
+        }
+
+        $existing = $this->slideRepository->findById($id);
+        if (!$existing) {
+            Response::error('Slide bulunamadı.', 404);
+        }
+
+        // Eğer duraklatılmış ve süresi dolmuşsa, doğrudan aktife almayı engelle
+        if ((int)$existing->isActive === 0 && !empty($existing->expiresAt) && strtotime($existing->expiresAt) <= time()) {
+            Response::error('Bu afişin yayın süresi dolmuştur. Tekrar yayına almak için lütfen düzenle (✏️) penceresinden bitiş tarihini güncelleyiniz veya kaldırınız.');
+        }
+
+        $this->slideRepository->toggleStatus($id);
+        $newState = ((int)$existing->isActive === 1) ? 0 : 1;
+        $isScheduled = !empty($existing->startsAt) && strtotime($existing->startsAt) > time();
+        if ($newState === 1) {
+            $msg = $isScheduled
+                ? 'Afiş takvime alındı (belirlenen başlangıç tarihinde otomatik yayınlanacaktır).'
+                : 'Afiş başarıyla yayına alındı.';
+        } else {
+            $msg = 'Afiş yayından kaldırıldı (duraklatıldı).';
+        }
+        Response::success($msg, ['isActive' => $newState]);
+    }
+
+    public function updateOrder(Request $request): void
+    {
+        AuthMiddleware::handle($request);
+        CsrfMiddleware::handle($request);
+
+        $id = (int)$request->input('id', 0);
+        $orderNumber = (int)$request->input('orderNumber', 0);
+
+        if ($id <= 0) {
+            Response::error('Geçersiz slide ID.');
+        }
+
+        $this->slideRepository->updateOrder($id, $orderNumber);
+        Response::success('Afiş sıralaması başarıyla güncellendi.', ['orderNumber' => $orderNumber]);
+    }
 }
