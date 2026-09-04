@@ -1,5 +1,17 @@
-#Upload limiti Blirle
-
+# Upload limiti Belirle
 php_value post_max_size 10M
-
 php_value upload_max_filesize 10M
+
+RewriteEngine On
+
+# Kısa Link & QR Kod Yönlendirmesi (/r/{code} -> r.php?c={code})
+RewriteRule ^r/([a-zA-Z0-9_-]+)$ r.php?c=$1 [L,QSA]
+
+# Güvenlik Kuralları: Hassas Dosya ve Dizinlere Erişimi Engelle
+<FilesMatch "(^#.*#|\.(bak|conf|dist|fla|in[ci]|log|psd|sh|sql|sw[op]|db|sqlite|sqlite3|env.*|lock)|composer\.(json|lock))$">
+    Require all denied
+</FilesMatch>
+
+# db ve App dizinlerini webden gizle
+RewriteRule ^db(/.*)?$ - [F,L,NC]
+RewriteRule ^App(/.*)?$ - [F,L,NC]
