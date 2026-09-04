@@ -17,14 +17,16 @@ declare(strict_types=1);
             <table id="slidesTable" class="table admin-table align-middle">
                 <thead>
                 <tr>
-                    <th style="width: 50px;">#</th>
+                    <th style="width: 75px;">Sıra</th>
                     <th style="width: 90px;">Görsel</th>
                     <th>Afiş Başlığı & Açıklama</th>
-                    <th style="width: 130px;">QR Kod</th>
-                    <th style="width: 120px;">Okutulma</th>
+                    <th style="width: 110px;">Durum</th>
+                    <th style="width: 170px;">Yayın Takvimi</th>
+                    <th style="width: 110px;">QR Kod</th>
+                    <th style="width: 110px;">Okutulma</th>
                     <th>Ekleyen</th>
                     <th>Tarih</th>
-                    <th class="text-center" style="width: 100px;">İşlemler</th>
+                    <th class="text-center" style="width: 130px;">İşlemler</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -59,6 +61,33 @@ declare(strict_types=1);
                                 <label for="slide_link" class="form-label">Detay Bağlantısı (QR Kod İçin)</label>
                                 <input type="url" class="form-control" id="slide_link" name="link" placeholder="https://ornek.edu.tr/etkinlik">
                                 <div class="form-text text-muted">Link girildiğinde afiş için otomatik taranabilir QR kod ve okutulma analitiği oluşturulur.</div>
+                            </div>
+                            <div class="row g-2 mb-3">
+                                <div class="col-md-6">
+                                    <label for="slide_orderNumber" class="form-label">Sıralama / Öncelik</label>
+                                    <input type="number" class="form-control" id="slide_orderNumber" name="orderNumber" value="0" min="0" placeholder="0: Otomatik">
+                                    <div class="form-text text-muted">Küçük numaralı afiş önce gösterilir. 0: En son eklenen ilk gösterilir.</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="slide_isActive" class="form-label">Yayın Durumu</label>
+                                    <select class="form-select" id="slide_isActive" name="isActive">
+                                        <option value="1" selected>🟢 Yayında (Aktif)</option>
+                                        <option value="0">⏸️ Duraklatıldı (Gizli)</option>
+                                    </select>
+                                    <div class="form-text text-muted">Afiş silinmeden geçici olarak yayından kaldırılabilir.</div>
+                                </div>
+                            </div>
+                            <div class="row g-2 mb-3">
+                                <div class="col-md-6">
+                                    <label for="slide_startsAt" class="form-label">Yayın Başlangıç Tarihi</label>
+                                    <input type="datetime-local" class="form-control" id="slide_startsAt" name="startsAt">
+                                    <div class="form-text text-muted">Boşsa hemen yayına girer. İleri tarih seçilirse otomatik yayınlanır.</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="slide_expiresAt" class="form-label">Yayın Bitiş Tarihi</label>
+                                    <input type="datetime-local" class="form-control" id="slide_expiresAt" name="expiresAt">
+                                    <div class="form-text text-muted">Ayarlandığı tarih geldiğinde afiş otomatik durdurulur. Boşsa süresiz kalır.</div>
+                                </div>
                             </div>
                             <div class="form-check mt-3 p-2 bg-light rounded-3 border">
                                 <input class="form-check-input ms-1" type="checkbox" id="fullWidth" name="fullWidth" value="1">
@@ -113,6 +142,31 @@ declare(strict_types=1);
                             <div class="mb-3">
                                 <label for="update_slide_link" class="form-label">Detay Bağlantısı (URL)</label>
                                 <input type="url" class="form-control" id="update_slide_link" name="link">
+                            </div>
+                            <div class="row g-2 mb-3">
+                                <div class="col-md-6">
+                                    <label for="update_slide_orderNumber" class="form-label">Sıralama / Öncelik</label>
+                                    <input type="number" class="form-control" id="update_slide_orderNumber" name="orderNumber" min="0">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="update_slide_isActive" class="form-label">Yayın Durumu</label>
+                                    <select class="form-select" id="update_slide_isActive" name="isActive">
+                                        <option value="1">🟢 Yayında (Aktif)</option>
+                                        <option value="0">⏸️ Duraklatıldı (Gizli)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row g-2 mb-3">
+                                <div class="col-md-6">
+                                    <label for="update_slide_startsAt" class="form-label">Yayın Başlangıç Tarihi</label>
+                                    <input type="datetime-local" class="form-control" id="update_slide_startsAt" name="startsAt">
+                                    <div class="form-text text-muted">Boşsa hemen yayına girer.</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="update_slide_expiresAt" class="form-label">Yayın Bitiş Tarihi</label>
+                                    <input type="datetime-local" class="form-control" id="update_slide_expiresAt" name="expiresAt">
+                                    <div class="form-text text-muted">Tarih dolduğunda otomatik durdurulur. Boşsa süresiz kalır.</div>
+                                </div>
                             </div>
                             <div class="form-check mt-3 p-2 bg-light rounded-3 border">
                                 <input class="form-check-input ms-1" type="checkbox" id="update_fullWidth" name="fullWidth" value="1">

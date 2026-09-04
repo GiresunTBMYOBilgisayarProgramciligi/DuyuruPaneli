@@ -17,14 +17,16 @@ declare(strict_types=1);
             <table id="announcmentTable" class="table admin-table align-middle">
                 <thead>
                 <tr>
-                    <th style="width: 50px;">#</th>
+                    <th style="width: 75px;">Sıra</th>
                     <th style="width: 140px;">Kategori / Ön Ek</th>
                     <th>Duyuru Metni</th>
-                    <th style="width: 120px;">QR Kod</th>
-                    <th style="width: 120px;">Okutulma</th>
+                    <th style="width: 110px;">Durum</th>
+                    <th style="width: 170px;">Yayın Takvimi</th>
+                    <th style="width: 110px;">QR Kod</th>
+                    <th style="width: 110px;">Okutulma</th>
                     <th>Ekleyen</th>
                     <th>Tarih</th>
-                    <th class="text-center" style="width: 100px;">İşlemler</th>
+                    <th class="text-center" style="width: 130px;">İşlemler</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -58,6 +60,33 @@ declare(strict_types=1);
                         <input type="url" class="form-control" id="announcement_link" name="link" placeholder="https://ornek.edu.tr/duyuru-detay">
                         <div class="form-text text-muted">Link girildiğinde duyurunun yanında taranabilir SVG QR kod ve okutulma istatistikleri üretilir.</div>
                     </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-6">
+                            <label for="announcement_orderNumber" class="form-label">Sıralama / Öncelik</label>
+                            <input type="number" class="form-control" id="announcement_orderNumber" name="orderNumber" value="0" min="0" placeholder="0: Otomatik">
+                            <div class="form-text text-muted">Küçük numaralı duyuru önce gösterilir. 0: En son eklenen ilk akar.</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="announcement_isActive" class="form-label">Yayın Durumu</label>
+                            <select class="form-select" id="announcement_isActive" name="isActive">
+                                <option value="1" selected>🟢 Yayında (Aktif)</option>
+                                <option value="0">⏸️ Duraklatıldı (Gizli)</option>
+                            </select>
+                            <div class="form-text text-muted">Duyuru silinmeden geçici olarak yayından kaldırılabilir.</div>
+                        </div>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-6">
+                            <label for="announcement_startsAt" class="form-label">Yayın Başlangıç Tarihi</label>
+                            <input type="datetime-local" class="form-control" id="announcement_startsAt" name="startsAt">
+                            <div class="form-text text-muted">Boşsa hemen yayına girer. İleri tarih seçilirse otomatik yayınlanır.</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="announcement_expiresAt" class="form-label">Yayın Bitiş Tarihi</label>
+                            <input type="datetime-local" class="form-control" id="announcement_expiresAt" name="expiresAt">
+                            <div class="form-text text-muted">Ayarlandığı tarih geldiğinde duyuru otomatik durdurulur. Boşsa süresiz kalır.</div>
+                        </div>
+                    </div>
                 </form>
             </div>
             <div class="modal-footer">
@@ -90,6 +119,31 @@ declare(strict_types=1);
                     <div class="mb-3">
                         <label for="update_announcement_link" class="form-label">İlgili Web Bağlantısı (URL)</label>
                         <input type="url" class="form-control" id="update_announcement_link" name="link">
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-6">
+                            <label for="update_announcement_orderNumber" class="form-label">Sıralama / Öncelik</label>
+                            <input type="number" class="form-control" id="update_announcement_orderNumber" name="orderNumber" min="0">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="update_announcement_isActive" class="form-label">Yayın Durumu</label>
+                            <select class="form-select" id="update_announcement_isActive" name="isActive">
+                                <option value="1">🟢 Yayında (Aktif)</option>
+                                <option value="0">⏸️ Duraklatıldı (Gizli)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-6">
+                            <label for="update_announcement_startsAt" class="form-label">Yayın Başlangıç Tarihi</label>
+                            <input type="datetime-local" class="form-control" id="update_announcement_startsAt" name="startsAt">
+                            <div class="form-text text-muted">Boşsa hemen yayına girer.</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="update_announcement_expiresAt" class="form-label">Yayın Bitiş Tarihi</label>
+                            <input type="datetime-local" class="form-control" id="update_announcement_expiresAt" name="expiresAt">
+                            <div class="form-text text-muted">Tarih dolduğunda otomatik durdurulur. Boşsa süresiz kalır.</div>
+                        </div>
                     </div>
                 </form>
             </div>

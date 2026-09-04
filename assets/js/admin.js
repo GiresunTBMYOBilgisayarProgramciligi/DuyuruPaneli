@@ -177,7 +177,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // -----------------------------------------------------------------
     // 5. Tablo Aksiyon Butonları (İşlemler)
     // -----------------------------------------------------------------
-    function renderActions(itemType, id, updateData) {
+    function renderActions(itemType, id, updateData, isActive = 1) {
         let updateAttrs = '';
         Object.entries(updateData).forEach(function (entry) {
             const k = entry[0];
@@ -187,7 +187,21 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
 
+        let toggleBtnHtml = '';
+        if (itemType === 'deleteSlide') {
+            const isAct = parseInt(isActive, 10) === 1;
+            toggleBtnHtml = '<button type="button" class="btn-icon-action btn-toggle-status ' + (isAct ? 'btn-pause' : 'btn-resume') + '" title="' + (isAct ? 'Yayından Kaldır / Duraklat' : 'Tekrar Yayına Al') + '" data-type="slide" data-id="' + id + '">' +
+                (isAct ? '⏸️' : '▶️') +
+                '</button>';
+        } else if (itemType === 'deleteAnnouncement') {
+            const isAct = parseInt(isActive, 10) === 1;
+            toggleBtnHtml = '<button type="button" class="btn-icon-action btn-toggle-status ' + (isAct ? 'btn-pause' : 'btn-resume') + '" title="' + (isAct ? 'Yayından Kaldır / Duraklat' : 'Tekrar Yayına Al') + '" data-type="announcement" data-id="' + id + '">' +
+                (isAct ? '⏸️' : '▶️') +
+                '</button>';
+        }
+
         return '<div class="btn-action-group">' +
+            toggleBtnHtml +
             '<button type="button" class="btn-icon-action btn-edit" title="Düzenle" data-bs-target="#' + updateData.modalName + '" ' + updateAttrs + '>' +
             '✏️' +
             '</button>' +
@@ -215,12 +229,28 @@ document.addEventListener('DOMContentLoaded', function () {
                     if (key === 'full-width' || key === 'fullwidth') {
                         const fwInput = modalEl.querySelector('input[name="fullWidth"]');
                         if (fwInput) fwInput.checked = (val == 1 || val === 'true');
+                    } else if (key === 'isactive' || key === 'is-active') {
+                        const activeSelect = modalEl.querySelector('select[name="isActive"]');
+                        if (activeSelect) activeSelect.value = String(val);
+                    } else if (key === 'startsat' || key === 'starts-at') {
+                        const startsInput = modalEl.querySelector('input[name="startsAt"]');
+                        if (startsInput) {
+                            startsInput.value = val ? val.replace(' ', 'T').substring(0, 16) : '';
+                        }
+                    } else if (key === 'expiresat' || key === 'expires-at') {
+                        const expiresInput = modalEl.querySelector('input[name="expiresAt"]');
+                        if (expiresInput) {
+                            expiresInput.value = val ? val.replace(' ', 'T').substring(0, 16) : '';
+                        }
+                    } else if (key === 'ordernumber' || key === 'order-number') {
+                        const orderInput = modalEl.querySelector('input[name="orderNumber"]');
+                        if (orderInput) orderInput.value = val || '0';
                     } else {
-                        const inputs = modalEl.querySelectorAll('input[name="' + key + '"], textarea[name="' + key + '"]');
+                        const inputs = modalEl.querySelectorAll('input[name="' + key + '"], textarea[name="' + key + '"], select[name="' + key + '"]');
                         inputs.forEach(function (inp) { inp.value = val; });
 
                         const camelKey = toCamelCase(key);
-                        const camelInputs = modalEl.querySelectorAll('input[name="' + camelKey + '"], textarea[name="' + camelKey + '"]');
+                        const camelInputs = modalEl.querySelectorAll('input[name="' + camelKey + '"], textarea[name="' + camelKey + '"], select[name="' + camelKey + '"]');
                         camelInputs.forEach(function (inp) { inp.value = val; });
                     }
                 }
@@ -228,6 +258,88 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         showModal(modalEl);
+    });
+
+    // Duraklat / Yayına Al Butonu Dinleyicisi
+    document.addEventListener('click', async function (e) {
+        const toggleBtn = e.target.closest('.btn-toggle-status');
+        if (!toggleBtn) return;
+        e.preventDefault();
+
+        const itemType = toggleBtn.getAttribute('data-type');
+        const id = toggleBtn.getAttribute('data-id');
+        if (!itemType || !id) return;
+
+        const actionName = (itemType === 'slide') ? 'toggleSlideStatus' : 'toggleAnnouncementStatus';
+        const formData = new FormData();
+        formData.append('functionName', actionName);
+        formData.append('id', id);
+        formData.append('csrf_token', getCsrfToken());
+
+        try {
+            toggleBtn.disabled = true;
+            const res = await fetch("/admin/ajax", {
+                method: "POST",
+                body: formData,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            const data = await res.json();
+            if (data.success) {
+                showToast(data.message, 'success');
+                if (itemType === 'slide') {
+                    getSlides();
+                } else {
+                    getAnnouncements();
+                }
+            } else {
+                showToast(data.message || 'İşlem gerçekleştirilemedi.', 'error');
+            }
+        } catch (err) {
+            console.error('[UniPano] Durum değiştirilemedi:', err);
+            showToast('Bağlantı hatası oluştu.', 'error');
+        } finally {
+            toggleBtn.disabled = false;
+        }
+    });
+
+    // Sıralama Değiştirme Dinleyicisi (Hızlı Kayıt)
+    document.addEventListener('change', async function (e) {
+        const orderInput = e.target.closest('.item-order-input');
+        if (!orderInput) return;
+
+        const itemType = orderInput.getAttribute('data-type');
+        const id = orderInput.getAttribute('data-id');
+        const orderNumber = parseInt(orderInput.value || '0', 10);
+        if (!itemType || !id) return;
+
+        const actionName = (itemType === 'slide') ? 'updateSlideOrder' : 'updateAnnouncementOrder';
+        const formData = new FormData();
+        formData.append('functionName', actionName);
+        formData.append('id', id);
+        formData.append('orderNumber', String(orderNumber));
+        formData.append('csrf_token', getCsrfToken());
+
+        try {
+            const res = await fetch("/admin/ajax", {
+                method: "POST",
+                body: formData,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            const data = await res.json();
+            if (data.success) {
+                showToast(data.message, 'success');
+                if (itemType === 'slide') {
+                    getSlides();
+                } else {
+                    getAnnouncements();
+                }
+            } else {
+                showToast(data.message || 'Sıralama güncellenemedi.', 'error');
+            }
+        } catch (err) {
+            console.error('[UniPano] Sıralama güncellenemedi:', err);
+            showToast('Bağlantı hatası oluştu.', 'error');
+        }
     });
 
     // -----------------------------------------------------------------
@@ -387,7 +499,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const tbody = document.querySelector("#slidesTable tbody");
 
             if (!slides || slides.length === 0) {
-                outHTML = '<tr><td colspan="8" class="text-center text-muted py-5">Henüz kayıtlı bir afiş bulunmamaktadır.</td></tr>';
+                outHTML = '<tr><td colspan="10" class="text-center text-muted py-5">Henüz kayıtlı bir afiş bulunmamaktadır.</td></tr>';
                 if (countEl) countEl.textContent = '0';
             } else {
                 if (countEl) countEl.textContent = String(slides.length);
@@ -408,15 +520,59 @@ document.addEventListener('DOMContentLoaded', function () {
                         ? '<div class="table-qr-mini" title="QR Detayı" data-title="' + escapeHtml(slide.title) + '" data-url="' + escapeHtml(slide.link || '') + '" data-scans="' + scanCount + '">' + slide.qrCode + '</div>'
                         : '<span class="text-muted small">-</span>';
 
-                    const contentSummary = slide.content ? '<div class="text-muted small text-truncate" style="max-width:280px;">' + escapeHtml(slide.content) + '</div>' : '';
+                    const contentSummary = slide.content ? '<div class="text-muted small text-truncate" style="max-width:260px;">' + escapeHtml(slide.content) + '</div>' : '';
 
-                    outHTML += '<tr>' +
-                        '<td class="text-muted fw-bold">' + (i + 1) + '</td>' +
+                    const isAct = parseInt(slide.isActive ?? 1, 10) === 1;
+                    const nowMs = Date.now();
+                    const isExpired = Boolean(slide.expiresAt && (new Date(slide.expiresAt.replace(' ', 'T')).getTime() <= nowMs));
+                    const isScheduled = Boolean(slide.startsAt && (new Date(slide.startsAt.replace(' ', 'T')).getTime() > nowMs));
+
+                    let statusBadge = '';
+                    if (isExpired) {
+                        statusBadge = '<span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 fw-semibold" title="Yayın süresi dolduğu için otomatik olarak durduruldu">⏱️ Süresi Doldu</span>';
+                    } else if (!isAct) {
+                        statusBadge = '<span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 fw-semibold">⏸️ Duraklatıldı</span>';
+                    } else if (isScheduled) {
+                        statusBadge = '<span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25 fw-semibold" title="Başlangıç tarihi geldiğinde otomatik olarak yayına girecek">🗓️ Zamanlandı</span>';
+                    } else {
+                        statusBadge = '<span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 fw-semibold">🟢 Yayında</span>';
+                    }
+
+                    let scheduleHtml = '<div class="d-flex flex-column gap-1" style="font-size: 0.82rem; line-height: 1.3;">';
+                    if (slide.startsAt) {
+                        const sDate = escapeHtml(slide.startsAt.replace('T', ' ').substring(0, 16));
+                        if (isScheduled) {
+                            scheduleHtml += '<span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25" title="Otomatik yayınlanma tarihi">🗓️ ' + sDate + '</span>';
+                        } else {
+                            scheduleHtml += '<span class="text-muted" title="Yayın başlangıç tarihi">🚀 ' + sDate + '</span>';
+                        }
+                    } else {
+                        scheduleHtml += '<span class="text-muted small">🚀 Hemen</span>';
+                    }
+
+                    if (slide.expiresAt) {
+                        const eDate = escapeHtml(slide.expiresAt.replace('T', ' ').substring(0, 16));
+                        if (isExpired) {
+                            scheduleHtml += '<span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25" title="Yayın bitiş süresi doldu">⌛ ' + eDate + '</span>';
+                        } else {
+                            scheduleHtml += '<span class="text-secondary" title="Yayın bitiş tarihi">⏱️ ' + eDate + '</span>';
+                        }
+                    } else {
+                        scheduleHtml += '<span class="text-muted small">⏱️ Süresiz</span>';
+                    }
+                    scheduleHtml += '</div>';
+
+                    const orderInput = '<input type="number" class="form-control form-control-sm item-order-input" data-type="slide" data-id="' + slide.id + '" value="' + (slide.orderNumber || 0) + '" min="0" title="Sıra Numarası (0: Otomatik son eklenen)">';
+
+                    outHTML += '<tr' + (!isAct || isExpired ? ' class="table-light opacity-75"' : (isScheduled ? ' class="table-info bg-opacity-10"' : '')) + '>' +
+                        '<td>' + orderInput + '</td>' +
                         '<td>' + imgHtml + '</td>' +
                         '<td>' +
                         '  <div class="fw-bold text-dark">' + escapeHtml(slide.title) + '</div>' +
                         contentSummary +
                         '</td>' +
+                        '<td>' + statusBadge + '</td>' +
+                        '<td>' + scheduleHtml + '</td>' +
                         '<td>' + qrHtml + '</td>' +
                         '<td>' + scanBadge + '</td>' +
                         '<td><small class="fw-semibold">' + escapeHtml(slide.userFullName) + '</small></td>' +
@@ -427,8 +583,12 @@ document.addEventListener('DOMContentLoaded', function () {
                             title: slide.title,
                             content: slide.content,
                             link: slide.link,
-                            'full-width': slide.fullWidth
-                        }) + '</td>' +
+                            'full-width': slide.fullWidth,
+                            ordernumber: slide.orderNumber || 0,
+                            isactive: slide.isActive ?? 1,
+                            startsat: slide.startsAt || '',
+                            expiresat: slide.expiresAt || ''
+                        }, slide.isActive ?? 1) + '</td>' +
                         '</tr>';
                 });
             }
@@ -461,7 +621,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const tbody = document.querySelector("#announcmentTable tbody");
 
             if (!list || list.length === 0) {
-                outHTML = '<tr><td colspan="8" class="text-center text-muted py-5">Henüz kayıtlı bir kayan duyuru bulunmamaktadır.</td></tr>';
+                outHTML = '<tr><td colspan="10" class="text-center text-muted py-5">Henüz kayıtlı bir kayan duyuru bulunmamaktadır.</td></tr>';
                 if (countEl) countEl.textContent = '0';
             } else {
                 if (countEl) countEl.textContent = String(list.length);
@@ -480,10 +640,54 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     const tagBadge = '<span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25">' + escapeHtml(a.title || 'Duyuru') + '</span>';
 
-                    outHTML += '<tr>' +
-                        '<td class="text-muted fw-bold">' + (i + 1) + '</td>' +
+                    const isAct = parseInt(a.isActive ?? 1, 10) === 1;
+                    const nowMs = Date.now();
+                    const isExpired = Boolean(a.expiresAt && (new Date(a.expiresAt.replace(' ', 'T')).getTime() <= nowMs));
+                    const isScheduled = Boolean(a.startsAt && (new Date(a.startsAt.replace(' ', 'T')).getTime() > nowMs));
+
+                    let statusBadge = '';
+                    if (isExpired) {
+                        statusBadge = '<span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 fw-semibold" title="Yayın süresi dolduğu için otomatik olarak durduruldu">⏱️ Süresi Doldu</span>';
+                    } else if (!isAct) {
+                        statusBadge = '<span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 fw-semibold">⏸️ Duraklatıldı</span>';
+                    } else if (isScheduled) {
+                        statusBadge = '<span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25 fw-semibold" title="Başlangıç tarihi geldiğinde otomatik olarak yayına girecek">🗓️ Zamanlandı</span>';
+                    } else {
+                        statusBadge = '<span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 fw-semibold">🟢 Yayında</span>';
+                    }
+
+                    let scheduleHtml = '<div class="d-flex flex-column gap-1" style="font-size: 0.82rem; line-height: 1.3;">';
+                    if (a.startsAt) {
+                        const sDate = escapeHtml(a.startsAt.replace('T', ' ').substring(0, 16));
+                        if (isScheduled) {
+                            scheduleHtml += '<span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25" title="Otomatik yayınlanma tarihi">🗓️ ' + sDate + '</span>';
+                        } else {
+                            scheduleHtml += '<span class="text-muted" title="Yayın başlangıç tarihi">🚀 ' + sDate + '</span>';
+                        }
+                    } else {
+                        scheduleHtml += '<span class="text-muted small">🚀 Hemen</span>';
+                    }
+
+                    if (a.expiresAt) {
+                        const eDate = escapeHtml(a.expiresAt.replace('T', ' ').substring(0, 16));
+                        if (isExpired) {
+                            scheduleHtml += '<span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25" title="Yayın bitiş süresi doldu">⌛ ' + eDate + '</span>';
+                        } else {
+                            scheduleHtml += '<span class="text-secondary" title="Yayın bitiş tarihi">⏱️ ' + eDate + '</span>';
+                        }
+                    } else {
+                        scheduleHtml += '<span class="text-muted small">⏱️ Süresiz</span>';
+                    }
+                    scheduleHtml += '</div>';
+
+                    const orderInput = '<input type="number" class="form-control form-control-sm item-order-input" data-type="announcement" data-id="' + a.id + '" value="' + (a.orderNumber || 0) + '" min="0" title="Sıra Numarası (0: Otomatik son eklenen)">';
+
+                    outHTML += '<tr' + (!isAct || isExpired ? ' class="table-light opacity-75"' : (isScheduled ? ' class="table-info bg-opacity-10"' : '')) + '>' +
+                        '<td>' + orderInput + '</td>' +
                         '<td>' + tagBadge + '</td>' +
                         '<td><div class="fw-semibold text-dark text-break">' + escapeHtml(a.content) + '</div></td>' +
+                        '<td>' + statusBadge + '</td>' +
+                        '<td>' + scheduleHtml + '</td>' +
                         '<td>' + qrHtml + '</td>' +
                         '<td>' + scanBadge + '</td>' +
                         '<td><small class="fw-semibold">' + escapeHtml(a.userFullName) + '</small></td>' +
@@ -493,8 +697,12 @@ document.addEventListener('DOMContentLoaded', function () {
                             id: a.id,
                             title: a.title,
                             content: a.content,
-                            link: a.link
-                        }) + '</td>' +
+                            link: a.link,
+                            ordernumber: a.orderNumber || 0,
+                            isactive: a.isActive ?? 1,
+                            startsat: a.startsAt || '',
+                            expiresat: a.expiresAt || ''
+                        }, a.isActive ?? 1) + '</td>' +
                         '</tr>';
                 });
             }
