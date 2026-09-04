@@ -32,4 +32,15 @@ class RedirectController
             exit;
         }
     }
+
+    public function handleQuery(Request $request): void
+    {
+        $code = (string)$request->input('c', '');
+        if (empty($code)) {
+            http_response_code(404);
+            echo "<h1>404 - Kod belirtilmedi</h1>";
+            exit;
+        }
+        $this->handle($request, $code);
+    }
 }

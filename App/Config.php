@@ -11,7 +11,7 @@ class Config
     public const APP_NAME = "UniPano";
     public const APP_TAGLINE = "Dijital Kampüs Bilgilendirme Panosu";
     public const APP_VERSION = "2.1.0";
-    public const LOGO_PATH = "images/logo_230x230.png";
+    public const LOGO_PATH = "assets/images/logo_230x230.png";
 
     // Modül Açma / Kapama Anahtarları (Farklı Kurumlar İçin Modüler Seçim)
     public const MODULE_WEATHER = true;      // Hava durumu modülü
@@ -36,7 +36,8 @@ class Config
     public const SESSION_CSRF_KEY = "unipano_csrf_token";
     public const LOGIN_COOKIE_NAME = "unipano_session";
 
-    public const UPLOAD_DIR = __DIR__ . "/../images/";
+    public const UPLOAD_DIR = __DIR__ . "/../uploads/";
+    public const UPLOAD_URL_PREFIX = "uploads/";
     public const ALLOWED_IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
     public const ALLOWED_IMAGE_MIMES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
     public const MAX_IMAGE_SIZE_BYTES = 10 * 1024 * 1024; // 10MB

@@ -104,4 +104,22 @@ class Session
         }
         return hash_equals($_SESSION[Config::SESSION_CSRF_KEY], $token);
     }
+
+    /**
+     * Oturumdan belirtilen anahtarı alır
+     */
+    public static function get(string $key, mixed $default = null): mixed
+    {
+        self::start();
+        return $_SESSION[$key] ?? $default;
+    }
+
+    /**
+     * Oturuma anahtar-değer çifti kaydeder
+     */
+    public static function set(string $key, mixed $value): void
+    {
+        self::start();
+        $_SESSION[$key] = $value;
+    }
 }

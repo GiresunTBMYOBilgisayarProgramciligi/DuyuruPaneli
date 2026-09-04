@@ -49,7 +49,7 @@ class FileUploadService
         }
 
         // Web üzerinden erişilebilir göreceli yol
-        return 'images/' . $newFilename;
+        return Config::UPLOAD_URL_PREFIX . $newFilename;
     }
 
     /**
@@ -66,6 +66,12 @@ class FileUploadService
 
         if (file_exists($filePath) && is_file($filePath)) {
             @unlink($filePath);
+        } else {
+            // Geriye dönük uyumluluk: Eski images/ dizinini de kontrol et
+            $legacyPath = Config::ROOT_PATH . 'images/' . $filename;
+            if (file_exists($legacyPath) && is_file($legacyPath)) {
+                @unlink($legacyPath);
+            }
         }
     }
 }

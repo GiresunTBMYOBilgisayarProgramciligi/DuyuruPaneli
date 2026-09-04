@@ -122,3 +122,11 @@ db
 images/QRCodes/
 
 .env
+
+# UniPano - Kullanıcı yüklemeleri (Afişler / Slaytlar)
+uploads/*
+!uploads/.gitkeep
+
+# Node Bağımlılıkları
+node_modules/
+package-lock.json

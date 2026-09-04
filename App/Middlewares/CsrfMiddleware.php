@@ -9,6 +9,11 @@ use App\Core\Session;
 
 class CsrfMiddleware
 {
+    public static function generateToken(): string
+    {
+        return Session::getCsrfToken();
+    }
+
     public static function handle(Request $request): void
     {
         // Yalnızca veri değiştiren (POST) isteklerde CSRF denetimi yapılır

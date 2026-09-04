@@ -15,7 +15,7 @@ class AuthMiddleware
             if ($request->isAjax()) {
                 Response::error('Oturum süreniz dolmuş veya giriş yapmamışsınız.', 401);
             } else {
-                Response::redirect('/admin/loginView.php');
+                Response::redirect('/admin/login');
             }
         }
     }
