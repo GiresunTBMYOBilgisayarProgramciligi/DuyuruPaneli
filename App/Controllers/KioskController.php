@@ -1,0 +1,91 @@
+<?php
+declare(strict_types=1);
+
+namespace App\Controllers;
+
+use App\Config;
+use App\Core\Request;
+use App\Core\View;
+use App\Repositories\SlideRepository;
+use App\Repositories\AnnouncementRepository;
+use App\Services\WeatherService;
+use DateTime;
+use DateTimeZone;
+
+class KioskController
+{
+    private SlideRepository $slideRepo;
+    private AnnouncementRepository $announcementRepo;
+    private WeatherService $weatherService;
+
+    public function __construct()
+    {
+        $this->slideRepo = new SlideRepository();
+        $this->announcementRepo = new AnnouncementRepository();
+        $this->weatherService = new WeatherService();
+    }
+
+    public function index(Request $request): void
+    {
+        date_default_timezone_set('Europe/Istanbul');
+
+        $slides = $this->slideRepo->getAll();
+        $announcements = $this->announcementRepo->getAll();
+        $weather = $this->weatherService->getCurrentWeather();
+
+        $initialTickerData = [];
+        foreach ($announcements as $announcement) {
+            $dateString = '';
+            if (!empty($announcement->createdDate)) {
+                $dt = DateTime::createFromFormat('Y.m.d H:i:s', $announcement->createdDate);
+                $dateString = $dt ? $dt->format('d.m.Y') : $announcement->createdDate;
+            }
+
+            $prefix = !empty($announcement->title) ? $announcement->title : $dateString;
+            $initialTickerData[] = [
+                'id' => $announcement->id,
+                'prefix' => $prefix,
+                'duyuru' => $announcement->content,
+                'qrCode' => $announcement->qrCode ?? '',
+                'link' => $announcement->link ?? ''
+            ];
+        }
+
+        $turkishMonths = [
+            1 => 'Ocak', 2 => 'Şubat', 3 => 'Mart', 4 => 'Nisan', 5 => 'Mayıs', 6 => 'Haziran',
+            7 => 'Temmuz', 8 => 'Ağustos', 9 => 'Eylül', 10 => 'Ekim', 11 => 'Kasım', 12 => 'Aralık'
+        ];
+        $turkishDays = [
+            'Monday' => 'Pazartesi', 'Tuesday' => 'Salı', 'Wednesday' => 'Çarşamba',
+            'Thursday' => 'Perşembe', 'Friday' => 'Cuma', 'Saturday' => 'Cumartesi', 'Sunday' => 'Pazar'
+        ];
+
+        $now = new DateTime('now', new DateTimeZone('Europe/Istanbul'));
+        $initialTime = $now->format('H:i:s');
+        $monthName = $turkishMonths[(int)$now->format('n')] ?? '';
+        $dayName = $turkishDays[$now->format('l')] ?? '';
+        $initialDate = $now->format('j') . ' ' . $monthName . ' ' . $now->format('Y') . ', ' . $dayName;
+
+        $firstAnnouncement = $initialTickerData[0] ?? null;
+        $firstPrefix = $firstAnnouncement['prefix'] ?? 'DUYURULAR';
+        $firstDuyuru = $firstAnnouncement['duyuru'] ?? 'Güncel duyuru bulunmamaktadır.';
+        $firstQr = $firstAnnouncement['qrCode'] ?? '';
+        $hasFirstQr = !empty(trim($firstQr));
+
+        $initialContentHash = md5(json_encode($slides) . json_encode($initialTickerData));
+
+        View::render('kiosk.index', [
+            'slides' => $slides,
+            'announcements' => $announcements,
+            'weather' => $weather,
+            'initialTickerData' => $initialTickerData,
+            'initialTime' => $initialTime,
+            'initialDate' => $initialDate,
+            'firstPrefix' => $firstPrefix,
+            'firstDuyuru' => $firstDuyuru,
+            'firstQr' => $firstQr,
+            'hasFirstQr' => $hasFirstQr,
+            'initialContentHash' => $initialContentHash
+        ]);
+    }
+}
