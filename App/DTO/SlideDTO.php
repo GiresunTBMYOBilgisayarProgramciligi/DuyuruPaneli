@@ -10,6 +10,7 @@ class SlideDTO
     public string $content;
     public ?string $image;
     public ?string $link;
+    public ?string $youtubeVideoId;
     public int $fullWidth;
     public ?int $userId;
     public int $orderNumber;
@@ -39,6 +40,7 @@ class SlideDTO
         $this->content = trim($content);
         $this->image = $image;
         $this->link = $link !== null && trim($link) !== '' ? trim($link) : null;
+        $this->youtubeVideoId = self::extractYouTubeId($this->link);
         $this->fullWidth = $fullWidth;
         $this->userId = $userId;
         $this->orderNumber = $orderNumber;
@@ -47,6 +49,25 @@ class SlideDTO
         $this->expiresAt = self::normalizeDateTime($expiresAt);
         $this->showCaption = $showCaption;
         $this->qrPosition = in_array($qrPosition, ['bottom-right', 'bottom-left', 'top-right', 'top-left', 'none'], true) ? $qrPosition : 'bottom-right';
+    }
+
+    public function isYouTube(): bool
+    {
+        return !empty($this->youtubeVideoId);
+    }
+
+    public static function extractYouTubeId(?string $url): ?string
+    {
+        if ($url === null || trim($url) === '') {
+            return null;
+        }
+
+        $pattern = '/(?:youtube(?:-nocookie)?\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?|shorts)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/i';
+        if (preg_match($pattern, trim($url), $matches)) {
+            return $matches[1];
+        }
+
+        return null;
     }
 
     public static function normalizeDateTime(?string $dateTime): ?string

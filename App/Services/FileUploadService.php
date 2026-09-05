@@ -74,4 +74,60 @@ class FileUploadService
             }
         }
     }
+
+    /**
+     * YouTube video kimliğine göre kapak görselini indirir ve yerel uploads dizinine kaydeder
+     */
+    public function downloadYouTubeThumbnail(string $videoId): string
+    {
+        $safeVideoId = preg_replace('/[^a-zA-Z0-9_-]/', '', $videoId);
+        if (empty($safeVideoId)) {
+            return '';
+        }
+
+        $filename = 'yt_' . $safeVideoId . '.jpg';
+        $targetPath = Config::UPLOAD_DIR . $filename;
+
+        // Dosya zaten indirilmiş ve geçerliyse doğrudan yolunu dön
+        if (file_exists($targetPath) && filesize($targetPath) > 1000) {
+            return Config::UPLOAD_URL_PREFIX . $filename;
+        }
+
+        if (!is_dir(Config::UPLOAD_DIR)) {
+            mkdir(Config::UPLOAD_DIR, 0775, true);
+        }
+
+        $resolutions = [
+            "https://img.youtube.com/vi/{$safeVideoId}/maxresdefault.jpg",
+            "https://img.youtube.com/vi/{$safeVideoId}/hqdefault.jpg",
+            "https://img.youtube.com/vi/{$safeVideoId}/mqdefault.jpg",
+        ];
+
+        $context = stream_context_create([
+            'http' => [
+                'method' => 'GET',
+                'header' => "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)\r\n",
+                'timeout' => 5,
+                'ignore_errors' => true
+            ]
+        ]);
+
+        foreach ($resolutions as $url) {
+            $data = @file_get_contents($url, false, $context);
+            if ($data !== false && strlen($data) > 1000) {
+                if (file_put_contents($targetPath, $data) !== false) {
+                    @chmod($targetPath, 0666);
+                    return Config::UPLOAD_URL_PREFIX . $filename;
+                }
+            }
+        }
+
+        // İnternet kesintisi veya YouTube erişim engeli durumunda yerel logo fallback
+        $fallbackLogo = Config::ROOT_PATH . 'assets/images/logo_230x230.png';
+        if (file_exists($fallbackLogo)) {
+            return '/assets/images/logo_230x230.png';
+        }
+
+        return '';
+    }
 }

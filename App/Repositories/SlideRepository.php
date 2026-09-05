@@ -32,7 +32,8 @@ class SlideRepository
             LEFT JOIN short_link sl ON sl.code = s.shortCode
             ORDER BY CASE WHEN s.orderNumber > 0 THEN s.orderNumber ELSE 999999 END ASC, s.id DESC
         ";
-        return $this->db->query($sql)->fetchAll();
+        $slides = $this->db->query($sql)->fetchAll();
+        return $this->decorateSlides($slides);
     }
 
     public function getActiveSlides(): array
@@ -57,7 +58,8 @@ class SlideRepository
         ";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([':now' => $now]);
-        return $stmt->fetchAll();
+        $slides = $stmt->fetchAll();
+        return $this->decorateSlides($slides);
     }
 
     public function findById(int $id): ?object
@@ -65,7 +67,23 @@ class SlideRepository
         $stmt = $this->db->prepare("SELECT * FROM slider WHERE id = :id");
         $stmt->execute([':id' => $id]);
         $slide = $stmt->fetch();
-        return $slide ?: null;
+        if ($slide) {
+            $decorated = $this->decorateSlides([$slide]);
+            return $decorated[0];
+        }
+        return null;
+    }
+
+    /**
+     * Slayt nesnelerine YouTube video kimliği ve durum bilgilerini dinamik olarak iliştirir
+     */
+    private function decorateSlides(array $slides): array
+    {
+        foreach ($slides as $slide) {
+            $slide->youtubeVideoId = SlideDTO::extractYouTubeId($slide->link ?? null);
+            $slide->isYouTube = !empty($slide->youtubeVideoId);
+        }
+        return $slides;
     }
 
     public function create(SlideDTO $dto, string $qrSvg = '', ?string $shortCode = null): int

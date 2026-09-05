@@ -29,6 +29,7 @@ class Config
     public const TIMEZONE = "Europe/Istanbul";
     public const SLIDE_INTERVAL_MS = 20000;  // Slayt geçiş süresi (20 saniye)
     public const KIOSK_POLL_INTERVAL_MS = 25000; // Arka plan güncelleme kontrolü
+    public const KIOSK_VIDEO_SOUND = true;   // Video afişlerinde ses varsayılan olarak açık olsun mu
 
     public const ROOT_PATH = __DIR__ . "/../";
     public const PATH_TO_SQLITE_FILE = __DIR__ . '/../db/phpsqlite.db';

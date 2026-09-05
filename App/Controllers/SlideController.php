@@ -57,6 +57,8 @@ class SlideController
             $imagePath = '';
             if ($hasUploadedImage) {
                 $imagePath = $this->fileUploadService->uploadImage($file);
+            } elseif ($dto->isYouTube()) {
+                $imagePath = $this->fileUploadService->downloadYouTubeThumbnail((string)$dto->youtubeVideoId);
             }
             $dto->image = $imagePath;
 
@@ -103,6 +105,13 @@ class SlideController
                 $newImagePath = $this->fileUploadService->uploadImage($file);
                 $this->fileUploadService->deleteImage($existing->image);
                 $dto->image = $newImagePath;
+            } elseif ($dto->isYouTube() && (empty($existing->image) || str_starts_with(basename((string)$existing->image), 'yt_'))) {
+                // Eğer mevcut görsel yoksa veya önceki otomatik YouTube kapağıysa, yeni video kapağını al
+                if ($dto->youtubeVideoId !== SlideDTO::extractYouTubeId($existing->link ?? null) || empty($existing->image)) {
+                    $dto->image = $this->fileUploadService->downloadYouTubeThumbnail((string)$dto->youtubeVideoId);
+                } else {
+                    $dto->image = null; // Mevcut resmi koru
+                }
             } else {
                 $dto->image = null; // Mevcut resmi koru
             }
