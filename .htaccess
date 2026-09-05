@@ -1,5 +1,22 @@
-#Upload limiti Blirle
-
+# Upload limiti Belirle
 php_value post_max_size 10M
-
 php_value upload_max_filesize 10M
+
+RewriteEngine On
+
+# Güvenlik Kuralları: Hassas Dosya ve Dizinlere Erişimi Engelle
+<FilesMatch "(^#.*#|\.(bak|conf|dist|fla|in[ci]|log|psd|sh|sql|sw[op]|db|sqlite|sqlite3|env.*|lock)|composer\.(json|lock)|package(-lock)?\.json)$">
+    Require all denied
+</FilesMatch>
+
+# db, App ve views dizinlerini doğrudan HTTP erişimine kapat
+RewriteRule ^db(/.*)?$ - [F,L,NC]
+RewriteRule ^App(/.*)?$ - [F,L,NC]
+RewriteRule ^views(/.*)?$ - [F,L,NC]
+
+# Statik varlık dosyaları (assets, uploads, css, js, images) doğrudan sunulur
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^ - [L]
+
+# Diğer tüm sayfa ve API isteklerini Front Controller (index.php) üzerinden Router'a aktar
+RewriteRule ^ index.php [QSA,L]
