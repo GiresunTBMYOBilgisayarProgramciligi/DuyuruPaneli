@@ -110,13 +110,55 @@ use App\Config;
                         <?php 
                             $activeClass = ($idx === 0) ? 'active' : '';
                             $fullWidthClass = (!empty($slide->fullWidth)) ? 'full-width' : '';
-                            $imageSrc = '/' . ltrim($slide->image, '/');
+                            $imageSrc = !empty($slide->image) ? '/' . ltrim($slide->image, '/') : '';
+                            $ytId = $slide->youtubeVideoId ?? null;
+                            $isYt = !empty($ytId);
                         ?>
-                        <div class="carousel-item <?= $activeClass ?>">
-                            <div class="slide-ambient-bg" style="background-image: url('<?= htmlspecialchars($imageSrc, ENT_QUOTES, 'UTF-8') ?>');"></div>
-                            <div class="slide-image-wrapper <?= $fullWidthClass ?>">
-                                <img src="<?= htmlspecialchars($imageSrc, ENT_QUOTES, 'UTF-8') ?>" class="slide-image <?= $fullWidthClass ?>" alt="<?= htmlspecialchars($slide->title ?? '', ENT_QUOTES, 'UTF-8') ?>">
-                            </div>
+                        <div class="carousel-item <?= $activeClass ?>" 
+                             data-slide-type="<?= $isYt ? 'youtube' : 'image' ?>"
+                             <?php if ($isYt): ?>data-youtube-id="<?= htmlspecialchars($ytId, ENT_QUOTES, 'UTF-8') ?>" data-slide-id="<?= $slide->id ?>"<?php endif; ?>>
+                            
+                            <?php if (!empty($imageSrc)): ?>
+                                <div class="slide-ambient-bg" style="background-image: url('<?= htmlspecialchars($imageSrc, ENT_QUOTES, 'UTF-8') ?>');"></div>
+                            <?php else: ?>
+                                <div class="slide-ambient-bg slide-ambient-video"></div>
+                            <?php endif; ?>
+
+                            <?php if ($isYt): ?>
+                                <div class="slide-video-container <?= $fullWidthClass ?>">
+                                    <div class="slide-video-stage <?= $fullWidthClass ?>">
+                                        <div id="ytPlayer_<?= $slide->id ?>" class="youtube-player-frame" data-video-id="<?= htmlspecialchars($ytId, ENT_QUOTES, 'UTF-8') ?>"></div>
+                                        
+                                        <!-- Video Kontrol Şeridi -->
+                                        <div class="video-overlay-bar">
+                                            <div class="video-overlay-left">
+                                                <?php $soundMutedInit = !Config::KIOSK_VIDEO_SOUND; ?>
+                                                <button type="button" class="video-overlay-btn video-sound-btn <?= $soundMutedInit ? 'is-muted' : '' ?>" data-player-id="ytPlayer_<?= $slide->id ?>" title="Sesi Aç / Kapat">
+                                                    <span class="sound-icon"><?= $soundMutedInit ? '🔇' : '🔊' ?></span>
+                                                    <span class="sound-text"><?= $soundMutedInit ? 'Ses Kapalı' : 'Ses Açık' ?></span>
+                                                </button>
+                                            </div>
+                                            <div class="video-overlay-right">
+                                                <button type="button" class="video-overlay-btn video-skip-btn" title="Sonraki afişe geç">
+                                                    <span>Sonraki Afiş</span>
+                                                    <svg class="btn-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                        <path d="M5 12h14"></path>
+                                                        <path d="m12 5 7 7-7 7"></path>
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <!-- Video İlerleme Çubuğu -->
+                                        <div class="video-progress-line-wrapper">
+                                            <div class="video-progress-line" id="videoProgressLine_<?= $slide->id ?>" style="width: 0%;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php else: ?>
+                                <div class="slide-image-wrapper <?= $fullWidthClass ?>">
+                                    <img src="<?= htmlspecialchars($imageSrc, ENT_QUOTES, 'UTF-8') ?>" class="slide-image <?= $fullWidthClass ?>" alt="<?= htmlspecialchars($slide->title ?? '', ENT_QUOTES, 'UTF-8') ?>">
+                                </div>
+                            <?php endif; ?>
                             <?php 
                                 $showCaption = !isset($slide->showCaption) || (int)$slide->showCaption === 1;
                                 $hasText = !empty($slide->title) || !empty($slide->content);
@@ -195,12 +237,24 @@ use App\Config;
     <?php endif; ?>
 </div>
 
-<!-- Kütüphaneler (NPM Dağıtımı) -->
+<!-- YouTube IFrame API küresel hazır olma dinleyicisi (Script yüklenmeden önce tanımlanır) -->
+<script>
+    window._isYtApiReady = false;
+    window.onYouTubeIframeAPIReady = function () {
+        window._isYtApiReady = true;
+        if (typeof window.initUniPanoYouTubePlayers === 'function') {
+            window.initUniPanoYouTubePlayers();
+        }
+    };
+</script>
+<script src="https://www.youtube.com/iframe_api"></script>
 <script src="/assets/vendor/bootstrap/bootstrap.bundle.min.js"></script>
 
 <script>
     (function () {
         'use strict';
+
+        const configVideoSound = <?= Config::KIOSK_VIDEO_SOUND ? 'true' : 'false' ?>;
 
         function escapeHtml(str) {
             if (!str) return '';
@@ -233,7 +287,7 @@ use App\Config;
             setInterval(updateClock, 1000);
         }
 
-        // 2. Kiosk Carousel Yönetimi & Afiş Sayacı (Indicator Controller)
+        // 2. Kiosk Carousel & YouTube Player Senkronizasyon Yönetimi
         const kioskCarouselEl = document.getElementById('kioskCarousel');
         const counterCurrentEl = document.getElementById('counterCurrent');
         const counterTotalEl = document.getElementById('counterTotal');
@@ -242,6 +296,49 @@ use App\Config;
         const carouselIndicatorsEl = document.getElementById('carouselIndicators');
 
         let kioskCarouselInstance = null;
+        const ytPlayers = new Map(); // key: frameId, value: { player, isReady, videoId, hasEnded }
+        let videoProgressInterval = null;
+
+        function isAudioMuted() {
+            const stored = localStorage.getItem('unipano_audio_muted');
+            if (stored !== null) {
+                return stored === '1';
+            }
+            return !configVideoSound;
+        }
+
+        function setAudioMuted(muted) {
+            localStorage.setItem('unipano_audio_muted', muted ? '1' : '0');
+            updateSoundButtonUi(muted);
+        }
+
+        function updateSoundButtonUi(muted, isBlocked = false) {
+            const btns = document.querySelectorAll('.video-sound-btn');
+            btns.forEach(function (btn) {
+                const icon = btn.querySelector('.sound-icon');
+                const text = btn.querySelector('.sound-text');
+                if (muted) {
+                    btn.classList.add('is-muted');
+                    if (icon) icon.textContent = '🔇';
+                    if (text) text.textContent = isBlocked ? 'Sesi Aç (Tıklayın)' : 'Ses Kapalı';
+                } else {
+                    btn.classList.remove('is-muted');
+                    if (icon) icon.textContent = '🔊';
+                    if (text) text.textContent = 'Ses Açık';
+                }
+            });
+        }
+
+        function updateVideoProgressUi(cur, dur) {
+            const activeSlide = kioskCarouselEl ? kioskCarouselEl.querySelector('.carousel-inner .carousel-item.active') : null;
+            if (!activeSlide) return;
+
+            const progressLine = activeSlide.querySelector('.video-progress-line');
+            if (progressLine && dur > 0) {
+                const pct = Math.min(100, Math.max(0, (cur / dur) * 100));
+                progressLine.style.width = pct + '%';
+            }
+        }
 
         function updateSlideCounter(activeIndex, totalCount) {
             if (counterCurrentEl) {
@@ -262,6 +359,280 @@ use App\Config;
             }
         }
 
+        function initYouTubePlayers() {
+            if (!window._isYtApiReady && (typeof YT === 'undefined' || !YT.Player)) return;
+            if (!kioskCarouselEl) return;
+
+            const frameEls = kioskCarouselEl.querySelectorAll('.youtube-player-frame');
+            frameEls.forEach(function (el) {
+                const frameId = el.id;
+                const videoId = el.getAttribute('data-video-id');
+                if (!frameId || !videoId || ytPlayers.has(frameId)) return;
+
+                const entry = {
+                    player: null,
+                    isReady: false,
+                    videoId: videoId,
+                    hasEnded: false
+                };
+                ytPlayers.set(frameId, entry);
+
+                try {
+                    entry.player = new YT.Player(frameId, {
+                        videoId: videoId,
+                        playerVars: {
+                            autoplay: 1,
+                            controls: 1,
+                            rel: 0,
+                            modestbranding: 1,
+                            playsinline: 1,
+                            enablejsapi: 1,
+                            iv_load_policy: 3,
+                            fs: 0,
+                            loop: 0,
+                            origin: window.location.origin
+                        },
+                        events: {
+                            onReady: function () {
+                                entry.isReady = true;
+                                const activeItem = kioskCarouselEl.querySelector('.carousel-inner .carousel-item.active');
+                                if (activeItem && activeItem.contains(document.getElementById(frameId))) {
+                                    handleSlideActivation(activeItem);
+                                }
+                            },
+                            onStateChange: function (event) {
+                                // YT.PlayerState: ENDED = 0, PLAYING = 1, PAUSED = 2, BUFFERING = 3, CUED = 5
+                                if (event.data === 0) {
+                                    console.log('[UniPano] YouTube onStateChange(ENDED) tetiklendi. Sonraki afişe geçiliyor...');
+                                    triggerVideoFinished(entry);
+                                } else if (event.data === 1) {
+                                    entry.hasEnded = false;
+                                    clearVideoSafetyWatchdog();
+
+                                    // Oynama başladıktan sonra video süresi + 15 saniyelik nihai güvenlik sınırı koy
+                                    try {
+                                        const dur = entry.player.getDuration();
+                                        if (dur && dur > 0) {
+                                            setVideoSafetyWatchdog(entry, (dur + 15) * 1000);
+                                        }
+                                    } catch (e) {}
+
+                                    startVideoProgressTimer(entry.player, entry);
+                                }
+                            },
+                            onError: function (event) {
+                                console.warn('[UniPano] YouTube oynatma hatası (kod: ' + event.data + '). 4 sn sonra geçiliyor.');
+                                clearVideoSafetyWatchdog();
+                                setTimeout(function () {
+                                    triggerVideoFinished(entry);
+                                }, 4000);
+                            }
+                        }
+                    });
+                } catch (err) {
+                    console.error('[UniPano] YT.Player oluşturulamadı:', err);
+                }
+            });
+
+            updateSoundButtonUi(isAudioMuted());
+        }
+
+        window.initUniPanoYouTubePlayers = initYouTubePlayers;
+
+        let videoSafetyWatchdogTimer = null;
+
+        function clearVideoSafetyWatchdog() {
+            if (videoSafetyWatchdogTimer) {
+                clearTimeout(videoSafetyWatchdogTimer);
+                videoSafetyWatchdogTimer = null;
+            }
+        }
+
+        function setVideoSafetyWatchdog(entry, timeoutMs = 15000) {
+            clearVideoSafetyWatchdog();
+            videoSafetyWatchdogTimer = setTimeout(function () {
+                console.warn('[UniPano] Video güvenlik zaman aşımı (' + (timeoutMs / 1000) + ' sn). Kiosk kilitlenmesini önlemek için sonraki afişe geçiliyor.');
+                triggerVideoFinished(entry);
+            }, timeoutMs);
+        }
+
+        function playActiveYouTubeVideo(player) {
+            if (!player || typeof player.playVideo !== 'function') return;
+
+            const muted = isAudioMuted();
+
+            try {
+                if (muted) {
+                    if (typeof player.mute === 'function') player.mute();
+                    updateSoundButtonUi(true);
+                } else {
+                    if (typeof player.unMute === 'function') player.unMute();
+                    if (typeof player.setVolume === 'function') player.setVolume(100);
+                    updateSoundButtonUi(false);
+                }
+
+                player.playVideo();
+
+                // Tarayıcı otomatik sesli oynatmayı engellediyse (Autoplay policy fallback)
+                setTimeout(function () {
+                    try {
+                        if (!muted && typeof player.getPlayerState === 'function') {
+                            const state = player.getPlayerState();
+                            // State 1 = playing, 3 = buffering. Başlamadıysa sessiz başlatıp butonu yak
+                            if (state !== 1 && state !== 3) {
+                                console.warn('[UniPano] Sesli otomatik oynatma tarayıcı tarafından engellendi. Sessiz başlatılıyor.');
+                                if (typeof player.mute === 'function') player.mute();
+                                player.playVideo();
+                                updateSoundButtonUi(true, true);
+                            }
+                        }
+                    } catch (e) {}
+                }, 1000);
+            } catch (e) {
+                console.warn('[UniPano] playVideo çağrısı başarısız:', e);
+            }
+        }
+
+        function pauseAllYouTubeVideos() {
+            ytPlayers.forEach(function (entry) {
+                if (entry.isReady && entry.player && typeof entry.player.pauseVideo === 'function') {
+                    try {
+                        entry.player.pauseVideo();
+                    } catch (e) {}
+                }
+            });
+        }
+
+        function startVideoProgressTimer(player, entry) {
+            stopVideoProgressTimer();
+            let prevCurTime = 0;
+
+            videoProgressInterval = setInterval(function () {
+                if (!player || typeof player.getCurrentTime !== 'function' || typeof player.getDuration !== 'function') {
+                    return;
+                }
+
+                try {
+                    const cur = player.getCurrentTime();
+                    const dur = player.getDuration();
+
+                    if (dur && dur > 0) {
+                        updateVideoProgressUi(cur, dur);
+
+                        // 1. Video süresinin sonuna (son 0.6 saniye) gelindiğinde
+                        // 2. VEYA YouTube otomatik olarak radyo listesindeki bir sonraki şarkıya atladıysa:
+                        if (cur >= dur - 0.6 || (prevCurTime > dur - 2.5 && cur < 1.0)) {
+                            console.log('[UniPano] Video süresi tamamlandı (' + cur.toFixed(1) + 's / ' + dur.toFixed(1) + 's).');
+                            triggerVideoFinished(entry);
+                            return;
+                        }
+
+                        prevCurTime = cur;
+                    }
+                } catch (e) {}
+            }, 250);
+        }
+
+        function stopVideoProgressTimer() {
+            if (videoProgressInterval) {
+                clearInterval(videoProgressInterval);
+                videoProgressInterval = null;
+            }
+        }
+
+        function triggerVideoFinished(entry) {
+            if (entry && entry.hasEnded) return;
+            if (entry) entry.hasEnded = true;
+
+            clearVideoSafetyWatchdog();
+            stopVideoProgressTimer();
+            if (entry && entry.player && typeof entry.player.pauseVideo === 'function') {
+                try { entry.player.pauseVideo(); } catch (e) {}
+            }
+
+            const activeSlide = kioskCarouselEl ? kioskCarouselEl.querySelector('.carousel-inner .carousel-item.active') : null;
+            if (activeSlide) {
+                const progressLine = activeSlide.querySelector('.video-progress-line');
+                if (progressLine) progressLine.style.width = '100%';
+            }
+
+            advanceToNextSlide();
+        }
+
+        function advanceToNextSlide() {
+            if (!kioskCarouselEl) return;
+
+            clearVideoSafetyWatchdog();
+            stopVideoProgressTimer();
+            pauseAllYouTubeVideos();
+
+            const items = kioskCarouselEl.querySelectorAll('.carousel-inner .carousel-item');
+            if (items.length > 1) {
+                if (kioskCarouselInstance) {
+                    kioskCarouselInstance.next();
+                }
+            } else if (items.length === 1) {
+                // Tek afiş varsa ve video ise başa sarıp tekrar başlat
+                const frameEl = items[0].querySelector('.youtube-player-frame');
+                if (frameEl && frameEl.id && ytPlayers.has(frameEl.id)) {
+                    const entry = ytPlayers.get(frameEl.id);
+                    if (entry && entry.isReady && entry.player) {
+                        try {
+                            entry.hasEnded = false;
+                            entry.player.seekTo(0, true);
+                            playActiveYouTubeVideo(entry.player);
+                            startVideoProgressTimer(entry.player, entry);
+                        } catch (e) {}
+                    }
+                }
+            }
+        }
+
+        function handleSlideActivation(activeSlide) {
+            if (!activeSlide) return;
+            clearVideoSafetyWatchdog();
+
+            const isYt = activeSlide.getAttribute('data-slide-type') === 'youtube';
+
+            if (isYt) {
+                console.log('[UniPano] YouTube afişi aktif. Carousel zamanlayıcısı duraklatıldı.');
+                // 1. Carousel otomatik döngüsünü durdur (video bitene kadar beklesin)
+                if (kioskCarouselInstance) {
+                    kioskCarouselInstance.pause();
+                }
+
+                // 2. İlgili videoyu oynat ve süre izleyicisini başlat
+                const frameEl = activeSlide.querySelector('.youtube-player-frame');
+                if (frameEl && frameEl.id && ytPlayers.has(frameEl.id)) {
+                    const entry = ytPlayers.get(frameEl.id);
+
+                    // Başlangıç güvenlik zamanlayıcısı: 15 sn içinde oynama başlamazsa kilitlenmeyi önle
+                    setVideoSafetyWatchdog(entry, 15000);
+
+                    if (entry.isReady && entry.player) {
+                        entry.hasEnded = false;
+                        try {
+                            if (typeof entry.player.seekTo === 'function') {
+                                entry.player.seekTo(0, true);
+                            }
+                        } catch (e) {}
+                        playActiveYouTubeVideo(entry.player);
+                        startVideoProgressTimer(entry.player, entry);
+                    }
+                } else {
+                    // Oynatıcı henüz hazır değilse 15 sn güvenlik sınırı
+                    setVideoSafetyWatchdog(null, 15000);
+                }
+            } else {
+                // Normal görsel afiş: Video zamanlayıcısını durdur ve Carousel döngüsünü devam ettir
+                stopVideoProgressTimer();
+                const items = kioskCarouselEl ? kioskCarouselEl.querySelectorAll('.carousel-inner .carousel-item') : [];
+                if (items.length > 1 && kioskCarouselInstance) {
+                    kioskCarouselInstance.cycle();
+                }
+            }
+        }
+
         function initKioskCarousel() {
             if (!kioskCarouselEl || typeof bootstrap === 'undefined') return;
 
@@ -275,27 +646,94 @@ use App\Config;
             if (items.length > 1) {
                 kioskCarouselInstance = new bootstrap.Carousel(kioskCarouselEl, {
                     interval: <?= Config::SLIDE_INTERVAL_MS ?>,
-                    ride: 'carousel',
+                    ride: false,
                     pause: false,
                     wrap: true,
                     touch: false
                 });
-                kioskCarouselInstance.cycle();
+            }
+
+            const activeItem = kioskCarouselEl.querySelector('.carousel-inner .carousel-item.active') || items[0];
+            if (activeItem) {
+                handleSlideActivation(activeItem);
             }
         }
 
         if (kioskCarouselEl) {
-            kioskCarouselEl.addEventListener('slid.bs.carousel', function (e) {
+            kioskCarouselEl.addEventListener('slide.bs.carousel', function () {
+                clearVideoSafetyWatchdog();
+                stopVideoProgressTimer();
+                pauseAllYouTubeVideos();
+            });
+
+            kioskCarouselEl.addEventListener('slid.bs.carousel', function () {
                 const items = kioskCarouselEl.querySelectorAll('.carousel-inner .carousel-item');
-                let activeIndex = typeof e.to === 'number' ? e.to : 0;
-                if (typeof e.to !== 'number' && e.relatedTarget) {
-                    activeIndex = Array.from(items).indexOf(e.relatedTarget);
-                }
+                const activeItem = kioskCarouselEl.querySelector('.carousel-inner .carousel-item.active');
+                const activeIndex = activeItem ? Array.from(items).indexOf(activeItem) : 0;
+
                 updateSlideCounter(activeIndex, items.length);
+                handleSlideActivation(activeItem);
             });
 
             initKioskCarousel();
+            if (window._isYtApiReady || (typeof YT !== 'undefined' && YT.Player)) {
+                window._isYtApiReady = true;
+                initYouTubePlayers();
+            }
         }
+
+        // Kullanıcı Tıklama ve Ses / Atlama Etkileşim Dinleyicisi
+        document.addEventListener('click', function (e) {
+            // Sesi Aç / Kapat Butonu
+            const soundBtn = e.target.closest('.video-sound-btn');
+            if (soundBtn) {
+                e.preventDefault();
+                e.stopPropagation();
+                // Buton o anda sessiz durumdaysa aç, sesliyse kapat
+                const isCurrentlyMuted = soundBtn.classList.contains('is-muted');
+                const newMuted = !isCurrentlyMuted;
+                setAudioMuted(newMuted);
+
+                ytPlayers.forEach(function (entry) {
+                    if (entry.isReady && entry.player) {
+                        try {
+                            if (newMuted) {
+                                entry.player.mute();
+                            } else {
+                                entry.player.unMute();
+                                entry.player.setVolume(100);
+                            }
+                        } catch (err) {}
+                    }
+                });
+                return;
+            }
+
+            // Sonraki Afişe Geç (Videoyu Atla) Butonu
+            const skipBtn = e.target.closest('.video-skip-btn');
+            if (skipBtn) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('[UniPano] Kullanıcı videoyu atladı (Sonraki afişe geçiliyor).');
+                advanceToNextSlide();
+                return;
+            }
+
+            // Sayfada herhangi bir yere tıklandığında ses tercihi açık ise tarayıcı ses kilidini aç
+            const storedMuted = localStorage.getItem('unipano_audio_muted');
+            const userExplicitlyMuted = (storedMuted === '1');
+            if (!userExplicitlyMuted && configVideoSound) {
+                ytPlayers.forEach(function (entry) {
+                    if (entry.isReady && entry.player && typeof entry.player.unMute === 'function') {
+                        try {
+                            entry.player.unMute();
+                            entry.player.setVolume(100);
+                        } catch (err) {}
+                    }
+                });
+                updateSoundButtonUi(false);
+            }
+        });
 
         // 3. Modüler Duyuru Rotasyonu ve Senkronize QR Kartı
         let announcementsData = <?= json_encode($initialTickerData, JSON_UNESCAPED_UNICODE) ?>;
@@ -378,6 +816,16 @@ use App\Config;
                     lastContentHash = res.hash;
 
                     if (res.slides && res.slides.length > 0) {
+                        // Önceki video oynatıcıları temizle
+                        ytPlayers.forEach(function (entry) {
+                            try {
+                                if (entry.player && typeof entry.player.destroy === 'function') {
+                                    entry.player.destroy();
+                                }
+                            } catch (e) {}
+                        });
+                        ytPlayers.clear();
+
                         let slideHtml = "";
                         let indicatorsHtml = "";
                         let pillsHtml = "";
@@ -386,7 +834,52 @@ use App\Config;
                         res.slides.forEach(function (slide, idx) {
                             const active = idx === 0 ? "active" : "";
                             const fullW = slide.fullWidth == 1 ? "full-width" : "";
-                            const imgSrc = '/' + slide.image.replace(/^\/+/, '');
+                            const imgSrc = slide.image ? '/' + slide.image.replace(/^\/+/, '') : '';
+                            const ytId = slide.youtubeVideoId || '';
+                            const isYt = Boolean(ytId);
+
+                            let mediaHtml = '';
+                            if (isYt) {
+                                const isMuted = isAudioMuted();
+                                const soundIcon = isMuted ? '🔇' : '🔊';
+                                const soundText = isMuted ? 'Ses Kapalı' : 'Ses Açık';
+                                const soundClass = isMuted ? 'is-muted' : '';
+
+                                mediaHtml = '<div class="slide-video-container ' + fullW + '">' +
+                                    '<div class="slide-video-stage ' + fullW + '">' +
+                                    '<div id="ytPlayer_' + slide.id + '" class="youtube-player-frame" data-video-id="' + escapeHtml(ytId) + '"></div>' +
+                                    '<div class="video-overlay-bar">' +
+                                    '<div class="video-overlay-left">' +
+                                    '<button type="button" class="video-overlay-btn video-sound-btn ' + soundClass + '" data-player-id="ytPlayer_' + slide.id + '" title="Sesi Aç / Kapat">' +
+                                    '<span class="sound-icon">' + soundIcon + '</span>' +
+                                    '<span class="sound-text">' + soundText + '</span>' +
+                                    '</button>' +
+                                    '</div>' +
+                                    '<div class="video-overlay-right">' +
+                                    '<button type="button" class="video-overlay-btn video-skip-btn" title="Sonraki afişe geç">' +
+                                    '<span>Sonraki Afiş</span>' +
+                                    '<svg class="btn-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+                                    '<path d="M5 12h14"></path>' +
+                                    '<path d="m12 5 7 7-7 7"></path>' +
+                                    '</svg>' +
+                                    '</button>' +
+                                    '</div>' +
+                                    '</div>' +
+                                    '<div class="video-progress-line-wrapper">' +
+                                    '<div class="video-progress-line" id="videoProgressLine_' + slide.id + '" style="width: 0%;"></div>' +
+                                    '</div>' +
+                                    '</div>' +
+                                    '</div>';
+                            } else {
+                                mediaHtml = '<div class="slide-image-wrapper ' + fullW + '">' +
+                                    '<img src="' + imgSrc + '" class="slide-image ' + fullW + '" alt="">' +
+                                    '</div>';
+                            }
+
+                            const ambientBg = imgSrc
+                                ? '<div class="slide-ambient-bg" style="background-image: url(\'' + imgSrc + '\');"></div>'
+                                : '<div class="slide-ambient-bg slide-ambient-video"></div>';
+
                             let caption = "";
                             const showCaption = slide.showCaption === undefined || slide.showCaption == 1;
                             if (showCaption && (slide.title || slide.content)) {
@@ -406,11 +899,10 @@ use App\Config;
                                     '</div>' +
                                     '</div>';
                             }
-                            slideHtml += '<div class="carousel-item ' + active + '">' +
-                                '<div class="slide-ambient-bg" style="background-image: url(\'' + imgSrc + '\');"></div>' +
-                                '<div class="slide-image-wrapper ' + fullW + '">' +
-                                '<img src="' + imgSrc + '" class="slide-image ' + fullW + '" alt="">' +
-                                '</div>' +
+                            slideHtml += '<div class="carousel-item ' + active + '" data-slide-type="' + (isYt ? 'youtube' : 'image') + '"' +
+                                (isYt ? ' data-youtube-id="' + escapeHtml(ytId) + '" data-slide-id="' + slide.id + '"' : '') + '>' +
+                                ambientBg +
+                                mediaHtml +
                                 caption +
                                 qrHtml +
                                 '</div>';
@@ -435,7 +927,20 @@ use App\Config;
                         if (slideCounterBadgeEl) slideCounterBadgeEl.style.display = total > 0 ? 'inline-flex' : 'none';
 
                         initKioskCarousel();
+                        if (window._isYtApiReady || (typeof YT !== 'undefined' && YT.Player)) {
+                            window._isYtApiReady = true;
+                            initYouTubePlayers();
+                        }
                     } else {
+                        ytPlayers.forEach(function (entry) {
+                            try {
+                                if (entry.player && typeof entry.player.destroy === 'function') {
+                                    entry.player.destroy();
+                                }
+                            } catch (e) {}
+                        });
+                        ytPlayers.clear();
+
                         const carouselEl = document.getElementById('carouselContent');
                         if (carouselEl) {
                             carouselEl.innerHTML = '<div class="carousel-item active">' +

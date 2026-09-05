@@ -174,6 +174,37 @@ document.addEventListener('DOMContentLoaded', function () {
     setupImagePreview('slide_image', 'newSlidePreviewBox', 'newSlidePreviewImg', 'newSlideFileInfo');
     setupImagePreview('update_slide_image', 'updateSlidePreviewBox', 'updateSlidePreviewImg', 'updateSlideFileInfo');
 
+    function setupYouTubeInputPreview(linkInputId, fileInputId, boxId, imgId, infoId) {
+        const linkEl = document.getElementById(linkInputId);
+        const fileEl = document.getElementById(fileInputId);
+        const box = document.getElementById(boxId);
+        const img = document.getElementById(imgId);
+        const info = document.getElementById(infoId);
+        if (!linkEl || !box || !img) return;
+
+        const ytRegex = /(?:youtube(?:-nocookie)?\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?|shorts)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/i;
+
+        linkEl.addEventListener('input', function () {
+            if (fileEl && fileEl.files && fileEl.files[0]) {
+                return;
+            }
+
+            const val = linkEl.value.trim();
+            const match = val.match(ytRegex);
+            if (match && match[1]) {
+                const videoId = match[1];
+                img.setAttribute('src', 'https://img.youtube.com/vi/' + videoId + '/hqdefault.jpg');
+                if (info) info.textContent = '▶️ YouTube Video Kapağı (Otomatik İndirilecek)';
+                box.style.display = 'block';
+            } else if (!fileEl || !fileEl.files || !fileEl.files[0]) {
+                box.style.display = 'none';
+            }
+        });
+    }
+
+    setupYouTubeInputPreview('slide_link', 'slide_image', 'newSlidePreviewBox', 'newSlidePreviewImg', 'newSlideFileInfo');
+    setupYouTubeInputPreview('update_slide_link', 'update_slide_image', 'updateSlidePreviewBox', 'updateSlidePreviewImg', 'updateSlideFileInfo');
+
     // -----------------------------------------------------------------
     // 5. Tablo Aksiyon Butonları (İşlemler)
     // -----------------------------------------------------------------
@@ -518,9 +549,20 @@ document.addEventListener('DOMContentLoaded', function () {
                         ? '<span class="badge-scan badge-scan-hot">🔥 ' + scanCount + ' Okutma</span>'
                         : '<span class="badge-scan badge-scan-zero">0 Okutma</span>';
 
-                    const imgHtml = slide.image
-                        ? '<img src="/' + escapeHtml(slide.image.replace(/^\/+/, '')) + '" class="table-thumb" alt="Afiş" data-title="' + escapeHtml(slide.title) + '" data-full="/' + escapeHtml(slide.image.replace(/^\/+/, '')) + '">'
-                        : '<span class="text-muted small">Resim Yok</span>';
+                    const isYt = Boolean(slide.youtubeVideoId || (slide.link && /(?:youtube(?:-nocookie)?\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?|shorts)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/i.test(slide.link)));
+
+                    let imgHtml = '';
+                    if (slide.image) {
+                        const imgSrc = '/' + escapeHtml(slide.image.replace(/^\/+/, ''));
+                        imgHtml = '<div class="position-relative d-inline-block">' +
+                            '<img src="' + imgSrc + '" class="table-thumb" alt="Afiş" data-title="' + escapeHtml(slide.title) + '" data-full="' + imgSrc + '">' +
+                            (isYt ? '<span class="position-absolute bottom-0 end-0 badge bg-danger p-1 rounded-circle m-1 shadow-sm" title="YouTube Video Afişi" style="font-size:0.6rem;line-height:1;"><svg width="10" height="10" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg></span>' : '') +
+                            '</div>';
+                    } else if (isYt) {
+                        imgHtml = '<span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25">▶️ YouTube</span>';
+                    } else {
+                        imgHtml = '<span class="text-muted small">Resim Yok</span>';
+                    }
 
                     const qrHtml = slide.qrCode
                         ? '<div class="table-qr-mini" title="QR Detayı" data-title="' + escapeHtml(slide.title) + '" data-url="' + escapeHtml(slide.link || '') + '" data-scans="' + scanCount + '">' + slide.qrCode + '</div>'
@@ -569,13 +611,15 @@ document.addEventListener('DOMContentLoaded', function () {
                     scheduleHtml += '</div>';
 
                     const orderInput = '<input type="number" class="form-control form-control-sm item-order-input" data-type="slide" data-id="' + slide.id + '" value="' + (slide.orderNumber || 0) + '" min="0" title="Sıra Numarası (0: Otomatik son eklenen)">';
+                    const ytBadge = isYt ? '<span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25" style="font-size:0.68rem;" title="Afiş olarak YouTube videosu oynatılır">▶️ YouTube Video</span>' : '';
 
                     outHTML += '<tr' + (!isAct || isExpired ? ' class="table-light opacity-75"' : (isScheduled ? ' class="table-info bg-opacity-10"' : '')) + '>' +
                         '<td>' + orderInput + '</td>' +
                         '<td>' + imgHtml + '</td>' +
                         '<td>' +
-                        '  <div class="fw-bold text-dark d-flex align-items-center gap-2">' +
+                        '  <div class="fw-bold text-dark d-flex align-items-center gap-2 flex-wrap">' +
                         '    <span>' + escapeHtml(slide.title) + '</span>' +
+                        ytBadge +
                         (slide.showCaption == 1 ? '<span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25" style="font-size:0.68rem;" title="Kiosk ekranında başlık ve açıklama kartı gösteriliyor">📺 Başlık Açık</span>' : '<span class="badge bg-light text-muted border" style="font-size:0.68rem;" title="Kiosk ekranında afiş sade gösteriliyor (Başlık kartı kapalı)">📺 Başlık Gizli</span>') +
                         '  </div>' +
                         contentSummary +

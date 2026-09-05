@@ -58,9 +58,9 @@ declare(strict_types=1);
                                 <textarea class="form-control" id="slide_content" name="content" rows="3" placeholder="Afiş hakkında kısa bilgilendirme"></textarea>
                             </div>
                             <div class="mb-3">
-                                <label for="slide_link" class="form-label fw-semibold">Detay Bağlantısı & QR Kod Konumu</label>
+                                <label for="slide_link" class="form-label fw-semibold">Detay Bağlantısı / YouTube Video Adresi & QR Kod Konumu</label>
                                 <div class="input-group">
-                                    <input type="url" class="form-control" id="slide_link" name="link" placeholder="https://ornek.edu.tr/etkinlik">
+                                    <input type="url" class="form-control" id="slide_link" name="link" placeholder="https://www.youtube.com/watch?v=... veya https://ornek.edu.tr">
                                     <select class="form-select" id="slide_qrPosition" name="qrPosition" style="max-width: 205px;" title="QR Kodun Kiosk Ekranındaki Konumu">
                                         <option value="bottom-right" selected>↘️ Sağ Alt (Önerilen)</option>
                                         <option value="bottom-left">↙️ Sol Alt</option>
@@ -69,7 +69,7 @@ declare(strict_types=1);
                                         <option value="none">🚫 Gösterme (Gizle)</option>
                                     </select>
                                 </div>
-                                <div class="form-text text-muted">Link girildiğinde afiş için otomatik QR kod oluşturulur. Afiş tasarımınıza göre QR konumunu seçebilir veya gizleyebilirsiniz.</div>
+                                <div class="form-text text-muted">Afiş linkine <strong>YouTube video adresi</strong> girilirse afiş olarak video oynatılır ve video bitene kadar geçiş duraklatılır (Görsel yüklenmezse video kapağı otomatik alınır). Diğer web adreslerinde otomatik QR kod üretilir.</div>
                             </div>
                             <div class="row g-2 mb-3">
                                 <div class="col-md-6">
@@ -120,9 +120,9 @@ declare(strict_types=1);
                             </div>
                         </div>
                         <div class="col-md-5">
-                            <label class="form-label">Afiş Görseli *</label>
-                            <input required type="file" name="image" id="slide_image" class="form-control" accept="image/*"/>
-                            <div class="form-text text-muted mb-2">JPG, PNG, WEBP (Önerilen: 16:9 yatay ekran, Maks. 10MB)</div>
+                            <label class="form-label">Afiş Görseli <span class="text-muted fw-normal" style="font-size: 0.82rem;">(YouTube linkinde isteğe bağlı)</span></label>
+                            <input type="file" name="image" id="slide_image" class="form-control" accept="image/*"/>
+                            <div class="form-text text-muted mb-2">JPG, PNG, WEBP (YouTube linki girildiğinde boş bırakılırsa video kapak görseli otomatik indirilir)</div>
                             
                             <!-- Canlı Önizleme Kutusu -->
                             <div class="file-upload-preview-box" id="newSlidePreviewBox">
@@ -163,9 +163,9 @@ declare(strict_types=1);
                                 <textarea class="form-control" id="update_slide_content" name="content" rows="3"></textarea>
                             </div>
                             <div class="mb-3">
-                                <label for="update_slide_link" class="form-label fw-semibold">Detay Bağlantısı & QR Kod Konumu</label>
+                                <label for="update_slide_link" class="form-label fw-semibold">Detay Bağlantısı / YouTube Video Adresi & QR Kod Konumu</label>
                                 <div class="input-group">
-                                    <input type="url" class="form-control" id="update_slide_link" name="link">
+                                    <input type="url" class="form-control" id="update_slide_link" name="link" placeholder="https://www.youtube.com/watch?v=... veya https://ornek.edu.tr">
                                     <select class="form-select" id="update_slide_qrPosition" name="qrPosition" style="max-width: 205px;">
                                         <option value="bottom-right">↘️ Sağ Alt (Önerilen)</option>
                                         <option value="bottom-left">↙️ Sol Alt</option>
@@ -174,7 +174,7 @@ declare(strict_types=1);
                                         <option value="none">🚫 Gösterme (Gizle)</option>
                                     </select>
                                 </div>
-                                <div class="form-text text-muted">Afiş üzerindeki QR kodun konumunu seçebilir veya gizleyebilirsiniz.</div>
+                                <div class="form-text text-muted">YouTube adresi girildiğinde kiosk ekranında afiş yerine video oynatılır.</div>
                             </div>
                             <div class="row g-2 mb-3">
                                 <div class="col-md-6">
