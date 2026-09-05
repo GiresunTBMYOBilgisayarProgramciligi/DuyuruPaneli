@@ -8,6 +8,12 @@ setlocale(LC_ALL, 'tr_TR.UTF-8');
 
 require_once __DIR__ . '/vendor/autoload.php';
 
+// .env dosyası mevcutsa çevresel değişkenleri güvenli şekilde yükle
+if (file_exists(__DIR__ . '/.env')) {
+    $dotenv = \Dotenv\Dotenv::createImmutable(__DIR__);
+    $dotenv->safeLoad();
+}
+
 use App\Core\Logger;
 use App\Core\Request;
 use App\Core\Response;

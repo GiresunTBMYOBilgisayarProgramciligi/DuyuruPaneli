@@ -8,6 +8,13 @@ use Exception;
 
 class FileUploadService
 {
+    private ImageOptimizerService $imageOptimizerService;
+
+    public function __construct(?ImageOptimizerService $imageOptimizerService = null)
+    {
+        $this->imageOptimizerService = $imageOptimizerService ?? new ImageOptimizerService();
+    }
+
     /**
      * Yüklenen dosyayı doğrular, benzersiz isimle kaydeder ve göreceli web yolunu döndürür
      */
@@ -47,6 +54,9 @@ class FileUploadService
         if (!move_uploaded_file($file['tmp_name'], $targetPath)) {
             throw new Exception("Dosya sunucuya taşınırken bir hata oluştu.");
         }
+
+        // Otomatik Görsel Optimizasyonu ve Boyutlandırma (TinyPNG + GD Hibrit)
+        $this->imageOptimizerService->optimize($targetPath);
 
         // Web üzerinden erişilebilir göreceli yol
         return Config::UPLOAD_URL_PREFIX . $newFilename;
