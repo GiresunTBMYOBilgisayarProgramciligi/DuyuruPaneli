@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use App\Core\Logger;
 use App\Core\Request;
 use App\Core\Response;
 use App\Core\Session;
@@ -50,8 +51,16 @@ class AuthController
         }
 
         if ($this->authService->attempt($userName, $password)) {
+            Logger::channel('auth')->info("Kullanıcı oturum açtı: {$userName}", [
+                'username' => $userName,
+                'ip' => $request->getIp()
+            ]);
             Response::success('Giriş başarılı.', ['redirect' => '/admin']);
         } else {
+            Logger::channel('auth')->warning("Başarısız giriş denemesi: {$userName}", [
+                'username' => $userName,
+                'ip' => $request->getIp()
+            ]);
             Response::error('Kullanıcı adı veya şifre hatalı.', 401);
         }
     }
@@ -61,6 +70,11 @@ class AuthController
      */
     public function logout(Request $request): void
     {
+        $userId = Session::getUserId();
+        Logger::channel('auth')->info("Kullanıcı oturumu kapattı", [
+            'userId' => $userId,
+            'ip' => $request->getIp()
+        ]);
         $this->authService->logout();
         Response::redirect('/admin/login');
     }

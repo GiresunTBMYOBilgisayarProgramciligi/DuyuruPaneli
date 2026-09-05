@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use App\Core\Logger;
 use App\Core\Request;
 use App\Core\Response;
 use App\Core\Session;
@@ -62,8 +63,10 @@ class SlideController
             $qrData = $this->qrAnalyticsService->generateForUrl((string)$dto->link, $dto->title);
 
             $id = $this->slideRepository->create($dto, $qrData['qrSvg'], $qrData['shortCode']);
+            Logger::audit("Yeni afiş oluşturuldu", ['id' => $id, 'title' => $dto->title]);
             Response::success('Slide başarıyla eklendi.', ['id' => $id]);
         } catch (Exception $e) {
+            Logger::exception($e, 'Afiş oluşturulurken hata');
             Response::error($e->getMessage());
         }
     }
@@ -114,8 +117,10 @@ class SlideController
             }
 
             $this->slideRepository->update($dto, $qrSvg, $shortCode);
+            Logger::audit("Afiş güncellendi", ['id' => $dto->id, 'title' => $dto->title]);
             Response::success('Slide başarıyla güncellendi.');
         } catch (Exception $e) {
+            Logger::exception($e, 'Afiş güncellenirken hata');
             Response::error($e->getMessage());
         }
     }
@@ -135,6 +140,7 @@ class SlideController
             // İlişkili görseli diskten temizle
             $this->fileUploadService->deleteImage($existing->image);
             $this->slideRepository->delete($id);
+            Logger::audit("Afiş silindi", ['id' => $id, 'title' => $existing->title ?? '']);
         }
 
         Response::success('Slide ve ilişkili görsel başarıyla silindi.');
@@ -170,6 +176,13 @@ class SlideController
         } else {
             $msg = 'Afiş yayından kaldırıldı (duraklatıldı).';
         }
+
+        Logger::audit("Afiş yayın durumu değiştirildi", [
+            'id' => $id,
+            'title' => $existing->title ?? '',
+            'isActive' => $newState
+        ]);
+
         Response::success($msg, ['isActive' => $newState]);
     }
 

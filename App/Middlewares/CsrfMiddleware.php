@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Middlewares;
 
+use App\Core\Logger;
 use App\Core\Request;
 use App\Core\Response;
 use App\Core\Session;
@@ -20,6 +21,10 @@ class CsrfMiddleware
         if ($request->isPost()) {
             $token = $request->getCsrfToken();
             if (!Session::validateCsrfToken($token)) {
+                Logger::security("Geçersiz veya süresi dolmuş CSRF belirteci tespit edildi.", [
+                    'ip' => $request->getIp(),
+                    'uri' => $_SERVER['REQUEST_URI'] ?? ''
+                ]);
                 Response::error('Geçersiz veya süresi dolmuş CSRF güvenlik anahtarı.', 403);
             }
         }

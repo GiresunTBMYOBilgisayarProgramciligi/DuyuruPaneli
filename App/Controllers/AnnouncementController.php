@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use App\Core\Logger;
 use App\Core\Request;
 use App\Core\Response;
 use App\Core\Session;
@@ -49,8 +50,10 @@ class AnnouncementController
         try {
             $qrData = $this->qrAnalyticsService->generateForUrl((string)$dto->link, $dto->title);
             $id = $this->announcementRepository->create($dto, $qrData['qrSvg'], $qrData['shortCode']);
+            Logger::audit("Yeni kayan duyuru oluşturuldu", ['id' => $id, 'title' => $dto->title]);
             Response::success('Duyuru başarıyla eklendi.', ['id' => $id]);
         } catch (Exception $e) {
+            Logger::exception($e, 'Kayan duyuru oluşturulurken hata');
             Response::error($e->getMessage());
         }
     }
@@ -88,8 +91,10 @@ class AnnouncementController
             }
 
             $this->announcementRepository->update($dto, $qrSvg, $shortCode);
+            Logger::audit("Kayan duyuru güncellendi", ['id' => $dto->id, 'title' => $dto->title]);
             Response::success('Duyuru başarıyla güncellendi.');
         } catch (Exception $e) {
+            Logger::exception($e, 'Kayan duyuru güncellenirken hata');
             Response::error($e->getMessage());
         }
     }
@@ -104,7 +109,10 @@ class AnnouncementController
             Response::error('Geçersiz duyuru ID.');
         }
 
+        $existing = $this->announcementRepository->findById($id);
         $this->announcementRepository->delete($id);
+        Logger::audit("Kayan duyuru silindi", ['id' => $id, 'title' => $existing->title ?? '']);
+
         Response::success('Duyuru başarıyla silindi.');
     }
 
@@ -138,6 +146,13 @@ class AnnouncementController
         } else {
             $msg = 'Duyuru yayından kaldırıldı (duraklatıldı).';
         }
+
+        Logger::audit("Kayan duyuru yayın durumu değiştirildi", [
+            'id' => $id,
+            'title' => $existing->title ?? '',
+            'isActive' => $newState
+        ]);
+
         Response::success($msg, ['isActive' => $newState]);
     }
 

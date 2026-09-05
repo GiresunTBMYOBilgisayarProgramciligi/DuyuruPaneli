@@ -63,10 +63,19 @@ class QrAnalyticsService
     {
         $shortLink = $this->shortLinkRepository->findByCode($code);
         if (!$shortLink) {
+            \App\Core\Logger::channel('qr')->warning("Geçersiz veya bulunamayan QR kısa link okutuldu: {$code}", [
+                'code' => $code,
+                'ip' => $ip
+            ]);
             return null;
         }
 
         $this->shortLinkRepository->recordScan((int)$shortLink->id, $ip, $userAgent, $referer);
+        \App\Core\Logger::channel('qr')->info("QR kod başarıyla okutuldu ve yönlendirildi: {$code}", [
+            'code' => $code,
+            'targetUrl' => $shortLink->targetUrl,
+            'ip' => $ip
+        ]);
         return $shortLink->targetUrl;
     }
 

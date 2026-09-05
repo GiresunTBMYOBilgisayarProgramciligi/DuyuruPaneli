@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use App\Core\Logger;
 use App\Core\Request;
 use App\Core\Response;
 use App\DTO\UserDTO;
@@ -54,8 +55,10 @@ class UserController
 
         try {
             $id = $this->userRepository->create($dto);
+            Logger::audit("Yeni kullanıcı hesabı oluşturuldu", ['id' => $id, 'userName' => $dto->userName]);
             Response::success('Kullanıcı başarıyla oluşturuldu.', ['id' => $id]);
         } catch (Exception $e) {
+            Logger::exception($e, 'Kullanıcı oluşturulurken hata');
             Response::error($e->getMessage());
         }
     }
@@ -94,8 +97,10 @@ class UserController
 
         try {
             $this->userRepository->update($dto);
+            Logger::audit("Kullanıcı hesabı güncellendi", ['id' => $dto->id, 'userName' => $dto->userName]);
             Response::success('Kullanıcı bilgileri güncellendi.');
         } catch (Exception $e) {
+            Logger::exception($e, 'Kullanıcı güncellenirken hata');
             Response::error($e->getMessage());
         }
     }
@@ -116,6 +121,7 @@ class UserController
 
         $success = $this->userRepository->delete($id);
         if ($success) {
+            Logger::audit("Kullanıcı hesabı silindi", ['id' => $id]);
             Response::success('Kullanıcı başarıyla silindi.');
         } else {
             Response::error('Kullanıcı silinemedi.');
