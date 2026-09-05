@@ -20,8 +20,8 @@
   - `HttpOnly` ve `SameSite=Strict` korumalı güvenli oturum yönetimi.
   - MIME type doğrulama ve rastgele benzersiz isimlendirmeli güvenli dosya yükleme servisi (`FileUploadService`).
   - `.htaccess` ile veritabanı, ortam ve gizli dosyalara doğrudan erişim engeli (403 Forbidden).
-- **Akıllı Python Kiosk İstemcisi (`Start.py`):**
-  İkincil ekranı (TV / Projeksiyon / Kiosk Monitörü) otomatik tespit eder, tek ekranda çökme yaşamadan tam ekran kiosk modunda çalışır.
+- **Akıllı Kiosk İstemcisi (`Start.py`):**
+  İkincil ekranı (Harici TV / Projeksiyon) otomatik tespit eder. **Sıfır ek paket (pip) gerektirir**, Chrome, Edge veya Chromium ile harici ekranda tam ekran kiosk modunda çalışır.
 
 ---
 
@@ -29,7 +29,7 @@
 
 - **PHP:** 8.1 veya üzeri (`pdo_sqlite`, `gd`, `fileinfo` eklentileri aktif olmalı)
 - **Web Sunucu:** Apache 2.4+ (mod_rewrite aktif) veya Nginx
-- **İstemci Kiosk (İsteğe Bağlı):** Python 3.8+ (`pywebview`, `screeninfo`)
+- **İstemci Kiosk:** Python 3.6+ (Ek hiçbir pip paketi gerektirmez!) ve standart bir tarayıcı (Chrome, Edge, Chromium veya Brave)
 
 ---
 
@@ -79,13 +79,43 @@
 
 ---
 
-## 📺 Kiosk Ekranını Başlatma
+## 📺 Kiosk Ekranını Başlatma (Harici TV / İkincil Ekran)
 
-Kampüs girişindeki ekranda veya Raspberry Pi üzerinde panoyu kiosk modunda açmak için:
+Harici bir TV, projeksiyon cihazı veya kiosk ekranında panoyu tam ekran başlatmak için **hiçbir ek kütüphane (pip) kurmanız gerekmez**.
+
+### 1. Doğrudan Çalıştırma
+Bağlı bir ikincil ekran (TV/HDMI) varsa sistem onu otomatik algılar ve Kiosk penceresini o ekranda açar:
 ```bash
+# Linux / macOS:
 python3 Start.py
+# veya tek tıkla: ./start_kiosk.sh
+
+# Windows:
+python Start.py
+# veya çift tıkla: start_kiosk.bat
 ```
-Veya özel bir URL ile başlatmak için:
+
+### 2. Bilgisayar Açıldığında Otomatik Başlatma (Autostart)
+Bilgisayar her açıldığında harici ekranda UniPano'nun otomatik başlaması için:
 ```bash
-python3 Start.py http://unipano.loc/
+python3 Start.py --autostart
+```
+*Bu komut Linux'ta XDG Autostart kaydı, Windows'ta ise Başlangıç klasörü kaydı oluşturur.*
+
+Açılıştan kaldırmak için:
+```bash
+python3 Start.py --disable-autostart
+```
+
+### 3. Monitör ve Sistem Durumunu Görme
+Bağlı ekranları, koordinatları ve aktif tarayıcıyı listelemek için:
+```bash
+python3 Start.py --status
+```
+
+### 4. Özel Parametreler
+```bash
+python3 Start.py https://panonuzun-adresi.edu.tr  # Farklı bir URL açmak için
+python3 Start.py --primary                       # Zorunlu olarak ana ekranda açmak için
+python3 Start.py --pos 1920,0                    # Belirli koordinatlara yönlendirmek için
 ```
