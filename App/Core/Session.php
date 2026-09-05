@@ -13,19 +13,21 @@ class Session
     public static function start(): void
     {
         if (session_status() === PHP_SESSION_NONE) {
-            $isSecure = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on';
+            if (!headers_sent()) {
+                $isSecure = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on';
 
-            session_set_cookie_params([
-                'lifetime' => 86400 * 30, // 30 gün
-                'path' => '/',
-                'domain' => '',
-                'secure' => $isSecure,
-                'httponly' => true,
-                'samesite' => 'Strict'
-            ]);
+                session_set_cookie_params([
+                    'lifetime' => 86400 * 30, // 30 gün
+                    'path' => '/',
+                    'domain' => '',
+                    'secure' => $isSecure,
+                    'httponly' => true,
+                    'samesite' => 'Strict'
+                ]);
 
-            session_name(Config::LOGIN_COOKIE_NAME);
-            session_start();
+                session_name(Config::LOGIN_COOKIE_NAME);
+            }
+            @session_start();
         }
     }
 

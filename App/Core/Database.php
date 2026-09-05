@@ -42,7 +42,10 @@ class Database
                 @chmod(Config::PATH_TO_SQLITE_FILE, 0666);
                 self::ensureTables(self::$instance);
             } catch (PDOException $e) {
-                error_log("Database connection error: " . $e->getMessage());
+                Logger::channel('database')->critical("Veritabanı bağlantı hatası: " . $e->getMessage(), [
+                    'exception_code' => $e->getCode(),
+                    'file' => $e->getFile() . ':' . $e->getLine()
+                ]);
                 throw $e;
             }
         }

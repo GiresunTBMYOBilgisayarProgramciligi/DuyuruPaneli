@@ -42,4 +42,12 @@ class Config
     public const ALLOWED_IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
     public const ALLOWED_IMAGE_MIMES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
     public const MAX_IMAGE_SIZE_BYTES = 10 * 1024 * 1024; // 10MB
+
+    // Loglama Yapılandırması (Monolog)
+    public const LOG_DIR = __DIR__ . "/../storage/logs/";
+    public const LOG_FILE_PREFIX = "unipano";
+    public const LOG_ROTATION = "monthly"; // 30 günlük / aylık rotasyon
+    public const LOG_MAX_FILES = 24;       // 2 yıllık saklama (24 ay x 30 gün = 2 yıl)
+    public const LOG_RETENTION_DAYS = 730; // 2 yıldan (730 gün) eski log dosyaları otomatik temizlenir
+    public const LOG_LEVEL = "DEBUG";      // DEBUG, INFO, NOTICE, WARNING, ERROR, CRITICAL
 }
