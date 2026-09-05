@@ -129,6 +129,11 @@ use App\Config;
                 <span>👥</span> Kullanıcı Hesapları
             </button>
         </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="logs-tab" data-bs-toggle="tab" data-bs-target="#logsTabContent" type="button" role="tab" aria-controls="logsTabContent" aria-selected="false">
+                <span>📜</span> Sistem Günlükleri
+            </button>
+        </li>
     </ul>
 
     <!-- Sekme İçerikleri -->
@@ -136,6 +141,7 @@ use App\Config;
         <?php require __DIR__ . "/partials/slides.php"; ?>
         <?php require __DIR__ . "/partials/announcements.php"; ?>
         <?php require __DIR__ . "/partials/users.php"; ?>
+        <?php require __DIR__ . "/partials/logs.php"; ?>
     </div>
 </div>
 

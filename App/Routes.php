@@ -28,6 +28,7 @@ class Routes
         $router->post('/admin/login', [AuthController::class, 'login']);
         $router->post('/admin/logout', [AuthController::class, 'logout']);
         $router->get('/admin/logout', [AuthController::class, 'logout']);
+        $router->get('/admin/logs/download', [AdminController::class, 'downloadLog'], [AuthMiddleware::class]);
 
         // 3. AJAX & API Uç Noktaları
         $router->any('/admin/ajax', [AjaxController::class, 'handle']);

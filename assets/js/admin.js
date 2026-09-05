@@ -838,9 +838,144 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // -----------------------------------------------------------------
-    // 10. Sayfa Başlangıcı: Veri Listelerini Çek
+    // 10. Sistem Günlükleri (Log Viewer) Motoru
+    // -----------------------------------------------------------------
+    let cachedLogs = [];
+
+    function loadLogs(file = '') {
+        const tableBody = document.getElementById('logTableBody');
+        const countBadge = document.getElementById('logCountBadge');
+        const fileSelect = document.getElementById('logFileSelect');
+        const downloadBtn = document.getElementById('downloadLogBtn');
+
+        if (!tableBody) return;
+
+        const formData = new FormData();
+        formData.append('functionName', 'getLogs');
+        if (file) {
+            formData.append('file', file);
+        }
+
+        fetch('/admin/ajax', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(res => res.json())
+        .then(res => {
+            if (!res || !res.logs) {
+                tableBody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-muted">Günlük kaydı bulunamadı.</td></tr>';
+                return;
+            }
+
+            cachedLogs = res.logs;
+
+            // Dosya dropdown'ını güncelle
+            if (fileSelect && res.files && res.files.length > 0) {
+                fileSelect.innerHTML = '';
+                res.files.forEach((f, idx) => {
+                    const opt = document.createElement('option');
+                    opt.value = f.filename;
+                    opt.textContent = f.filename + ' (' + f.sizeHuman + ' - ' + f.modifiedAt + ')';
+                    if ((!file && idx === 0) || (file && file === f.filename)) {
+                        opt.selected = true;
+                    }
+                    fileSelect.appendChild(opt);
+                });
+            }
+
+            const activeFile = (fileSelect && fileSelect.value) ? fileSelect.value : '';
+            if (downloadBtn) {
+                downloadBtn.href = '/admin/logs/download' + (activeFile ? '?file=' + encodeURIComponent(activeFile) : '');
+            }
+
+            renderLogs();
+        })
+        .catch(err => {
+            console.error('[UniPano] Log loading error:', err);
+            tableBody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-danger">Loglar yüklenirken bir hata oluştu.</td></tr>';
+        });
+    }
+
+    function renderLogs() {
+        const tableBody = document.getElementById('logTableBody');
+        const countBadge = document.getElementById('logCountBadge');
+        const levelFilter = document.getElementById('logLevelFilter')?.value || 'ALL';
+        const searchVal = (document.getElementById('logSearchInput')?.value || '').trim().toLowerCase();
+
+        if (!tableBody) return;
+
+        let filtered = cachedLogs.filter(item => {
+            if (levelFilter !== 'ALL') {
+                const lvl = (item.level || '').toUpperCase();
+                const ch = (item.channel || '').toUpperCase();
+                if (lvl !== levelFilter && ch !== levelFilter) {
+                    return false;
+                }
+            }
+
+            if (searchVal !== '') {
+                const raw = (item.raw || '').toLowerCase();
+                const msg = (item.message || '').toLowerCase();
+                if (!raw.includes(searchVal) && !msg.includes(searchVal)) {
+                    return false;
+                }
+            }
+
+            return true;
+        });
+
+        if (countBadge) countBadge.textContent = filtered.length;
+
+        if (filtered.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-muted"><em>Kriterlere uygun günlük kaydı bulunamadı.</em></td></tr>';
+            return;
+        }
+
+        let html = '';
+        filtered.forEach(log => {
+            const lvl = (log.level || 'INFO').toLowerCase();
+            const ch = (log.channel || 'app').toLowerCase();
+
+            html += '<tr>' +
+                '<td class="text-nowrap text-secondary">' + escapeHtml(log.datetime) + '</td>' +
+                '<td><span class="badge-log-level level-' + lvl + '">' + escapeHtml(log.level) + '</span></td>' +
+                '<td><span class="badge-log-channel channel-' + ch + '">' + escapeHtml(log.channel) + '</span></td>' +
+                '<td class="log-message-text">' + escapeHtml(log.message) + '</td>' +
+                '</tr>';
+        });
+
+        tableBody.innerHTML = html;
+    }
+
+    // Olay Dinleyicileri
+    document.getElementById('refreshLogsBtn')?.addEventListener('click', function () {
+        const fileSelect = document.getElementById('logFileSelect');
+        loadLogs(fileSelect ? fileSelect.value : '');
+        showToast('Sistem günlükleri güncellendi.');
+    });
+
+    document.getElementById('logFileSelect')?.addEventListener('change', function () {
+        loadLogs(this.value);
+    });
+
+    document.getElementById('logLevelFilter')?.addEventListener('change', renderLogs);
+    document.getElementById('logSearchInput')?.addEventListener('input', renderLogs);
+
+    document.getElementById('logs-tab')?.addEventListener('shown.bs.tab', function () {
+        loadLogs();
+    });
+
+    // -----------------------------------------------------------------
+    // 11. Sayfa Başlangıcı: Veri Listelerini Çek
     // -----------------------------------------------------------------
     getSlides();
     getAnnouncements();
     getUsers();
+
+    if (sessionStorage.getItem('unipano_active_tab') === '#logsTabContent') {
+        loadLogs();
+    }
 });

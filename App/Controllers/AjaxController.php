@@ -131,6 +131,21 @@ class AjaxController
                 (new UserController())->delete($request);
                 break;
 
+            // Sistem Günlükleri (Log) İşlemleri
+            case 'getLogs':
+                $file = (string)$request->input('file', '');
+                $limit = (int)$request->input('limit', 200);
+                if ($limit <= 0 || $limit > 500) {
+                    $limit = 200;
+                }
+                $files = \App\Core\Logger::getLogFiles();
+                $logs = \App\Core\Logger::readLogLines($file, $limit);
+                Response::json([
+                    'files' => $files,
+                    'logs' => $logs
+                ]);
+                break;
+
             default:
                 Response::error("Tanımsız veya yetkisiz eylem: {$action}", 400);
                 break;

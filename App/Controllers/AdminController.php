@@ -36,4 +36,42 @@ class AdminController
             'csrfToken' => $csrfToken
         ]);
     }
+
+    /**
+     * Güvenli log dosyası indirme (Yalnızca yetkili yöneticiler)
+     */
+    public function downloadLog(Request $request): void
+    {
+        AuthMiddleware::handle($request);
+
+        $filename = (string)$request->get('file', '');
+        $filename = basename($filename); // Path traversal önlemi
+
+        if (empty($filename)) {
+            $files = glob(rtrim(Config::LOG_DIR, '/') . '/*.log');
+            if (empty($files)) {
+                Response::error('İndirilecek log dosyası bulunamadı.', 404);
+            }
+            usort($files, static fn(string $a, string $b) => filemtime($b) <=> filemtime($a));
+            $filePath = $files[0];
+            $filename = basename($filePath);
+        } else {
+            $filePath = rtrim(Config::LOG_DIR, '/') . '/' . $filename;
+        }
+
+        if (!file_exists($filePath) || !str_ends_with($filename, '.log')) {
+            Response::error('Geçersiz log dosyası.', 404);
+        }
+
+        header('Content-Description: File Transfer');
+        header('Content-Type: text/plain; charset=UTF-8');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate');
+        header('Pragma: public');
+        header('Content-Length: ' . filesize($filePath));
+        readfile($filePath);
+        exit;
+    }
 }
+
