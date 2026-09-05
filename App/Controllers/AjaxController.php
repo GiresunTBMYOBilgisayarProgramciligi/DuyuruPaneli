@@ -57,7 +57,8 @@ class AjaxController
         if (in_array($action, [
             'saveSlide', 'updateSlide', 'deleteSlide', 'toggleSlideStatus', 'updateSlideOrder',
             'saveAnnouncement', 'updateAnnouncement', 'deleteAnnouncement', 'toggleAnnouncementStatus', 'updateAnnouncementOrder',
-            'saveUser', 'updateUser', 'deleteUser'
+            'saveUser', 'updateUser', 'deleteUser',
+            'saveSettings', 'testTinyPng'
         ], true)) {
             CsrfMiddleware::handle($request);
         }
@@ -144,6 +145,19 @@ class AjaxController
                     'files' => $files,
                     'logs' => $logs
                 ]);
+                break;
+
+            // Sistem ve Optimizasyon Ayarları
+            case 'getSettings':
+                (new SettingController())->getSettings($request);
+                break;
+
+            case 'saveSettings':
+                (new SettingController())->saveSettings($request);
+                break;
+
+            case 'testTinyPng':
+                (new SettingController())->testTinyPng($request);
                 break;
 
             default:

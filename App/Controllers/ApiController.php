@@ -16,12 +16,14 @@ class ApiController
     private SlideRepository $slideRepository;
     private AnnouncementRepository $announcementRepository;
     private WeatherService $weatherService;
+    private \App\Services\SettingService $settingService;
 
     public function __construct()
     {
         $this->slideRepository = new SlideRepository();
         $this->announcementRepository = new AnnouncementRepository();
-        $this->weatherService = new WeatherService();
+        $this->settingService = new \App\Services\SettingService();
+        $this->weatherService = new WeatherService($this->settingService);
     }
 
     /**
@@ -59,17 +61,21 @@ class ApiController
             'slides' => $slides,
             'tickerNews' => $tickerNews,
             'weather' => $weather,
+            'kioskSettings' => [
+                'slideInterval' => $this->settingService->getInt('slide_interval', 20) * 1000,
+                'videoSound' => $this->settingService->getBool('kiosk_video_sound', true)
+            ],
             'modules' => [
-                'weather' => Config::MODULE_WEATHER,
-                'clock' => Config::MODULE_CLOCK,
-                'ticker' => Config::MODULE_TICKER,
-                'qrAnalytics' => Config::MODULE_QR_ANALYTICS
+                'weather' => $this->settingService->getBool('module_weather', Config::MODULE_WEATHER),
+                'clock' => $this->settingService->getBool('module_clock', Config::MODULE_CLOCK),
+                'ticker' => $this->settingService->getBool('module_ticker', Config::MODULE_TICKER),
+                'qrAnalytics' => $this->settingService->getBool('module_qr_analytics', Config::MODULE_QR_ANALYTICS)
             ],
             'institution' => [
-                'name' => Config::INSTITUTION_NAME,
-                'campus' => Config::CAMPUS_NAME,
+                'name' => $this->settingService->getString('institution_name', Config::INSTITUTION_NAME),
+                'campus' => $this->settingService->getString('campus_name', Config::CAMPUS_NAME),
                 'appName' => Config::APP_NAME,
-                'appTagline' => Config::APP_TAGLINE
+                'appTagline' => $this->settingService->getString('app_tagline', Config::APP_TAGLINE)
             ]
         ]);
     }

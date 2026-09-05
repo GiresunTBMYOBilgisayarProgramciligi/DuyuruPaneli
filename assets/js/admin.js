@@ -1009,17 +1009,286 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('logSearchInput')?.addEventListener('input', renderLogs);
 
     document.getElementById('logs-tab')?.addEventListener('shown.bs.tab', function () {
+        sessionStorage.setItem('unipano_active_tab', '#logsTabContent');
         loadLogs();
     });
 
     // -----------------------------------------------------------------
-    // 11. Sayfa Başlangıcı: Veri Listelerini Çek
+    // 12. Sistem & Görsel Optimizasyon Ayarları Yönetimi (Issue #11)
+    // -----------------------------------------------------------------
+    function loadSettings() {
+        const formData = new FormData();
+        formData.append('action', 'getSettings');
+
+        fetch('/admin/ajax', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (!data || !data.settings) return;
+
+            const s = data.settings;
+            const sys = data.system || {};
+
+            const setVal = (id, val) => {
+                const el = document.getElementById(id);
+                if (el && val !== undefined) el.value = val;
+            };
+
+            const setChecked = (id, val) => {
+                const el = document.getElementById(id);
+                if (el) el.checked = (val === '1' || val === 1 || val === true);
+            };
+
+            setVal('setting_image_driver', s.image_driver || 'hybrid');
+            setVal('setting_image_resize_dimension', s.image_resize_dimension || '1920');
+            setVal('setting_image_quality', s.image_quality || '85');
+            const qValBadge = document.getElementById('imageQualityVal');
+            if (qValBadge) qValBadge.textContent = (s.image_quality || '85') + '%';
+
+            setVal('setting_tinypng_api_key', s.tinypng_api_key || '');
+            setVal('setting_slide_interval', s.slide_interval || '20');
+            setChecked('setting_kiosk_video_sound', s.kiosk_video_sound);
+
+            setChecked('setting_module_weather', s.module_weather);
+            setChecked('setting_module_clock', s.module_clock);
+            setChecked('setting_module_ticker', s.module_ticker);
+            setChecked('setting_module_qr_analytics', s.module_qr_analytics);
+
+            setVal('setting_institution_name', s.institution_name || '');
+            setVal('setting_campus_name', s.campus_name || '');
+            setVal('setting_app_tagline', s.app_tagline || '');
+            setVal('setting_weather_city', s.weather_city || '');
+            setVal('setting_weather_latitude', s.weather_latitude || '');
+            setVal('setting_weather_longitude', s.weather_longitude || '');
+
+            updateDriverBadge(s.image_driver || 'hybrid');
+
+            // Sistem sağlığı göstergelerini güncelle
+            const sysPhp = document.getElementById('sysPhpVer');
+            if (sysPhp) sysPhp.textContent = sys.php_version || 'PHP 8.x';
+
+            const sysGd = document.getElementById('sysGdStatus');
+            if (sysGd) {
+                sysGd.textContent = sys.gd_available ? 'Aktif (Kullanılabilir)' : 'Pasif';
+                sysGd.className = 'badge ' + (sys.gd_available ? 'bg-success' : 'bg-danger');
+            }
+
+            const sysWebp = document.getElementById('sysWebpStatus');
+            if (sysWebp) {
+                sysWebp.textContent = sys.webp_supported ? 'Destekleniyor' : 'Desteklenmiyor';
+                sysWebp.className = 'badge ' + (sys.webp_supported ? 'bg-success' : 'bg-warning text-dark');
+            }
+
+            const sysCurl = document.getElementById('sysCurlStatus');
+            if (sysCurl) {
+                sysCurl.textContent = sys.curl_available ? 'Aktif' : 'Pasif';
+                sysCurl.className = 'badge ' + (sys.curl_available ? 'bg-success' : 'bg-danger');
+            }
+
+            const sysTiny = document.getElementById('sysTinyPngStatus');
+            if (sysTiny) {
+                if (sys.tinypng_configured) {
+                    sysTiny.textContent = 'API Anahtarı Yapılandırıldı';
+                    sysTiny.className = 'badge bg-success';
+                } else {
+                    sysTiny.textContent = 'API Anahtarı Tanımlanmamış';
+                    sysTiny.className = 'badge bg-secondary';
+                }
+            }
+        })
+        .catch(err => {
+            console.error('[UniPano] Ayarlar yüklenemedi:', err);
+        });
+    }
+
+    function updateDriverBadge(driver) {
+        const badge = document.getElementById('optDriverBadge');
+        if (!badge) return;
+
+        switch (driver) {
+            case 'hybrid':
+                badge.textContent = 'Hibrit Mod (Önerilen)';
+                badge.className = 'badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1 small';
+                break;
+            case 'gd':
+                badge.textContent = 'Yerel GD Motoru';
+                badge.className = 'badge bg-success-subtle text-success border border-success-subtle px-2 py-1 small';
+                break;
+            case 'tinypng':
+                badge.textContent = 'TinyPNG Bulut API';
+                badge.className = 'badge bg-info-subtle text-info border border-info-subtle px-2 py-1 small';
+                break;
+            case 'off':
+                badge.textContent = 'Devre Dışı';
+                badge.className = 'badge bg-secondary-subtle text-secondary border border-secondary-subtle px-2 py-1 small';
+                break;
+        }
+    }
+
+    // Sürücü ve Kalite Slider Olayları
+    document.getElementById('setting_image_driver')?.addEventListener('change', function () {
+        updateDriverBadge(this.value);
+    });
+
+    document.getElementById('setting_image_quality')?.addEventListener('input', function () {
+        const qValBadge = document.getElementById('imageQualityVal');
+        if (qValBadge) qValBadge.textContent = this.value + '%';
+    });
+
+    // API Anahtarı Göster / Gizle
+    document.getElementById('toggleApiKeyVisibility')?.addEventListener('click', function () {
+        const input = document.getElementById('setting_tinypng_api_key');
+        if (!input) return;
+        if (input.type === 'password') {
+            input.type = 'text';
+            this.textContent = '🔒';
+        } else {
+            input.type = 'password';
+            this.textContent = '👁️';
+        }
+    });
+
+    // TinyPNG API Sına & Kota Kontrolü
+    document.getElementById('testTinyPngBtn')?.addEventListener('click', function () {
+        const btn = this;
+        const keyInput = document.getElementById('setting_tinypng_api_key');
+        const resultDiv = document.getElementById('tinyPngTestResult');
+        const apiKey = keyInput ? keyInput.value.trim() : '';
+
+        if (!apiKey) {
+            if (resultDiv) {
+                resultDiv.className = 'alert alert-warning py-2 px-3 small mb-2';
+                resultDiv.textContent = 'Lütfen önce bir TinyPNG API anahtarı giriniz.';
+                resultDiv.classList.remove('d-none');
+            }
+            return;
+        }
+
+        const origHtml = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Sınanıyor...';
+
+        const formData = new FormData();
+        formData.append('action', 'testTinyPng');
+        formData.append('csrf_token', getCsrfToken());
+        formData.append('api_key', apiKey);
+
+        fetch('/admin/ajax', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            btn.disabled = false;
+            btn.innerHTML = origHtml;
+
+            if (resultDiv) {
+                resultDiv.classList.remove('d-none');
+                if (data.success) {
+                    resultDiv.className = 'alert alert-success py-2 px-3 small mb-2';
+                    resultDiv.innerHTML = '<strong>✅ Başarılı:</strong> ' + escapeHtml(data.message);
+                    showToast('TinyPNG API bağlantısı doğrulandı ve .env dosyasına kaydedildi!', 'success');
+                    loadSettings(); // Sistem durumu rozetlerini ve inputları anında güncelle
+                } else {
+                    resultDiv.className = 'alert alert-danger py-2 px-3 small mb-2';
+                    resultDiv.innerHTML = '<strong>❌ Bağlantı Başarısız:</strong> ' + escapeHtml(data.message || 'Hata oluştu.');
+                    showToast('TinyPNG API bağlantısı başarısız.', 'error');
+                }
+            }
+        })
+        .catch(err => {
+            btn.disabled = false;
+            btn.innerHTML = origHtml;
+            if (resultDiv) {
+                resultDiv.classList.remove('d-none');
+                resultDiv.className = 'alert alert-danger py-2 px-3 small mb-2';
+                resultDiv.textContent = 'Sunucu ile iletişim hatası: ' + err.message;
+            }
+        });
+    });
+
+    // Ayarları Kaydetme İşlevi (Üst ve Alt Butonlar)
+    function handleSaveSettings(triggerBtn) {
+        const form = document.getElementById('settingsForm');
+        if (!form) return;
+
+        const formData = new FormData(form);
+        formData.append('action', 'saveSettings');
+        formData.append('csrf_token', getCsrfToken());
+
+        const checkboxes = ['kiosk_video_sound', 'module_weather', 'module_clock', 'module_ticker', 'module_qr_analytics'];
+        checkboxes.forEach(name => {
+            if (!formData.has(name)) {
+                formData.append(name, '0');
+            }
+        });
+
+        const origHtml = triggerBtn.innerHTML;
+        triggerBtn.disabled = true;
+        triggerBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Kaydediliyor...';
+
+        fetch('/admin/ajax', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            triggerBtn.disabled = false;
+            triggerBtn.innerHTML = origHtml;
+
+            if (data.success) {
+                showToast(data.message || 'Ayarlar başarıyla güncellendi.', 'success');
+                loadSettings();
+            } else {
+                showToast(data.message || 'Ayarlar kaydedilemedi.', 'error');
+            }
+        })
+        .catch(err => {
+            triggerBtn.disabled = false;
+            triggerBtn.innerHTML = origHtml;
+            showToast('Sunucu hatası: ' + err.message, 'error');
+        });
+    }
+
+    document.getElementById('saveSettingsBtn')?.addEventListener('click', function () {
+        handleSaveSettings(this);
+    });
+
+    document.getElementById('saveSettingsBtnBottom')?.addEventListener('click', function () {
+        handleSaveSettings(this);
+    });
+
+    document.getElementById('settings-tab')?.addEventListener('shown.bs.tab', function () {
+        sessionStorage.setItem('unipano_active_tab', '#settingsTabContent');
+        loadSettings();
+    });
+
+    // -----------------------------------------------------------------
+    // 13. Sayfa Başlangıcı: Veri Listelerini Çek
     // -----------------------------------------------------------------
     getSlides();
     getAnnouncements();
     getUsers();
 
-    if (sessionStorage.getItem('unipano_active_tab') === '#logsTabContent') {
+    const activeTab = sessionStorage.getItem('unipano_active_tab');
+    if (window.location.pathname.endsWith('/admin/settings') || activeTab === '#settingsTabContent') {
+        const settingsTabBtn = document.getElementById('settings-tab');
+        if (settingsTabBtn && window.bootstrap && bootstrap.Tab) {
+            bootstrap.Tab.getOrCreateInstance(settingsTabBtn).show();
+            loadSettings();
+        }
+    } else if (activeTab === '#logsTabContent') {
         loadLogs();
     }
 });

@@ -74,6 +74,10 @@ class KioskController
 
         $initialContentHash = md5(json_encode($slides) . json_encode($initialTickerData));
 
+        $settingService = new \App\Services\SettingService();
+        $slideIntervalMs = $settingService->getInt('slide_interval', 20) * 1000;
+        $kioskVideoSound = $settingService->getBool('kiosk_video_sound', true);
+
         View::render('kiosk.index', [
             'slides' => $slides,
             'announcements' => $announcements,
@@ -85,7 +89,9 @@ class KioskController
             'firstDuyuru' => $firstDuyuru,
             'firstQr' => $firstQr,
             'hasFirstQr' => $hasFirstQr,
-            'initialContentHash' => $initialContentHash
+            'initialContentHash' => $initialContentHash,
+            'slideIntervalMs' => $slideIntervalMs,
+            'kioskVideoSound' => $kioskVideoSound
         ]);
     }
 }

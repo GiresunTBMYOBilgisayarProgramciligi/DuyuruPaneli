@@ -93,7 +93,7 @@ use App\Config;
             </div>
         </div>
 
-        <div id="kioskCarousel" class="kiosk-carousel carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="<?= Config::SLIDE_INTERVAL_MS ?>">
+        <div id="kioskCarousel" class="kiosk-carousel carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="<?= $slideIntervalMs ?? Config::SLIDE_INTERVAL_MS ?>">
             <?php if (count($slides) > 1): ?>
             <div class="carousel-indicators" id="carouselIndicators">
                 <?php foreach ($slides as $idx => $slide): ?>
@@ -645,7 +645,7 @@ use App\Config;
             const items = kioskCarouselEl.querySelectorAll('.carousel-inner .carousel-item');
             if (items.length > 1) {
                 kioskCarouselInstance = new bootstrap.Carousel(kioskCarouselEl, {
-                    interval: <?= Config::SLIDE_INTERVAL_MS ?>,
+                    interval: <?= $slideIntervalMs ?? Config::SLIDE_INTERVAL_MS ?>,
                     ride: false,
                     pause: false,
                     wrap: true,

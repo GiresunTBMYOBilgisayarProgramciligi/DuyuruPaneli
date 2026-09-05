@@ -123,10 +123,17 @@ class Database
                 referer TEXT,
                 FOREIGN KEY (shortLinkId) REFERENCES short_link (id) ON DELETE CASCADE ON UPDATE CASCADE
             );
+
+            CREATE TABLE IF NOT EXISTS setting(
+                key TEXT PRIMARY KEY,
+                value TEXT,
+                updated_at TEXT
+            );
         ");
 
         // Mevcut veritabanları için güvenli şema güncellemesi (Otomatik migrasyon)
         self::migrateColumns($pdo);
+        self::seedDefaultSettings($pdo);
 
         $userCount = (int)$pdo->query("SELECT COUNT(*) FROM user")->fetchColumn();
         if ($userCount === 0) {
@@ -187,6 +194,41 @@ class Database
         $pdo->exec("UPDATE slider SET expiresAt = REPLACE(expiresAt, 'T', ' ') WHERE expiresAt LIKE '%T%'");
         $pdo->exec("UPDATE announcement SET startsAt = REPLACE(startsAt, 'T', ' ') WHERE startsAt LIKE '%T%'");
         $pdo->exec("UPDATE announcement SET expiresAt = REPLACE(expiresAt, 'T', ' ') WHERE expiresAt LIKE '%T%'");
+    }
+
+    /**
+     * Varsayılan sistem ayarlarını başlatır
+     */
+    private static function seedDefaultSettings(PDO $pdo): void
+    {
+        $defaults = [
+            'tinypng_api_key' => '',
+            'image_driver' => 'hybrid', // hybrid, tinypng, gd, off
+            'image_resize_dimension' => '1920', // 1920, 1600, 1280, 1024, 0 (orijinal)
+            'image_quality' => '85',
+            'slide_interval' => '20',
+            'kiosk_video_sound' => '1',
+            'institution_name' => Config::INSTITUTION_NAME,
+            'campus_name' => Config::CAMPUS_NAME,
+            'app_tagline' => Config::APP_TAGLINE,
+            'weather_city' => Config::WEATHER_CITY,
+            'weather_latitude' => (string)Config::WEATHER_LATITUDE,
+            'weather_longitude' => (string)Config::WEATHER_LONGITUDE,
+            'module_weather' => Config::MODULE_WEATHER ? '1' : '0',
+            'module_clock' => Config::MODULE_CLOCK ? '1' : '0',
+            'module_ticker' => Config::MODULE_TICKER ? '1' : '0',
+            'module_qr_analytics' => Config::MODULE_QR_ANALYTICS ? '1' : '0',
+        ];
+
+        $now = date('Y-m-d H:i:s');
+        $stmt = $pdo->prepare("INSERT OR IGNORE INTO setting (key, value, updated_at) VALUES (:key, :value, :updated_at)");
+        foreach ($defaults as $key => $val) {
+            $stmt->execute([
+                ':key' => $key,
+                ':value' => $val,
+                ':updated_at' => $now
+            ]);
+        }
     }
 }
 

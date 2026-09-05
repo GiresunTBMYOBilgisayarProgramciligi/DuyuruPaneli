@@ -8,9 +8,11 @@ use App\Config;
 class WeatherService
 {
     private string $cacheFile;
+    private SettingService $settingService;
 
-    public function __construct()
+    public function __construct(?SettingService $settingService = null)
     {
+        $this->settingService = $settingService ?? new SettingService();
         $this->cacheFile = Config::ROOT_PATH . "db/weather_cache.json";
     }
 
@@ -19,7 +21,8 @@ class WeatherService
      */
     public function getCurrentWeather(): array
     {
-        if (!Config::MODULE_WEATHER) {
+        $enabled = $this->settingService->getBool('module_weather', Config::MODULE_WEATHER);
+        if (!$enabled) {
             return ['enabled' => false];
         }
 
@@ -50,8 +53,8 @@ class WeatherService
      */
     private function fetchFromApi(): ?array
     {
-        $lat = Config::WEATHER_LATITUDE;
-        $lon = Config::WEATHER_LONGITUDE;
+        $lat = $this->settingService->getString('weather_latitude', (string)Config::WEATHER_LATITUDE);
+        $lon = $this->settingService->getString('weather_longitude', (string)Config::WEATHER_LONGITUDE);
         $url = "https://api.open-meteo.com/v1/forecast?latitude={$lat}&longitude={$lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m&timezone=auto";
 
         $ch = curl_init();
@@ -86,7 +89,7 @@ class WeatherService
 
         return [
             'enabled' => true,
-            'city' => Config::WEATHER_CITY,
+            'city' => $this->settingService->getString('weather_city', Config::WEATHER_CITY),
             'temperature' => $tempInt,
             'temperatureFormatted' => "{$tempInt}°C",
             'apparentTemperature' => $apparentTemp,

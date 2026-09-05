@@ -24,6 +24,7 @@ class Routes
 
         // 2. Yönetim Paneli Rotaları (Clean Rewrite)
         $router->get('/admin', [AdminController::class, 'index'], [AuthMiddleware::class]);
+        $router->get('/admin/settings', [AdminController::class, 'index'], [AuthMiddleware::class]);
         $router->get('/admin/login', [AuthController::class, 'showLogin']);
         $router->post('/admin/login', [AuthController::class, 'login']);
         $router->post('/admin/logout', [AuthController::class, 'logout']);
