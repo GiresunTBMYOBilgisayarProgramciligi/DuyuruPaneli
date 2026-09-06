@@ -32,6 +32,7 @@ class AnnouncementDTO
         $this->link = $link !== null && trim($link) !== '' ? trim($link) : null;
         $this->userId = $userId;
         $this->orderNumber = $orderNumber;
+        $this->isActive = $isActive;
         $this->startsAt = self::normalizeDateTime($startsAt);
         $this->expiresAt = self::normalizeDateTime($expiresAt);
     }
@@ -55,16 +56,23 @@ class AnnouncementDTO
 
     public static function fromArray(array $data): self
     {
+        $isActive = 1;
+        if (isset($data['isActive'])) {
+            $isActive = (int)$data['isActive'];
+        } elseif (isset($data['is-active'])) {
+            $isActive = (int)$data['is-active'];
+        }
+
         return new self(
             isset($data['id']) && is_numeric($data['id']) ? (int)$data['id'] : null,
             (string)($data['title'] ?? ''),
             (string)($data['content'] ?? ''),
             isset($data['link']) ? (string)$data['link'] : null,
-            isset($data['userId']) ? (int)$data['userId'] : null,
-            isset($data['orderNumber']) ? (int)$data['orderNumber'] : 0,
-            isset($data['isActive']) ? (int)$data['isActive'] : 1,
-            isset($data['startsAt']) ? (string)$data['startsAt'] : null,
-            isset($data['expiresAt']) ? (string)$data['expiresAt'] : null
+            isset($data['userId']) ? (int)$data['userId'] : (isset($data['user_id']) ? (int)$data['user_id'] : null),
+            isset($data['orderNumber']) ? (int)$data['orderNumber'] : (isset($data['order_number']) ? (int)$data['order_number'] : 0),
+            $isActive,
+            isset($data['startsAt']) ? (string)$data['startsAt'] : (isset($data['starts-at']) ? (string)$data['starts-at'] : null),
+            isset($data['expiresAt']) ? (string)$data['expiresAt'] : (isset($data['expires-at']) ? (string)$data['expires-at'] : null)
         );
     }
 }
