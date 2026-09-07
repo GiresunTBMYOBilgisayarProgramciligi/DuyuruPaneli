@@ -39,8 +39,11 @@ class QrAnalyticsService
         $redirectUrl = "{$scheme}://{$host}/r/{$shortLink->code}";
 
         // BaconQrCode ile yerel SVG QR kod üret
+        // Düşük çözünürlüklü TV ekranlarında modül boyutunu maksimize etmek için:
+        // - size: 120 (yüksek çözünürlüklü SVG viewBox koordinatları)
+        // - margin: 1 (iç boşluğu minimize ederek matris alanını genişletir)
         $renderer = new ImageRenderer(
-            new RendererStyle(60, 1),
+            new RendererStyle(120, 1),
             new SvgImageBackEnd()
         );
         $writer = new Writer($renderer);
@@ -49,11 +52,54 @@ class QrAnalyticsService
         // XML declaration'ı temizle, doğrudan DOM'a gömülebilir SVG bırak
         $cleanSvg = substr($rawSvg, strpos($rawSvg, "\n") + 1);
 
+        // Düşük çözünürlüklü ekranlarda anti-aliasing bulanıklığını önlemek için jilet gibi keskin kenar oluştur
+        if (strpos($cleanSvg, '<svg') !== false && strpos($cleanSvg, 'shape-rendering') === false) {
+            $cleanSvg = preg_replace('/<svg /', '<svg shape-rendering="crispEdges" ', $cleanSvg, 1);
+        }
+
         return [
             'shortCode' => $shortLink->code,
             'qrSvg' => $cleanSvg,
             'redirectUrl' => $redirectUrl
         ];
+    }
+
+    /**
+     * Veritabanındaki tüm aktif duyuru ve slaytların QR kodlarını yeni netlik ve sessiz alan standartlarıyla günceller
+     */
+    public function regenerateExistingQrCodes(): void
+    {
+        $db = \App\Core\Database::getConnection();
+
+        // Duyurular
+        $stmt = $db->query("SELECT id, link, title FROM announcement WHERE link IS NOT NULL AND trim(link) != ''");
+        $announcements = $stmt->fetchAll();
+        foreach ($announcements as $ann) {
+            $qrData = $this->generateForUrl((string)$ann->link, (string)($ann->title ?? ''));
+            if (!empty($qrData['qrSvg'])) {
+                $upd = $db->prepare("UPDATE announcement SET qrCode = :qr, shortCode = :sc WHERE id = :id");
+                $upd->execute([
+                    ':qr' => $qrData['qrSvg'],
+                    ':sc' => $qrData['shortCode'],
+                    ':id' => $ann->id
+                ]);
+            }
+        }
+
+        // Slaytlar
+        $stmt = $db->query("SELECT id, link, title FROM slider WHERE link IS NOT NULL AND trim(link) != ''");
+        $slides = $stmt->fetchAll();
+        foreach ($slides as $sl) {
+            $qrData = $this->generateForUrl((string)$sl->link, (string)($sl->title ?? ''));
+            if (!empty($qrData['qrSvg'])) {
+                $upd = $db->prepare("UPDATE slider SET qrCode = :qr, shortCode = :sc WHERE id = :id");
+                $upd->execute([
+                    ':qr' => $qrData['qrSvg'],
+                    ':sc' => $qrData['shortCode'],
+                    ':id' => $sl->id
+                ]);
+            }
+        }
     }
 
     /**

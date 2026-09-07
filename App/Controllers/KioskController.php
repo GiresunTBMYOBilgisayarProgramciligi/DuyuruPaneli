@@ -33,6 +33,9 @@ class KioskController
         $announcements = $this->announcementRepo->getActiveAnnouncements();
         $weather = $this->weatherService->getCurrentWeather();
 
+        $host = $_SERVER['HTTP_HOST'] ?? 'unipano.loc';
+        $scheme = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
+
         $initialTickerData = [];
         foreach ($announcements as $announcement) {
             $dateString = '';
@@ -42,12 +45,22 @@ class KioskController
             }
 
             $prefix = !empty($announcement->title) ? $announcement->title : $dateString;
+            $shortCode = $announcement->shortCode ?? '';
+            $shortUrl = !empty($shortCode) ? "{$scheme}://{$host}/r/{$shortCode}" : ($announcement->link ?? '');
+            $shortPath = !empty($shortCode) ? "/r/{$shortCode}" : '';
+            $shortDisplay = !empty($shortCode) ? "{$host}/r/{$shortCode}" : '';
+
             $initialTickerData[] = [
                 'id' => $announcement->id,
                 'prefix' => $prefix,
                 'duyuru' => $announcement->content,
                 'qrCode' => $announcement->qrCode ?? '',
-                'link' => $announcement->link ?? ''
+                'link' => $announcement->link ?? '',
+                'shortCode' => $shortCode,
+                'shortUrl' => $shortUrl,
+                'shortHost' => $host,
+                'shortPath' => $shortPath,
+                'shortDisplay' => $shortDisplay
             ];
         }
 
@@ -70,6 +83,10 @@ class KioskController
         $firstPrefix = $firstAnnouncement['prefix'] ?? 'DUYURULAR';
         $firstDuyuru = $firstAnnouncement['duyuru'] ?? 'Güncel duyuru bulunmamaktadır.';
         $firstQr = $firstAnnouncement['qrCode'] ?? '';
+        $firstShortHost = $firstAnnouncement['shortHost'] ?? $host;
+        $firstShortPath = $firstAnnouncement['shortPath'] ?? '';
+        $firstShortDisplay = $firstAnnouncement['shortDisplay'] ?? '';
+        $firstShortUrl = $firstAnnouncement['shortUrl'] ?? '';
         $hasFirstQr = !empty(trim($firstQr));
 
         $initialContentHash = md5(json_encode($slides) . json_encode($initialTickerData));
@@ -88,6 +105,10 @@ class KioskController
             'firstPrefix' => $firstPrefix,
             'firstDuyuru' => $firstDuyuru,
             'firstQr' => $firstQr,
+            'firstShortHost' => $firstShortHost,
+            'firstShortPath' => $firstShortPath,
+            'firstShortDisplay' => $firstShortDisplay,
+            'firstShortUrl' => $firstShortUrl,
             'hasFirstQr' => $hasFirstQr,
             'initialContentHash' => $initialContentHash,
             'slideIntervalMs' => $slideIntervalMs,

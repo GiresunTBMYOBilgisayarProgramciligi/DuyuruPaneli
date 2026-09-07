@@ -14,7 +14,7 @@
     --border-color: #cbd5e1;
 
     --header-height: clamp(68px, 8.5vh, 84px);
-    --footer-height: clamp(58px, 7.5vh, 74px);
+    --footer-height: clamp(66px, 8.5vh, 84px);
 }
 
 *, *::before, *::after {
@@ -414,7 +414,7 @@ html, body {
     background: linear-gradient(90deg, #0f172a 0%, #1e293b 40%, #0f172a 100%);
     border-top: 3px solid #2563eb;
     box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.3);
-    padding: 0 clamp(10px, 1.8vw, 24px);
+    padding: 0 0 0 clamp(10px, 1.8vw, 24px);
     z-index: 50;
     box-sizing: border-box;
     overflow: hidden;
@@ -506,19 +506,25 @@ html, body {
     text-overflow: ellipsis;
 }
 
-/* Sağ QR Kod Kartı (Detaylar İçin Okut) */
+/* Sağ QR Kod Bölümü (Duyuru Bandıyla Birebir Aynı Yükseklikte & Tam Entegre TV Modu) */
 .footer-qr-card {
+    height: 100%;
+    align-self: stretch;
     display: flex;
     align-items: center;
-    gap: clamp(6px, 1vw, 12px);
-    background: rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.16);
-    padding: clamp(4px, 0.6vh, 6px) clamp(8px, 1vw, 14px);
-    border-radius: 8px;
+    gap: clamp(6px, 0.7vw, 10px);
+    background: rgba(10, 15, 29, 0.82);
+    border-left: 2px solid rgba(59, 130, 246, 0.45);
+    border-top: none;
+    border-right: none;
+    border-bottom: none;
+    border-radius: 0;
+    padding: 0 clamp(8px, 1vw, 14px);
+    margin: 0;
     flex-shrink: 0;
-    transition: opacity 0.3s ease;
+    box-shadow: -4px 0 16px rgba(0, 0, 0, 0.35);
+    user-select: none;
+    position: static;
 }
 
 .qr-callout-text {
@@ -526,47 +532,93 @@ html, body {
     flex-direction: column;
     text-align: right;
     justify-content: center;
+    gap: 1px;
 }
 
 .qr-callout-primary {
-    font-size: clamp(0.62rem, 0.8vw, 0.74rem);
+    font-size: clamp(0.64rem, 0.8vw, 0.76rem);
     font-weight: 800;
     color: #38bdf8;
     letter-spacing: 0.5px;
-    line-height: 1.2;
+    line-height: 1.1;
 }
 
 .qr-callout-secondary {
-    font-size: clamp(0.52rem, 0.7vw, 0.64rem);
+    font-size: clamp(0.52rem, 0.65vw, 0.62rem);
     color: #94a3b8;
     font-weight: 600;
-    line-height: 1.2;
+    line-height: 1.1;
 }
 
+.qr-callout-url {
+    display: inline-flex;
+    align-items: center;
+    gap: 1px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: clamp(0.55rem, 0.68vw, 0.65rem);
+    font-weight: 700;
+    background: rgba(0, 0, 0, 0.55);
+    padding: 1.5px 5px;
+    border-radius: 3px;
+    border: 1px solid rgba(250, 204, 21, 0.3);
+    max-width: clamp(130px, 16vw, 195px);
+    white-space: nowrap;
+    line-height: 1.2;
+    margin-top: 1px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.url-host-truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #cbd5e1;
+    font-weight: 600;
+    max-width: clamp(70px, 9.5vw, 125px);
+}
+
+.url-code-badge {
+    color: #facc15;
+    flex-shrink: 0;
+    font-weight: 800;
+}
+
+/* QR Kod Kutusu (İç Boşluklar Azaltıldı - Maksimum Modül Netliği) */
 .qr-canvas-box {
     background: #ffffff;
-    padding: 3px;
-    border-radius: 6px;
+    padding: 1.5px;
+    border-radius: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    flex-shrink: 0;
 }
 
 .qr-canvas-box svg {
-    width: clamp(36px, 5vh, 48px);
-    height: clamp(36px, 5vh, 48px);
+    width: clamp(48px, 6.8vh, 60px);
+    height: clamp(48px, 6.8vh, 60px);
     display: block;
+    shape-rendering: crispEdges !important;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+}
+
+.slide-qr-box svg {
+    shape-rendering: crispEdges !important;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
 }
 
 /* ==========================================================================
-   4. ÖZEL ÇÖZÜNÜRLÜK UYARLAMALARI (1024x768 TV & 4:3 EKRANLAR)
+   4. ÖZEL ÇÖZÜNÜRLÜK UYARLAMALARI (1024x768 TV & 4:3 / 720p EKRANLAR)
    ========================================================================== */
 
 @media (max-width: 1024px) {
     :root {
         --header-height: 72px;
-        --footer-height: 60px;
+        --footer-height: 68px; /* TV'de QR'ın ezilmemesi için 68px korundu */
     }
 
     .kiosk-header {
@@ -584,12 +636,17 @@ html, body {
     .footer-badge {
         padding: 6px 10px;
     }
+
+    .qr-canvas-box svg {
+        width: 52px;
+        height: 52px;
+    }
 }
 
 @media (max-height: 768px) {
     :root {
         --header-height: 70px;
-        --footer-height: 58px;
+        --footer-height: 66px; /* TV'de dikey sıkışmayı önlemek için 66px */
     }
 
     .slide-caption-card {
@@ -603,5 +660,10 @@ html, body {
 
     .slide-caption-content {
         font-size: 0.85rem;
+    }
+
+    .qr-canvas-box svg {
+        width: 52px;
+        height: 52px;
     }
 }

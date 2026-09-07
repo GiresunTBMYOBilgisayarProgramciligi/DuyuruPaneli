@@ -11,6 +11,10 @@ use App\Config;
 /** @var string $firstPrefix */
 /** @var string $firstDuyuru */
 /** @var string $firstQr */
+/** @var string $firstShortHost */
+/** @var string $firstShortPath */
+/** @var string $firstShortDisplay */
+/** @var string $firstShortUrl */
 /** @var bool $hasFirstQr */
 /** @var string $initialContentHash */
 ?>
@@ -223,11 +227,15 @@ use App\Config;
             </div>
         </div>
 
-        <!-- Sağ QR Kod Okutma Kartı -->
-        <div class="footer-qr-card" id="footerQrCard" style="<?= $hasFirstQr ? 'display: flex;' : 'display: none;' ?>">
+        <!-- Sağ QR Kod Okutma Bölümü (Duyuru Bandıyla Birebir Aynı Yükseklikte & Tam Entegre) -->
+        <div class="footer-qr-card" id="footerQrCard" style="<?= $hasFirstQr ? 'display: flex;' : 'display: none;' ?>" title="<?= htmlspecialchars($firstShortUrl ?? '', ENT_QUOTES, 'UTF-8') ?>">
             <div class="qr-callout-text">
                 <span class="qr-callout-primary">DETAYLAR İÇİN</span>
                 <span class="qr-callout-secondary">TELEFONLA OKUTUN</span>
+                <span class="qr-callout-url" id="footerQrUrl" style="<?= !empty($firstShortDisplay) ? 'display: inline-flex;' : 'display: none;' ?>" title="<?= htmlspecialchars($firstShortUrl ?? '', ENT_QUOTES, 'UTF-8') ?>">
+                    <span class="url-host-truncate" id="footerQrHost"><?= htmlspecialchars($firstShortHost ?? '', ENT_QUOTES, 'UTF-8') ?></span>
+                    <span class="url-code-badge" id="footerQrPath"><?= htmlspecialchars($firstShortPath ?? '', ENT_QUOTES, 'UTF-8') ?></span>
+                </span>
             </div>
             <div class="qr-canvas-box" id="footerQrCode">
                 <?= $firstQr ?>
@@ -744,6 +752,7 @@ use App\Config;
         const textEl = document.getElementById('announcementText');
         const qrCardEl = document.getElementById('footerQrCard');
         const qrCodeBoxEl = document.getElementById('footerQrCode');
+        const qrUrlEl = document.getElementById('footerQrUrl');
         const containerEl = document.getElementById('announcementContainer');
 
         function displayAnnouncement(index) {
@@ -766,10 +775,26 @@ use App\Config;
             if (badgeEl) badgeEl.textContent = item.prefix || "DUYURU";
             if (textEl) textEl.textContent = item.duyuru || "";
 
-            // QR Kod Senkronizasyonu
+            // QR Kod ve Kısa Link Senkronizasyonu
             if (qrCardEl && qrCodeBoxEl) {
                 if (item.qrCode && item.qrCode.trim() !== '') {
                     qrCodeBoxEl.innerHTML = item.qrCode;
+                    if (qrUrlEl) {
+                        if (item.shortDisplay && item.shortDisplay.trim() !== '') {
+                            const hostEl = document.getElementById('footerQrHost');
+                            const pathEl = document.getElementById('footerQrPath');
+                            if (hostEl && pathEl) {
+                                hostEl.textContent = item.shortHost || (item.shortDisplay.split('/r/')[0] || '');
+                                pathEl.textContent = item.shortPath || ('/r/' + (item.shortCode || ''));
+                            } else {
+                                qrUrlEl.textContent = item.shortDisplay;
+                            }
+                            qrUrlEl.title = item.shortUrl || item.link || item.shortDisplay;
+                            qrUrlEl.style.display = "inline-flex";
+                        } else {
+                            qrUrlEl.style.display = "none";
+                        }
+                    }
                     qrCardEl.style.display = "flex";
                 } else {
                     qrCardEl.style.display = "none";
