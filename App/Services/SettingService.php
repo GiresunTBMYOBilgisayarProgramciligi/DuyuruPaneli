@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Config;
+use App\Core\Logger;
 use App\Repositories\SettingRepository;
 
 class SettingService
@@ -30,6 +31,8 @@ class SettingService
                 'image_driver' => $_ENV['IMAGE_DRIVER'] ?? getenv('IMAGE_DRIVER') ?: '',
                 'image_resize_dimension' => $_ENV['IMAGE_RESIZE_DIMENSION'] ?? getenv('IMAGE_RESIZE_DIMENSION') ?: '',
                 'image_quality' => $_ENV['IMAGE_QUALITY'] ?? getenv('IMAGE_QUALITY') ?: '',
+                'bitly_access_token' => $_ENV['BITLY_ACCESS_TOKEN'] ?? getenv('BITLY_ACCESS_TOKEN') ?: '',
+                'url_shortener_provider' => $_ENV['URL_SHORTENER_PROVIDER'] ?? getenv('URL_SHORTENER_PROVIDER') ?: '',
             ];
 
             foreach ($envMap as $k => $envVal) {
@@ -126,6 +129,8 @@ class SettingService
             'IMAGE_DRIVER' => $settings['image_driver'] ?? $this->getString('image_driver', 'hybrid'),
             'IMAGE_RESIZE_DIMENSION' => $settings['image_resize_dimension'] ?? $this->getString('image_resize_dimension', '1920'),
             'IMAGE_QUALITY' => $settings['image_quality'] ?? $this->getString('image_quality', '85'),
+            'BITLY_ACCESS_TOKEN' => $settings['bitly_access_token'] ?? $this->getString('bitly_access_token', ''),
+            'URL_SHORTENER_PROVIDER' => $settings['url_shortener_provider'] ?? $this->getString('url_shortener_provider', 'auto'),
         ];
 
         foreach ($syncMap as $envKey => $envVal) {
@@ -151,7 +156,7 @@ class SettingService
 
         $writeRes = @file_put_contents($envPath, $content, LOCK_EX);
         if ($writeRes === false) {
-            \App\Core\Logger::channel('app')->error(".env dosyası sunucu kullanıcısı tarafından yazılamadı: " . $envPath);
+            Logger::channel('app')->error(".env dosyası sunucu kullanıcısı tarafından yazılamadı: " . $envPath);
         }
         @chmod($envPath, 0666);
     }
@@ -188,5 +193,22 @@ class SettingService
     {
         $quality = $this->getInt('image_quality', 85);
         return max(40, min(100, $quality));
+    }
+
+    /**
+     * Bitly API Erişim Belirtecini döndürür
+     */
+    public function getBitlyAccessToken(): string
+    {
+        return $this->getString('bitly_access_token', '');
+    }
+
+    /**
+     * Aktif URL kısaltma servis sağlayıcısını döndürür (auto, bitly, tinyurl, isgd, internal)
+     */
+    public function getUrlShortenerProvider(): string
+    {
+        $provider = strtolower($this->getString('url_shortener_provider', 'auto'));
+        return in_array($provider, ['auto', 'bitly', 'tinyurl', 'isgd', 'internal'], true) ? $provider : 'auto';
     }
 }

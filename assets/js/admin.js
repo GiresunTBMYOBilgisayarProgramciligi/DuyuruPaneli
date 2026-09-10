@@ -1051,6 +1051,8 @@ document.addEventListener('DOMContentLoaded', function () {
             if (qValBadge) qValBadge.textContent = (s.image_quality || '85') + '%';
 
             setVal('setting_tinypng_api_key', s.tinypng_api_key || '');
+            setVal('setting_url_shortener_provider', s.url_shortener_provider || 'auto');
+            setVal('setting_bitly_access_token', s.bitly_access_token || '');
             setVal('setting_slide_interval', s.slide_interval || '20');
             setChecked('setting_kiosk_video_sound', s.kiosk_video_sound);
 
@@ -1067,6 +1069,7 @@ document.addEventListener('DOMContentLoaded', function () {
             setVal('setting_weather_longitude', s.weather_longitude || '');
 
             updateDriverBadge(s.image_driver || 'hybrid');
+            updateShortenerBadge(s.url_shortener_provider || 'auto');
 
             // Sistem sağlığı göstergelerini güncelle
             const sysPhp = document.getElementById('sysPhpVer');
@@ -1100,6 +1103,29 @@ document.addEventListener('DOMContentLoaded', function () {
                     sysTiny.className = 'badge bg-secondary';
                 }
             }
+
+            const sysBitly = document.getElementById('sysBitlyStatus');
+            if (sysBitly) {
+                if (sys.bitly_configured) {
+                    sysBitly.textContent = 'API Token Yapılandırıldı';
+                    sysBitly.className = 'badge bg-success';
+                } else {
+                    sysBitly.textContent = 'Tanımlanmamış (TinyURL devrede)';
+                    sysBitly.className = 'badge bg-secondary';
+                }
+            }
+
+            const sysShortener = document.getElementById('sysShortenerStatus');
+            if (sysShortener) {
+                const provMap = {
+                    'auto': 'Otomatik Hibrit',
+                    'tinyurl': 'TinyURL (Genel)',
+                    'bitly': 'Bitly API v4',
+                    'isgd': 'is.gd',
+                    'internal': 'Dahili Yönlendirme'
+                };
+                sysShortener.textContent = provMap[s.url_shortener_provider || 'auto'] || 'Otomatik';
+            }
         })
         .catch(err => {
             console.error('[UniPano] Ayarlar yüklenemedi:', err);
@@ -1130,9 +1156,41 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    function updateShortenerBadge(provider) {
+        const badge = document.getElementById('shortenerProviderBadge');
+        if (!badge) return;
+
+        switch (provider) {
+            case 'auto':
+                badge.textContent = 'Otomatik (Bitly + TinyURL)';
+                badge.className = 'badge bg-success-subtle text-success border border-success-subtle px-2 py-1 small';
+                break;
+            case 'tinyurl':
+                badge.textContent = 'TinyURL (Genel)';
+                badge.className = 'badge bg-info-subtle text-info border border-info-subtle px-2 py-1 small';
+                break;
+            case 'bitly':
+                badge.textContent = 'Bitly API v4';
+                badge.className = 'badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1 small';
+                break;
+            case 'isgd':
+                badge.textContent = 'is.gd';
+                badge.className = 'badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-2 py-1 small';
+                break;
+            case 'internal':
+                badge.textContent = 'Dahili Yönlendirme';
+                badge.className = 'badge bg-secondary-subtle text-secondary border border-secondary-subtle px-2 py-1 small';
+                break;
+        }
+    }
+
     // Sürücü ve Kalite Slider Olayları
     document.getElementById('setting_image_driver')?.addEventListener('change', function () {
         updateDriverBadge(this.value);
+    });
+
+    document.getElementById('setting_url_shortener_provider')?.addEventListener('change', function () {
+        updateShortenerBadge(this.value);
     });
 
     document.getElementById('setting_image_quality')?.addEventListener('input', function () {
@@ -1210,6 +1268,121 @@ document.addEventListener('DOMContentLoaded', function () {
             if (resultDiv) {
                 resultDiv.classList.remove('d-none');
                 resultDiv.className = 'alert alert-danger py-2 px-3 small mb-2';
+                resultDiv.textContent = 'Sunucu ile iletişim hatası: ' + err.message;
+            }
+        });
+    });
+
+    // Bitly Belirteci Göster / Gizle
+    document.getElementById('toggleBitlyKeyVisibility')?.addEventListener('click', function () {
+        const input = document.getElementById('setting_bitly_access_token');
+        if (!input) return;
+        if (input.type === 'password') {
+            input.type = 'text';
+            this.textContent = '🔒';
+        } else {
+            input.type = 'password';
+            this.textContent = '👁️';
+        }
+    });
+
+    // URL Kısaltıcı & Bitly Sına & Bağlantı Kontrolü
+    document.getElementById('testShortenerBtn')?.addEventListener('click', function () {
+        const btn = this;
+        const keyInput = document.getElementById('setting_bitly_access_token');
+        const resultDiv = document.getElementById('shortenerTestResult');
+        const bitlyToken = keyInput ? keyInput.value.trim() : '';
+
+        const origHtml = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Test Ediliyor...';
+
+        const formData = new FormData();
+        formData.append('action', 'testShortener');
+        formData.append('csrf_token', getCsrfToken());
+        formData.append('bitly_token', bitlyToken);
+
+        fetch('/admin/ajax', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            btn.disabled = false;
+            btn.innerHTML = origHtml;
+
+            if (resultDiv) {
+                resultDiv.classList.remove('d-none');
+                if (data.success) {
+                    resultDiv.className = 'alert alert-success py-2 px-3 small mb-2';
+                    resultDiv.innerHTML = '<strong>✅ Başarılı:</strong> ' + escapeHtml(data.message);
+                    showToast('Kısaltma servisi başarıyla doğrulandı!', 'success');
+                    loadSettings(); // Rozetleri güncelle
+                } else {
+                    resultDiv.className = 'alert alert-danger py-2 px-3 small mb-2';
+                    resultDiv.innerHTML = '<strong>❌ Bağlantı Hatası:</strong> ' + escapeHtml(data.message || 'Hata oluştu.');
+                    showToast('Kısaltma bağlantısı başarısız.', 'error');
+                }
+            }
+        })
+        .catch(err => {
+            btn.disabled = false;
+            btn.innerHTML = origHtml;
+            if (resultDiv) {
+                resultDiv.classList.remove('d-none');
+                resultDiv.className = 'alert alert-danger py-2 px-3 small mb-2';
+                resultDiv.textContent = 'Sunucu ile iletişim hatası: ' + err.message;
+            }
+        });
+    });
+
+    // Tüm QR Kodları Yeniden Üret
+    document.getElementById('regenerateQrBtn')?.addEventListener('click', function () {
+        const btn = this;
+        const resultDiv = document.getElementById('regenerateQrResult');
+
+        const origHtml = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Yeniden Üretiliyor...';
+
+        const formData = new FormData();
+        formData.append('action', 'regenerateQr');
+        formData.append('csrf_token', getCsrfToken());
+
+        fetch('/admin/ajax', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            btn.disabled = false;
+            btn.innerHTML = origHtml;
+
+            if (resultDiv) {
+                resultDiv.classList.remove('d-none');
+                if (data.success) {
+                    resultDiv.className = 'alert alert-success py-2 px-3 small mt-2 mb-0';
+                    resultDiv.innerHTML = '<strong>✅ Tamamlandı:</strong> ' + escapeHtml(data.message);
+                    showToast(data.message, 'success');
+                } else {
+                    resultDiv.className = 'alert alert-danger py-2 px-3 small mt-2 mb-0';
+                    resultDiv.innerHTML = '<strong>❌ Hata:</strong> ' + escapeHtml(data.message || 'Hata oluştu.');
+                    showToast('QR kodlar yeniden üretilemedi.', 'error');
+                }
+            }
+        })
+        .catch(err => {
+            btn.disabled = false;
+            btn.innerHTML = origHtml;
+            if (resultDiv) {
+                resultDiv.classList.remove('d-none');
+                resultDiv.className = 'alert alert-danger py-2 px-3 small mt-2 mb-0';
                 resultDiv.textContent = 'Sunucu ile iletişim hatası: ' + err.message;
             }
         });

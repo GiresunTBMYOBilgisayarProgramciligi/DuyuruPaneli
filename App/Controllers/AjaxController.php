@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use App\Core\Logger;
 use App\Core\Request;
 use App\Core\Response;
 use App\Core\Session;
@@ -58,7 +59,7 @@ class AjaxController
             'saveSlide', 'updateSlide', 'deleteSlide', 'toggleSlideStatus', 'updateSlideOrder',
             'saveAnnouncement', 'updateAnnouncement', 'deleteAnnouncement', 'toggleAnnouncementStatus', 'updateAnnouncementOrder',
             'saveUser', 'updateUser', 'deleteUser',
-            'saveSettings', 'testTinyPng'
+            'saveSettings', 'testTinyPng', 'testShortener', 'regenerateQr'
         ], true)) {
             CsrfMiddleware::handle($request);
         }
@@ -139,8 +140,8 @@ class AjaxController
                 if ($limit <= 0 || $limit > 500) {
                     $limit = 200;
                 }
-                $files = \App\Core\Logger::getLogFiles();
-                $logs = \App\Core\Logger::readLogLines($file, $limit);
+                $files = Logger::getLogFiles();
+                $logs = Logger::readLogLines($file, $limit);
                 Response::json([
                     'files' => $files,
                     'logs' => $logs
@@ -158,6 +159,14 @@ class AjaxController
 
             case 'testTinyPng':
                 (new SettingController())->testTinyPng($request);
+                break;
+
+            case 'testShortener':
+                (new SettingController())->testShortener($request);
+                break;
+
+            case 'regenerateQr':
+                (new SettingController())->regenerateQr($request);
                 break;
 
             default:

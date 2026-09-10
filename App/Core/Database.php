@@ -80,6 +80,7 @@ class Database
                 fullWidth INTEGER DEFAULT 0,
                 link TEXT,
                 shortCode TEXT,
+                externalShortUrl TEXT DEFAULT NULL,
                 orderNumber INTEGER DEFAULT 0,
                 isActive INTEGER DEFAULT 1,
                 startsAt TEXT DEFAULT NULL,
@@ -98,6 +99,7 @@ class Database
                 userId INTEGER,
                 link TEXT,
                 shortCode TEXT,
+                externalShortUrl TEXT DEFAULT NULL,
                 orderNumber INTEGER DEFAULT 0,
                 isActive INTEGER DEFAULT 1,
                 startsAt TEXT DEFAULT NULL,
@@ -110,6 +112,7 @@ class Database
                 code TEXT NOT NULL UNIQUE,
                 targetUrl TEXT NOT NULL,
                 title TEXT,
+                externalShortUrl TEXT DEFAULT NULL,
                 scanCount INTEGER DEFAULT 0,
                 createdDate TEXT
             );
@@ -173,6 +176,9 @@ class Database
         if (!in_array('qrPosition', $sliderCols, true)) {
             $pdo->exec("ALTER TABLE slider ADD COLUMN qrPosition TEXT DEFAULT 'bottom-right';");
         }
+        if (!in_array('externalShortUrl', $sliderCols, true)) {
+            $pdo->exec("ALTER TABLE slider ADD COLUMN externalShortUrl TEXT DEFAULT NULL;");
+        }
 
         // 2. announcement tablosu sütunları
         $annCols = array_column($pdo->query("PRAGMA table_info(announcement)")->fetchAll(PDO::FETCH_ASSOC), 'name');
@@ -188,8 +194,17 @@ class Database
         if (!in_array('expiresAt', $annCols, true)) {
             $pdo->exec("ALTER TABLE announcement ADD COLUMN expiresAt TEXT DEFAULT NULL;");
         }
+        if (!in_array('externalShortUrl', $annCols, true)) {
+            $pdo->exec("ALTER TABLE announcement ADD COLUMN externalShortUrl TEXT DEFAULT NULL;");
+        }
 
-        // 3. Veritabanındaki 'T' ayraçlı tarihleri SQLite standart 'YYYY-MM-DD HH:MM:SS' formatına normalize et
+        // 3. short_link tablosu sütunları
+        $shortLinkCols = array_column($pdo->query("PRAGMA table_info(short_link)")->fetchAll(PDO::FETCH_ASSOC), 'name');
+        if (!in_array('externalShortUrl', $shortLinkCols, true)) {
+            $pdo->exec("ALTER TABLE short_link ADD COLUMN externalShortUrl TEXT DEFAULT NULL;");
+        }
+
+        // 4. Veritabanındaki 'T' ayraçlı tarihleri SQLite standart 'YYYY-MM-DD HH:MM:SS' formatına normalize et
         $pdo->exec("UPDATE slider SET startsAt = REPLACE(startsAt, 'T', ' ') WHERE startsAt LIKE '%T%'");
         $pdo->exec("UPDATE slider SET expiresAt = REPLACE(expiresAt, 'T', ' ') WHERE expiresAt LIKE '%T%'");
         $pdo->exec("UPDATE announcement SET startsAt = REPLACE(startsAt, 'T', ' ') WHERE startsAt LIKE '%T%'");
@@ -208,6 +223,8 @@ class Database
             'image_quality' => '85',
             'slide_interval' => '20',
             'kiosk_video_sound' => '1',
+            'bitly_access_token' => '',
+            'url_shortener_provider' => 'auto', // auto, bitly, tinyurl, isgd, internal
             'institution_name' => Config::INSTITUTION_NAME,
             'campus_name' => Config::CAMPUS_NAME,
             'app_tagline' => Config::APP_TAGLINE,

@@ -48,9 +48,19 @@ class ShortLinkRepository
             'code' => $code,
             'targetUrl' => $targetUrl,
             'title' => $title,
+            'externalShortUrl' => null,
             'scanCount' => 0,
             'createdDate' => date('Y-m-d H:i:s')
         ];
+    }
+
+    public function updateExternalShortUrl(int $id, ?string $externalShortUrl): void
+    {
+        $stmt = $this->db->prepare("UPDATE short_link SET externalShortUrl = :url WHERE id = :id");
+        $stmt->execute([
+            ':url' => $externalShortUrl,
+            ':id' => $id
+        ]);
     }
 
     public function findByCode(string $code): ?object

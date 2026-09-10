@@ -253,7 +253,77 @@ declare(strict_types=1);
                 </div>
             </div>
 
-            <!-- 4. SİSTEM & MOTOR DURUMU (SYSTEM HEALTH) -->
+            <!-- 4. URL KISALTMA VE TV QR KOD OPTİMİZASYONU -->
+            <div class="col-12 col-xl-6">
+                <div class="card border-0 shadow-sm rounded-3 h-100">
+                    <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+                        <div class="fw-bold text-dark d-flex align-items-center gap-2">
+                            <span>🔗</span> URL Kısaltma & TV QR Netliği
+                        </div>
+                        <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 small" id="shortenerProviderBadge">
+                            Otomatik (Bitly + TinyURL)
+                        </span>
+                    </div>
+                    <div class="card-body p-4">
+                        <!-- Sağlayıcı Seçimi -->
+                        <div class="mb-3">
+                            <label for="setting_url_shortener_provider" class="form-label fw-semibold small text-muted">
+                                Kısaltma Servisi Sağlayıcısı
+                            </label>
+                            <select class="form-select" id="setting_url_shortener_provider" name="url_shortener_provider">
+                                <option value="auto">Otomatik Hibrit (Bitly API Token varsa Bitly, yoksa TinyURL) — Tavsiye Edilen</option>
+                                <option value="tinyurl">TinyURL (Limitsiz & Ücretsiz, API Anahtarı Gerektirmez)</option>
+                                <option value="bitly">Yalnızca Bitly API v4 (Erişim Belirteci Gerektirir)</option>
+                                <option value="isgd">is.gd Servisi</option>
+                                <option value="internal">Dahili Yönlendirme (Harici Kısaltma Yapma)</option>
+                            </select>
+                            <div class="form-text small text-muted">
+                                <strong>Neden Kısaltma?</strong> TV ekranlarında düşük çözünürlükte QR kodların okunabilmesi için link uzunluğu minimuma indirilir. Böylece QR matrisi 21x21 kareye düşer ve kareler ekranda <strong>2 kat daha büyük</strong> basılır.
+                            </div>
+                        </div>
+
+                        <!-- Bitly API Erişim Belirteci -->
+                        <div class="mb-3 pt-2 border-top">
+                            <label for="setting_bitly_access_token" class="form-label fw-semibold small text-muted d-flex justify-content-between align-items-center">
+                                <span>Bitly API Erişim Belirteci (Generic Access Token)</span>
+                                <a href="https://bitly.com" target="_blank" class="small text-decoration-none" title="Bitly ücretsiz hesabı oluşturun">
+                                    Bitly Token Al ↗
+                                </a>
+                            </label>
+                            <div class="input-group mb-2">
+                                <span class="input-group-text bg-light">🔑</span>
+                                <input type="password" class="form-control" id="setting_bitly_access_token" name="bitly_access_token" placeholder="Örn: 2c5432... veya boş bırakın" autocomplete="new-password">
+                                <button class="btn btn-outline-secondary" type="button" id="toggleBitlyKeyVisibility" title="Belirteci Göster/Gizle">
+                                    👁️
+                                </button>
+                                <button class="btn btn-outline-primary" type="button" id="testShortenerBtn" title="Kısaltma servislerini ve Bitly bağlantısını test et">
+                                    Sına & Bağlantı Kontrolü
+                                </button>
+                            </div>
+                            <div id="shortenerTestResult" class="d-none alert py-2 px-3 small mb-2"></div>
+                            <div class="form-text small text-muted mb-3">
+                                <em>İpucu:</em> Bitly token tanımlanmadığında veya kotası bittiğinde sistem otomatik olarak <strong>TinyURL</strong> motorunu devreye sokar.
+                            </div>
+                        </div>
+
+                        <!-- Toplu Yeniden Üretim -->
+                        <div class="pt-3 border-top">
+                            <label class="form-label fw-semibold small text-muted d-block mb-1">
+                                Mevcut İçerikleri Güncelleme
+                            </label>
+                            <p class="small text-muted mb-2">
+                                Sistemde daha önce kaydedilmiş tüm afiş ve kayan duyuru linklerini kısaltıp QR kodları yeni standartta tekrar üretir.
+                            </p>
+                            <button type="button" class="btn btn-outline-dark btn-sm d-flex align-items-center gap-2" id="regenerateQrBtn">
+                                <span>⚡</span> Tüm QR Kodları Yeniden Üret & Optimize Et
+                            </button>
+                            <div id="regenerateQrResult" class="d-none alert py-2 px-3 small mt-2 mb-0"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. SİSTEM & MOTOR DURUMU (SYSTEM HEALTH) -->
             <div class="col-12 col-xl-6">
                 <div class="card border-0 shadow-sm rounded-3 h-100">
                     <div class="card-header bg-white border-bottom py-3">
@@ -279,15 +349,23 @@ declare(strict_types=1);
                                 <span class="fw-semibold">cURL Desteği (API İstekleri):</span>
                                 <span class="badge bg-success" id="sysCurlStatus">Kontrol ediliyor...</span>
                             </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
-                                <span class="fw-semibold">TinyPNG API Durumu:</span>
+                            <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2 border-bottom">
+                                <span class="fw-semibold">TinyPNG Görsel API:</span>
                                 <span class="badge bg-secondary" id="sysTinyPngStatus">Tanımlanmamış</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2 border-bottom">
+                                <span class="fw-semibold">Bitly URL API:</span>
+                                <span class="badge bg-secondary" id="sysBitlyStatus">Tanımlanmamış</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
+                                <span class="fw-semibold">Aktif Kısaltma Motoru:</span>
+                                <span class="badge bg-info text-dark" id="sysShortenerStatus">Otomatik</span>
                             </li>
                         </ul>
 
                         <div class="alert alert-info border-0 rounded-3 mt-3 p-3 small mb-0">
-                            <strong>💡 Bilgi:</strong>
-                            Yüklenen afişler otomatik olarak belirlenen çözünürlüğe ölçeklenir ve metaverileri temizlenir. YouTube bağlantılı video afişlerinde ise orijinal YouTube kapak görseli kullanılır ve optimizasyon yapılmaz.
+                            <strong>💡 TV Kiosk İpucu:</strong>
+                            Düşük çözünürlüklü ekranlarda QR kodun rahat okunması için linkler mümkün olduğunca kısa tutulmalı, TV ekranına bakan kullanıcı telefon kamerasını 1-2 metre mesafeden rahatlıkla tutabilmelidir.
                         </div>
                     </div>
                 </div>

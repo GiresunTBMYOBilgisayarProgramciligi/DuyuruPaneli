@@ -781,11 +781,23 @@ use App\Config;
                     qrCodeBoxEl.innerHTML = item.qrCode;
                     if (qrUrlEl) {
                         if (item.shortDisplay && item.shortDisplay.trim() !== '') {
+                            let hostVal = item.shortHost || '';
+                            let pathVal = item.shortPath || '';
+                            if (!hostVal && item.shortDisplay) {
+                                const slashIdx = item.shortDisplay.indexOf('/');
+                                if (slashIdx !== -1) {
+                                    hostVal = item.shortDisplay.substring(0, slashIdx);
+                                    pathVal = item.shortDisplay.substring(slashIdx);
+                                } else {
+                                    hostVal = item.shortDisplay;
+                                    pathVal = '';
+                                }
+                            }
                             const hostEl = document.getElementById('footerQrHost');
                             const pathEl = document.getElementById('footerQrPath');
                             if (hostEl && pathEl) {
-                                hostEl.textContent = item.shortHost || (item.shortDisplay.split('/r/')[0] || '');
-                                pathEl.textContent = item.shortPath || ('/r/' + (item.shortCode || ''));
+                                hostEl.textContent = hostVal;
+                                pathEl.textContent = pathVal;
                             } else {
                                 qrUrlEl.textContent = item.shortDisplay;
                             }

@@ -21,7 +21,9 @@ class SettingDTO
         public bool $moduleWeather = true,
         public bool $moduleClock = true,
         public bool $moduleTicker = true,
-        public bool $moduleQrAnalytics = true
+        public bool $moduleQrAnalytics = true,
+        public ?string $bitlyAccessToken = null,
+        public string $urlShortenerProvider = 'auto'
     ) {
     }
 
@@ -43,7 +45,9 @@ class SettingDTO
             moduleWeather: !empty($data['module_weather']),
             moduleClock: !empty($data['module_clock']),
             moduleTicker: !empty($data['module_ticker']),
-            moduleQrAnalytics: !empty($data['module_qr_analytics'])
+            moduleQrAnalytics: !empty($data['module_qr_analytics']),
+            bitlyAccessToken: isset($data['bitly_access_token']) ? trim((string)$data['bitly_access_token']) : null,
+            urlShortenerProvider: (string)($data['url_shortener_provider'] ?? 'auto')
         );
     }
 
@@ -65,11 +69,16 @@ class SettingDTO
             'module_clock' => $this->moduleClock ? '1' : '0',
             'module_ticker' => $this->moduleTicker ? '1' : '0',
             'module_qr_analytics' => $this->moduleQrAnalytics ? '1' : '0',
+            'url_shortener_provider' => $this->urlShortenerProvider,
         ];
 
         // API anahtarı boş bırakılmamışsa veya açıkça gönderildiyse güncelle
         if ($this->tinyPngApiKey !== null) {
             $arr['tinypng_api_key'] = $this->tinyPngApiKey;
+        }
+
+        if ($this->bitlyAccessToken !== null) {
+            $arr['bitly_access_token'] = $this->bitlyAccessToken;
         }
 
         return $arr;

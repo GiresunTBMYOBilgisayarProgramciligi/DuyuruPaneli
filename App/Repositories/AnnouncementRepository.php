@@ -24,6 +24,7 @@ class AnnouncementRepository
             SELECT 
                 a.id, a.title, a.content, a.qrCode, a.createdDate, 
                 a.userId, a.link, a.shortCode,
+                COALESCE(a.externalShortUrl, sl.externalShortUrl) AS externalShortUrl,
                 a.orderNumber, a.isActive, a.startsAt, a.expiresAt,
                 COALESCE(u.name || ' ' || u.lastName, 'Sistem') AS userFullName,
                 COALESCE(sl.scanCount, 0) AS scanCount
@@ -44,6 +45,7 @@ class AnnouncementRepository
             SELECT 
                 a.id, a.title, a.content, a.qrCode, a.createdDate, 
                 a.userId, a.link, a.shortCode,
+                COALESCE(a.externalShortUrl, sl.externalShortUrl) AS externalShortUrl,
                 a.orderNumber, a.isActive, a.startsAt, a.expiresAt,
                 COALESCE(u.name || ' ' || u.lastName, 'Sistem') AS userFullName,
                 COALESCE(sl.scanCount, 0) AS scanCount
@@ -68,11 +70,11 @@ class AnnouncementRepository
         return $res ?: null;
     }
 
-    public function create(AnnouncementDTO $dto, string $qrSvg = '', ?string $shortCode = null): int
+    public function create(AnnouncementDTO $dto, string $qrSvg = '', ?string $shortCode = null, ?string $externalShortUrl = null): int
     {
         $stmt = $this->db->prepare("
-            INSERT INTO announcement (title, content, qrCode, createdDate, userId, link, shortCode, orderNumber, isActive, startsAt, expiresAt)
-            VALUES (:title, :content, :qrCode, :createdDate, :userId, :link, :shortCode, :orderNumber, :isActive, :startsAt, :expiresAt)
+            INSERT INTO announcement (title, content, qrCode, createdDate, userId, link, shortCode, externalShortUrl, orderNumber, isActive, startsAt, expiresAt)
+            VALUES (:title, :content, :qrCode, :createdDate, :userId, :link, :shortCode, :externalShortUrl, :orderNumber, :isActive, :startsAt, :expiresAt)
         ");
 
         $stmt->execute([
@@ -83,6 +85,7 @@ class AnnouncementRepository
             ':userId' => $dto->userId,
             ':link' => $dto->link,
             ':shortCode' => $shortCode,
+            ':externalShortUrl' => $externalShortUrl,
             ':orderNumber' => $dto->orderNumber,
             ':isActive' => $dto->isActive,
             ':startsAt' => $dto->startsAt,
@@ -92,7 +95,7 @@ class AnnouncementRepository
         return (int)$this->db->lastInsertId();
     }
 
-    public function update(AnnouncementDTO $dto, ?string $qrSvg = null, ?string $shortCode = null): bool
+    public function update(AnnouncementDTO $dto, ?string $qrSvg = null, ?string $shortCode = null, ?string $externalShortUrl = null): bool
     {
         if ($dto->id === null) {
             return false;
@@ -127,6 +130,11 @@ class AnnouncementRepository
         if ($shortCode !== null) {
             $fields[] = 'shortCode = :shortCode';
             $params[':shortCode'] = $shortCode;
+        }
+
+        if ($externalShortUrl !== null) {
+            $fields[] = 'externalShortUrl = :externalShortUrl';
+            $params[':externalShortUrl'] = $externalShortUrl;
         }
 
         $sql = "UPDATE announcement SET " . implode(', ', $fields) . " WHERE id = :id";

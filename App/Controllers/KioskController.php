@@ -8,6 +8,7 @@ use App\Core\Request;
 use App\Core\View;
 use App\Repositories\SlideRepository;
 use App\Repositories\AnnouncementRepository;
+use App\Services\SettingService;
 use App\Services\WeatherService;
 use DateTime;
 use DateTimeZone;
@@ -45,10 +46,21 @@ class KioskController
             }
 
             $prefix = !empty($announcement->title) ? $announcement->title : $dateString;
+            $extUrl = !empty($announcement->externalShortUrl) ? trim((string)$announcement->externalShortUrl) : '';
             $shortCode = $announcement->shortCode ?? '';
-            $shortUrl = !empty($shortCode) ? "{$scheme}://{$host}/r/{$shortCode}" : ($announcement->link ?? '');
-            $shortPath = !empty($shortCode) ? "/r/{$shortCode}" : '';
-            $shortDisplay = !empty($shortCode) ? "{$host}/r/{$shortCode}" : '';
+
+            if (!empty($extUrl)) {
+                $shortUrl = $extUrl;
+                $parsedExt = parse_url($extUrl);
+                $shortHost = $parsedExt['host'] ?? '';
+                $shortPath = ($parsedExt['path'] ?? '') . (!empty($parsedExt['query']) ? '?' . $parsedExt['query'] : '');
+                $shortDisplay = $shortHost . $shortPath;
+            } else {
+                $shortUrl = !empty($shortCode) ? "{$scheme}://{$host}/r/{$shortCode}" : ($announcement->link ?? '');
+                $shortHost = $host;
+                $shortPath = !empty($shortCode) ? "/r/{$shortCode}" : '';
+                $shortDisplay = !empty($shortCode) ? "{$host}/r/{$shortCode}" : '';
+            }
 
             $initialTickerData[] = [
                 'id' => $announcement->id,
@@ -57,8 +69,9 @@ class KioskController
                 'qrCode' => $announcement->qrCode ?? '',
                 'link' => $announcement->link ?? '',
                 'shortCode' => $shortCode,
+                'externalShortUrl' => $extUrl,
                 'shortUrl' => $shortUrl,
-                'shortHost' => $host,
+                'shortHost' => $shortHost,
                 'shortPath' => $shortPath,
                 'shortDisplay' => $shortDisplay
             ];
@@ -91,7 +104,7 @@ class KioskController
 
         $initialContentHash = md5(json_encode($slides) . json_encode($initialTickerData));
 
-        $settingService = new \App\Services\SettingService();
+        $settingService = new SettingService();
         $slideIntervalMs = $settingService->getInt('slide_interval', 20) * 1000;
         $kioskVideoSound = $settingService->getBool('kiosk_video_sound', true);
 

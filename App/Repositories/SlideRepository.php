@@ -24,6 +24,7 @@ class SlideRepository
             SELECT 
                 s.id, s.title, s.content, s.image, s.qrCode, s.createdDate, 
                 s.userId, s.fullWidth, s.link, s.shortCode,
+                COALESCE(s.externalShortUrl, sl.externalShortUrl) AS externalShortUrl,
                 s.orderNumber, s.isActive, s.startsAt, s.expiresAt, s.showCaption, s.qrPosition,
                 COALESCE(u.name || ' ' || u.lastName, 'Sistem') AS userFullName,
                 COALESCE(sl.scanCount, 0) AS scanCount
@@ -45,6 +46,7 @@ class SlideRepository
             SELECT 
                 s.id, s.title, s.content, s.image, s.qrCode, s.createdDate, 
                 s.userId, s.fullWidth, s.link, s.shortCode,
+                COALESCE(s.externalShortUrl, sl.externalShortUrl) AS externalShortUrl,
                 s.orderNumber, s.isActive, s.startsAt, s.expiresAt, s.showCaption, s.qrPosition,
                 COALESCE(u.name || ' ' || u.lastName, 'Sistem') AS userFullName,
                 COALESCE(sl.scanCount, 0) AS scanCount
@@ -86,11 +88,11 @@ class SlideRepository
         return $slides;
     }
 
-    public function create(SlideDTO $dto, string $qrSvg = '', ?string $shortCode = null): int
+    public function create(SlideDTO $dto, string $qrSvg = '', ?string $shortCode = null, ?string $externalShortUrl = null): int
     {
         $stmt = $this->db->prepare("
-            INSERT INTO slider (title, content, image, qrCode, createdDate, userId, fullWidth, link, shortCode, orderNumber, isActive, startsAt, expiresAt, showCaption, qrPosition)
-            VALUES (:title, :content, :image, :qrCode, :createdDate, :userId, :fullWidth, :link, :shortCode, :orderNumber, :isActive, :startsAt, :expiresAt, :showCaption, :qrPosition)
+            INSERT INTO slider (title, content, image, qrCode, createdDate, userId, fullWidth, link, shortCode, externalShortUrl, orderNumber, isActive, startsAt, expiresAt, showCaption, qrPosition)
+            VALUES (:title, :content, :image, :qrCode, :createdDate, :userId, :fullWidth, :link, :shortCode, :externalShortUrl, :orderNumber, :isActive, :startsAt, :expiresAt, :showCaption, :qrPosition)
         ");
 
         $stmt->execute([
@@ -103,6 +105,7 @@ class SlideRepository
             ':fullWidth' => $dto->fullWidth,
             ':link' => $dto->link,
             ':shortCode' => $shortCode,
+            ':externalShortUrl' => $externalShortUrl,
             ':orderNumber' => $dto->orderNumber,
             ':isActive' => $dto->isActive,
             ':startsAt' => $dto->startsAt,
@@ -114,7 +117,7 @@ class SlideRepository
         return (int)$this->db->lastInsertId();
     }
 
-    public function update(SlideDTO $dto, ?string $qrSvg = null, ?string $shortCode = null): bool
+    public function update(SlideDTO $dto, ?string $qrSvg = null, ?string $shortCode = null, ?string $externalShortUrl = null): bool
     {
         if ($dto->id === null) {
             return false;
@@ -160,6 +163,11 @@ class SlideRepository
         if ($shortCode !== null) {
             $fields[] = 'shortCode = :shortCode';
             $params[':shortCode'] = $shortCode;
+        }
+
+        if ($externalShortUrl !== null) {
+            $fields[] = 'externalShortUrl = :externalShortUrl';
+            $params[':externalShortUrl'] = $externalShortUrl;
         }
 
         $sql = "UPDATE slider SET " . implode(', ', $fields) . " WHERE id = :id";

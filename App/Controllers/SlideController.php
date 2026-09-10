@@ -64,7 +64,7 @@ class SlideController
 
             $qrData = $this->qrAnalyticsService->generateForUrl((string)$dto->link, $dto->title);
 
-            $id = $this->slideRepository->create($dto, $qrData['qrSvg'], $qrData['shortCode']);
+            $id = $this->slideRepository->create($dto, $qrData['qrSvg'], $qrData['shortCode'], $qrData['externalShortUrl'] ?? null);
             Logger::audit("Yeni afiş oluşturuldu", ['id' => $id, 'title' => $dto->title]);
             Response::success('Slide başarıyla eklendi.', ['id' => $id]);
         } catch (Exception $e) {
@@ -119,13 +119,15 @@ class SlideController
             // Link değiştiyse QR kodu ve analitiği yeniden üret
             $qrSvg = null;
             $shortCode = null;
+            $externalShortUrl = null;
             if ($dto->link !== $existing->link) {
                 $qrData = $this->qrAnalyticsService->generateForUrl((string)$dto->link, $dto->title);
                 $qrSvg = $qrData['qrSvg'];
                 $shortCode = $qrData['shortCode'];
+                $externalShortUrl = $qrData['externalShortUrl'] ?? null;
             }
 
-            $this->slideRepository->update($dto, $qrSvg, $shortCode);
+            $this->slideRepository->update($dto, $qrSvg, $shortCode, $externalShortUrl);
             Logger::audit("Afiş güncellendi", ['id' => $dto->id, 'title' => $dto->title]);
             Response::success('Slide başarıyla güncellendi.');
         } catch (Exception $e) {

@@ -8,6 +8,7 @@ use App\Core\Request;
 use App\Core\Response;
 use App\Repositories\AnnouncementRepository;
 use App\Repositories\SlideRepository;
+use App\Services\SettingService;
 use App\Services\WeatherService;
 use DateTime;
 
@@ -16,13 +17,13 @@ class ApiController
     private SlideRepository $slideRepository;
     private AnnouncementRepository $announcementRepository;
     private WeatherService $weatherService;
-    private \App\Services\SettingService $settingService;
+    private SettingService $settingService;
 
     public function __construct()
     {
         $this->slideRepository = new SlideRepository();
         $this->announcementRepository = new AnnouncementRepository();
-        $this->settingService = new \App\Services\SettingService();
+        $this->settingService = new SettingService();
         $this->weatherService = new WeatherService($this->settingService);
     }
 
@@ -47,10 +48,21 @@ class ApiController
             }
 
             $prefix = !empty($announcement->title) ? $announcement->title : $dateString;
+            $extUrl = !empty($announcement->externalShortUrl) ? trim((string)$announcement->externalShortUrl) : '';
             $shortCode = $announcement->shortCode ?? '';
-            $shortUrl = !empty($shortCode) ? "{$scheme}://{$host}/r/{$shortCode}" : ($announcement->link ?? '');
-            $shortPath = !empty($shortCode) ? "/r/{$shortCode}" : '';
-            $shortDisplay = !empty($shortCode) ? "{$host}/r/{$shortCode}" : '';
+
+            if (!empty($extUrl)) {
+                $shortUrl = $extUrl;
+                $parsedExt = parse_url($extUrl);
+                $shortHost = $parsedExt['host'] ?? '';
+                $shortPath = ($parsedExt['path'] ?? '') . (!empty($parsedExt['query']) ? '?' . $parsedExt['query'] : '');
+                $shortDisplay = $shortHost . $shortPath;
+            } else {
+                $shortUrl = !empty($shortCode) ? "{$scheme}://{$host}/r/{$shortCode}" : ($announcement->link ?? '');
+                $shortHost = $host;
+                $shortPath = !empty($shortCode) ? "/r/{$shortCode}" : '';
+                $shortDisplay = !empty($shortCode) ? "{$host}/r/{$shortCode}" : '';
+            }
 
             $tickerNews[] = [
                 'id' => $announcement->id,
@@ -59,8 +71,9 @@ class ApiController
                 'qrCode' => $announcement->qrCode ?? '',
                 'link' => $announcement->link ?? '',
                 'shortCode' => $shortCode,
+                'externalShortUrl' => $extUrl,
                 'shortUrl' => $shortUrl,
-                'shortHost' => $host,
+                'shortHost' => $shortHost,
                 'shortPath' => $shortPath,
                 'shortDisplay' => $shortDisplay
             ];

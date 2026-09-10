@@ -41,6 +41,15 @@ class SettingValidator
             return "Kurum adı en fazla 255 karakter olabilir.";
         }
 
+        $allowedShortenerProviders = ['auto', 'bitly', 'tinyurl', 'isgd', 'internal'];
+        if (!in_array($dto->urlShortenerProvider, $allowedShortenerProviders, true)) {
+            return "Geçersiz URL kısaltma servis sağlayıcısı seçildi.";
+        }
+
+        if ($dto->bitlyAccessToken !== null && mb_strlen($dto->bitlyAccessToken) > 255) {
+            return "Bitly API erişim belirteci (token) en fazla 255 karakter olabilir.";
+        }
+
         return null;
     }
 }

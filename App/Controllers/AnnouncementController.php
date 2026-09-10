@@ -49,7 +49,7 @@ class AnnouncementController
 
         try {
             $qrData = $this->qrAnalyticsService->generateForUrl((string)$dto->link, $dto->title);
-            $id = $this->announcementRepository->create($dto, $qrData['qrSvg'], $qrData['shortCode']);
+            $id = $this->announcementRepository->create($dto, $qrData['qrSvg'], $qrData['shortCode'], $qrData['externalShortUrl'] ?? null);
             Logger::audit("Yeni kayan duyuru oluşturuldu", ['id' => $id, 'title' => $dto->title]);
             Response::success('Duyuru başarıyla eklendi.', ['id' => $id]);
         } catch (Exception $e) {
@@ -84,13 +84,15 @@ class AnnouncementController
         try {
             $qrSvg = null;
             $shortCode = null;
+            $externalShortUrl = null;
             if ($dto->link !== $existing->link) {
                 $qrData = $this->qrAnalyticsService->generateForUrl((string)$dto->link, $dto->title);
                 $qrSvg = $qrData['qrSvg'];
                 $shortCode = $qrData['shortCode'];
+                $externalShortUrl = $qrData['externalShortUrl'] ?? null;
             }
 
-            $this->announcementRepository->update($dto, $qrSvg, $shortCode);
+            $this->announcementRepository->update($dto, $qrSvg, $shortCode, $externalShortUrl);
             Logger::audit("Kayan duyuru güncellendi", ['id' => $dto->id, 'title' => $dto->title]);
             Response::success('Duyuru başarıyla güncellendi.');
         } catch (Exception $e) {
