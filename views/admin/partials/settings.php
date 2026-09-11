@@ -271,14 +271,34 @@ declare(strict_types=1);
                                 Kısaltma Servisi Sağlayıcısı
                             </label>
                             <select class="form-select" id="setting_url_shortener_provider" name="url_shortener_provider">
-                                <option value="auto">Otomatik Hibrit (Bitly API Token varsa Bitly, yoksa TinyURL) — Tavsiye Edilen</option>
-                                <option value="tinyurl">TinyURL (Limitsiz & Ücretsiz, API Anahtarı Gerektirmez)</option>
+                                <option value="auto">Otomatik Hibrit (Bitly veya TinyURL API Token varsa Tokenlı, yoksa TinyURL Anonim) — Tavsiye Edilen</option>
+                                <option value="tinyurl">TinyURL (API Anahtarlı veya Anonim Genel Mod)</option>
                                 <option value="bitly">Yalnızca Bitly API v4 (Erişim Belirteci Gerektirir)</option>
                                 <option value="isgd">is.gd Servisi</option>
                                 <option value="internal">Dahili Yönlendirme (Harici Kısaltma Yapma)</option>
                             </select>
                             <div class="form-text small text-muted">
                                 <strong>Neden Kısaltma?</strong> TV ekranlarında düşük çözünürlükte QR kodların okunabilmesi için link uzunluğu minimuma indirilir. Böylece QR matrisi 21x21 kareye düşer ve kareler ekranda <strong>2 kat daha büyük</strong> basılır.
+                            </div>
+                        </div>
+
+                        <!-- TinyURL API Anahtarı -->
+                        <div class="mb-3 pt-2 border-top">
+                            <label for="setting_tinyurl_api_key" class="form-label fw-semibold small text-muted d-flex justify-content-between align-items-center">
+                                <span>TinyURL API Anahtarı (API Token)</span>
+                                <a href="https://tinyurl.com/app/settings/api" target="_blank" class="small text-decoration-none" title="TinyURL API anahtarı edinin">
+                                    TinyURL Token Al ↗
+                                </a>
+                            </label>
+                            <div class="input-group mb-2">
+                                <span class="input-group-text bg-light">🔑</span>
+                                <input type="password" class="form-control" id="setting_tinyurl_api_key" name="tinyurl_api_key" placeholder="Örn: 2y10... veya boş bırakın" autocomplete="new-password">
+                                <button class="btn btn-outline-secondary" type="button" id="toggleTinyUrlKeyVisibility" title="Anahtarı Göster/Gizle">
+                                    👁️
+                                </button>
+                            </div>
+                            <div class="form-text small text-muted">
+                                <em>İpucu:</em> TinyURL hesabınızdan API token ekleyerek analitik takibi ve özel etiketler kullanabilirsiniz. Boş bırakırsanız genel anonim servis devrede kalır.
                             </div>
                         </div>
 
@@ -296,13 +316,20 @@ declare(strict_types=1);
                                 <button class="btn btn-outline-secondary" type="button" id="toggleBitlyKeyVisibility" title="Belirteci Göster/Gizle">
                                     👁️
                                 </button>
-                                <button class="btn btn-outline-primary" type="button" id="testShortenerBtn" title="Kısaltma servislerini ve Bitly bağlantısını test et">
-                                    Sına & Bağlantı Kontrolü
-                                </button>
                             </div>
-                            <div id="shortenerTestResult" class="d-none alert py-2 px-3 small mb-2"></div>
-                            <div class="form-text small text-muted mb-3">
-                                <em>İpucu:</em> Bitly token tanımlanmadığında veya kotası bittiğinde sistem otomatik olarak <strong>TinyURL</strong> motorunu devreye sokar.
+                            <div class="form-text small text-muted mb-2">
+                                Bitly API v4 ile link kısaltmak için hesabınızdan alacağınız Generic Access Token'dır.
+                            </div>
+                        </div>
+
+                        <!-- Sına & Bağlantı Kontrolü Butonu -->
+                        <div class="mb-3">
+                            <button class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center gap-2" type="button" id="testShortenerBtn" title="Kısaltma servislerini ve API bağlantılarını test et">
+                                <span>⚡</span> Kısaltma Servislerini Sına & Bağlantı Kontrolü
+                            </button>
+                            <div id="shortenerTestResult" class="d-none alert py-2 px-3 small mt-2 mb-2"></div>
+                            <div class="form-text small text-primary mt-1">
+                                <span>💡</span> <strong>Akıllı Otomasyon:</strong> Sınama başarılı olduğunda doğrulanan anahtarlar doğrudan <code>.env</code> dosyasına ve sisteme otomatik olarak anında kaydedilir.
                             </div>
                         </div>
 
@@ -352,6 +379,10 @@ declare(strict_types=1);
                             <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2 border-bottom">
                                 <span class="fw-semibold">TinyPNG Görsel API:</span>
                                 <span class="badge bg-secondary" id="sysTinyPngStatus">Tanımlanmamış</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2 border-bottom">
+                                <span class="fw-semibold">TinyURL Servisi:</span>
+                                <span class="badge bg-secondary" id="sysTinyUrlStatus">Kontrol ediliyor...</span>
                             </li>
                             <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2 border-bottom">
                                 <span class="fw-semibold">Bitly URL API:</span>

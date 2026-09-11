@@ -223,6 +223,7 @@ class Database
             'image_quality' => '85',
             'slide_interval' => '20',
             'kiosk_video_sound' => '1',
+            'tinyurl_api_key' => '',
             'bitly_access_token' => '',
             'url_shortener_provider' => 'auto', // auto, bitly, tinyurl, isgd, internal
             'institution_name' => Config::INSTITUTION_NAME,

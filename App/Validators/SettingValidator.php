@@ -50,6 +50,10 @@ class SettingValidator
             return "Bitly API erişim belirteci (token) en fazla 255 karakter olabilir.";
         }
 
+        if ($dto->tinyUrlApiKey !== null && mb_strlen($dto->tinyUrlApiKey) > 255) {
+            return "TinyURL API anahtarı en fazla 255 karakter olabilir.";
+        }
+
         return null;
     }
 }

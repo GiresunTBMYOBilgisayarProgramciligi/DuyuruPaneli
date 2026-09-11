@@ -38,6 +38,7 @@ class UrlShortenerService
         }
 
         $bitlyToken = trim($this->settingService->getString('bitly_access_token', ''));
+        $tinyUrlApiKey = trim($this->settingService->getString('tinyurl_api_key', ''));
 
         // 1. Bitly (Öncelikli veya açıkça seçilmişse)
         if (($provider === 'bitly' || $provider === 'auto') && !empty($bitlyToken)) {
@@ -52,9 +53,9 @@ class UrlShortenerService
             }
         }
 
-        // 2. TinyURL (Zero-config, limitsiz, API anahtarı gerektirmez)
+        // 2. TinyURL (API Anahtarlı veya Anonim)
         if ($provider === 'auto' || $provider === 'tinyurl') {
-            $shortened = $this->shortenWithTinyUrl($urlToShorten);
+            $shortened = $this->shortenWithTinyUrl($urlToShorten, !empty($tinyUrlApiKey) ? $tinyUrlApiKey : null);
             if ($shortened !== null) {
                 return $shortened;
             }
@@ -132,9 +133,93 @@ class UrlShortenerService
     }
 
     /**
-     * TinyURL API ile URL kısaltır (API anahtarı gerektirmez)
+     * TinyURL servisi ile URL kısaltır.
+     * API anahtarı sağlanmışsa veya ayarlarda tanımlıysa TinyURL API v2 (Bearer token) kullanılır;
+     * tanımlı değilse veya v2 başarısız olursa anonim genel servis kullanılır.
      */
-    public function shortenWithTinyUrl(string $url): ?string
+    public function shortenWithTinyUrl(string $url, ?string $apiKey = null): ?string
+    {
+        $token = $apiKey !== null ? trim($apiKey) : trim($this->settingService->getString('tinyurl_api_key', ''));
+
+        // 1. API Anahtarı tanımlıysa TinyURL API v2 motoru ile kısalt
+        if (!empty($token)) {
+            $shortUrl = $this->shortenWithTinyUrlV2($url, $token);
+            if ($shortUrl !== null) {
+                return $shortUrl;
+            }
+            // API v2 başarısız olursa TV panosunun kesintisiz çalışması için anonim servise fallback yap
+            Logger::channel('qr')->warning("TinyURL API v2 başarısız oldu, anonim genel servise geçiliyor.");
+        }
+
+        // 2. API anahtarı yoksa veya v2 başarısız olduysa anonim servis motoru
+        return $this->shortenWithTinyUrlAnonymous($url);
+    }
+
+    /**
+     * TinyURL API v2 ile URL kısaltır (Bearer Token yetkilendirmesi ile)
+     * Dokümantasyon: https://tinyurl.com/app/settings/api
+     */
+    public function shortenWithTinyUrlV2(string $url, string $apiToken): ?string
+    {
+        try {
+            $ch = curl_init('https://api.tinyurl.com/create');
+            if ($ch === false) {
+                return null;
+            }
+
+            $payload = json_encode([
+                'url' => $url,
+                'domain' => 'tinyurl.com'
+            ], JSON_UNESCAPED_SLASHES);
+
+            curl_setopt_array($ch, [
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_POST => true,
+                CURLOPT_POSTFIELDS => $payload,
+                CURLOPT_HTTPHEADER => [
+                    'Authorization: Bearer ' . $apiToken,
+                    'Content-Type: application/json',
+                    'Accept: application/json'
+                ],
+                CURLOPT_TIMEOUT => 4,
+                CURLOPT_CONNECTTIMEOUT => 2,
+                CURLOPT_SSL_VERIFYPEER => true,
+                CURLOPT_USERAGENT => 'UniPano/2.0 (Digital Signage Platform)'
+            ]);
+
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $error = curl_error($ch);
+            curl_close($ch);
+
+            if ($response === false || !empty($error)) {
+                Logger::channel('qr')->warning("TinyURL API v2 cURL hatası: {$error}");
+                return null;
+            }
+
+            if ($httpCode >= 200 && $httpCode < 300) {
+                $data = json_decode((string)$response, true);
+                if (isset($data['data']['tiny_url']) && is_string($data['data']['tiny_url'])) {
+                    Logger::channel('qr')->info("TinyURL v2 ile link başarıyla kısaltıldı", [
+                        'original' => $url,
+                        'short' => $data['data']['tiny_url']
+                    ]);
+                    return $data['data']['tiny_url'];
+                }
+            }
+
+            Logger::channel('qr')->warning("TinyURL API v2 yanıt hatası (HTTP {$httpCode}): {$response}");
+            return null;
+        } catch (Exception $e) {
+            Logger::channel('qr')->error("TinyURL API v2 servisinde hata: " . $e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * TinyURL anonim genel API ile URL kısaltır (API anahtarı gerektirmez)
+     */
+    public function shortenWithTinyUrlAnonymous(string $url): ?string
     {
         try {
             $apiUrl = 'https://tinyurl.com/api-create.php?url=' . urlencode($url);
@@ -157,13 +242,13 @@ class UrlShortenerService
             curl_close($ch);
 
             if ($response === false || !empty($error) || $httpCode !== 200) {
-                Logger::channel('qr')->warning("TinyURL API hatası (HTTP {$httpCode}): {$error}");
+                Logger::channel('qr')->warning("TinyURL anonim API hatası (HTTP {$httpCode}): {$error}");
                 return null;
             }
 
             $shortUrl = trim((string)$response);
             if (str_starts_with($shortUrl, 'http://') || str_starts_with($shortUrl, 'https://')) {
-                Logger::channel('qr')->info("TinyURL ile link başarıyla kısaltıldı", [
+                Logger::channel('qr')->info("TinyURL anonim servis ile link başarıyla kısaltıldı", [
                     'original' => $url,
                     'short' => $shortUrl
                 ]);
@@ -172,7 +257,7 @@ class UrlShortenerService
 
             return null;
         } catch (Exception $e) {
-            Logger::channel('qr')->error("TinyURL servisinde hata: " . $e->getMessage());
+            Logger::channel('qr')->error("TinyURL anonim servisinde hata: " . $e->getMessage());
             return null;
         }
     }
@@ -214,22 +299,25 @@ class UrlShortenerService
     }
 
     /**
-     * Kısaltma bağlantısını ve sağlayıcıyı test eder
+     * Kısaltma bağlantılarını ve servis sağlayıcıları (Bitly ve TinyURL) test eder
      */
-    public function testService(?string $token = null): array
+    public function testService(?string $bitlyToken = null, ?string $tinyUrlToken = null): array
     {
         $testTarget = 'https://giresun.edu.tr';
-        $tokenToTest = $token !== null ? trim($token) : trim($this->settingService->getString('bitly_access_token', ''));
+        $bitlyTokenToTest = $bitlyToken !== null ? trim($bitlyToken) : trim($this->settingService->getString('bitly_access_token', ''));
+        $tinyUrlTokenToTest = $tinyUrlToken !== null ? trim($tinyUrlToken) : trim($this->settingService->getString('tinyurl_api_key', ''));
 
         $results = [
             'success' => false,
             'bitly' => [
-                'configured' => !empty($tokenToTest),
+                'configured' => !empty($bitlyTokenToTest),
                 'success' => false,
                 'shortUrl' => null,
                 'message' => ''
             ],
             'tinyurl' => [
+                'configured' => !empty($tinyUrlTokenToTest),
+                'authenticated' => false,
                 'success' => false,
                 'shortUrl' => null,
                 'message' => ''
@@ -239,8 +327,8 @@ class UrlShortenerService
         ];
 
         // 1. Bitly testi
-        if (!empty($tokenToTest)) {
-            $bitlyUrl = $this->shortenWithBitly($testTarget, $tokenToTest);
+        if (!empty($bitlyTokenToTest)) {
+            $bitlyUrl = $this->shortenWithBitly($testTarget, $bitlyTokenToTest);
             if ($bitlyUrl !== null) {
                 $results['bitly']['success'] = true;
                 $results['bitly']['shortUrl'] = $bitlyUrl;
@@ -249,23 +337,46 @@ class UrlShortenerService
                 $results['bitly']['message'] = 'Bitly API bağlantısı başarısız oldu. Token veya kotayı kontrol ediniz.';
             }
         } else {
-            $results['bitly']['message'] = 'Bitly API Token tanımlı değil (TinyURL yedek motoru kullanılacak).';
+            $results['bitly']['message'] = 'Bitly API Token tanımlı değil.';
         }
 
         // 2. TinyURL testi
-        $tinyUrl = $this->shortenWithTinyUrl($testTarget);
-        if ($tinyUrl !== null) {
-            $results['tinyurl']['success'] = true;
-            $results['tinyurl']['shortUrl'] = $tinyUrl;
-            $results['tinyurl']['message'] = 'TinyURL genel servisi sorunsuz çalışıyor.';
+        if (!empty($tinyUrlTokenToTest)) {
+            // API v2 anahtarlı test
+            $tinyUrl = $this->shortenWithTinyUrlV2($testTarget, $tinyUrlTokenToTest);
+            if ($tinyUrl !== null) {
+                $results['tinyurl']['success'] = true;
+                $results['tinyurl']['authenticated'] = true;
+                $results['tinyurl']['shortUrl'] = $tinyUrl;
+                $results['tinyurl']['message'] = 'TinyURL API v2 bağlantısı ve API anahtarı doğrulaması başarılı.';
+            } else {
+                $results['tinyurl']['message'] = 'TinyURL API v2 bağlantısı başarısız. API anahtarınızı veya hesap durumunuzu kontrol ediniz.';
+            }
         } else {
-            $results['tinyurl']['message'] = 'TinyURL servisine ulaşılamadı.';
+            // Anonim genel servis testi
+            $tinyUrl = $this->shortenWithTinyUrlAnonymous($testTarget);
+            if ($tinyUrl !== null) {
+                $results['tinyurl']['success'] = true;
+                $results['tinyurl']['authenticated'] = false;
+                $results['tinyurl']['shortUrl'] = $tinyUrl;
+                $results['tinyurl']['message'] = 'TinyURL genel servisi (API anahtarsız anonim mod) sorunsuz çalışıyor.';
+            } else {
+                $results['tinyurl']['message'] = 'TinyURL genel servisine ulaşılamadı.';
+            }
         }
 
         if ($results['bitly']['success'] || $results['tinyurl']['success']) {
             $results['success'] = true;
             $sample = $results['bitly']['shortUrl'] ?? $results['tinyurl']['shortUrl'];
-            $results['summary'] = "Bağlantı başarılı! Örnek kısa link: {$sample}";
+            $statusParts = [];
+            if ($results['bitly']['success']) {
+                $statusParts[] = "Bitly: Aktif ({$results['bitly']['shortUrl']})";
+            }
+            if ($results['tinyurl']['success']) {
+                $tinyMode = $results['tinyurl']['authenticated'] ? 'API Anahtarlı' : 'Anonim';
+                $statusParts[] = "TinyURL [{$tinyMode}]: Aktif ({$results['tinyurl']['shortUrl']})";
+            }
+            $results['summary'] = "Kısaltma servisi bağlantısı başarılı! " . implode(' | ', $statusParts);
         } else {
             $results['summary'] = "Kısaltma servislerine bağlanılamadı. Sistem dahili linklerle kesintisiz çalışmaya devam eder.";
         }

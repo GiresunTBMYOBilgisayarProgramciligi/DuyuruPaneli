@@ -32,6 +32,7 @@ class SettingService
                 'image_resize_dimension' => $_ENV['IMAGE_RESIZE_DIMENSION'] ?? getenv('IMAGE_RESIZE_DIMENSION') ?: '',
                 'image_quality' => $_ENV['IMAGE_QUALITY'] ?? getenv('IMAGE_QUALITY') ?: '',
                 'bitly_access_token' => $_ENV['BITLY_ACCESS_TOKEN'] ?? getenv('BITLY_ACCESS_TOKEN') ?: '',
+                'tinyurl_api_key' => $_ENV['TINYURL_API_KEY'] ?? getenv('TINYURL_API_KEY') ?: '',
                 'url_shortener_provider' => $_ENV['URL_SHORTENER_PROVIDER'] ?? getenv('URL_SHORTENER_PROVIDER') ?: '',
             ];
 
@@ -102,6 +103,7 @@ class SettingService
 
         // .env dosyasına otomatik senkronizasyon
         $this->syncToEnvFile($settings);
+        self::$cache = null; // Senkronizasyon sonrası önbelleği kesin olarak sıfırla
     }
 
     /**
@@ -109,6 +111,14 @@ class SettingService
      */
     public function syncToEnvFile(array $settings = []): void
     {
+        // Önce gelen parametreleri $_ENV ve putenv'e anında yansıt
+        foreach ($settings as $key => $val) {
+            $envKey = strtoupper($key);
+            $valStr = (string)$val;
+            $_ENV[$envKey] = $valStr;
+            putenv("{$envKey}={$valStr}");
+        }
+
         $envPath = Config::ROOT_PATH . '.env';
         $examplePath = Config::ROOT_PATH . '.env.example';
 
@@ -130,6 +140,7 @@ class SettingService
             'IMAGE_RESIZE_DIMENSION' => $settings['image_resize_dimension'] ?? $this->getString('image_resize_dimension', '1920'),
             'IMAGE_QUALITY' => $settings['image_quality'] ?? $this->getString('image_quality', '85'),
             'BITLY_ACCESS_TOKEN' => $settings['bitly_access_token'] ?? $this->getString('bitly_access_token', ''),
+            'TINYURL_API_KEY' => $settings['tinyurl_api_key'] ?? $this->getString('tinyurl_api_key', ''),
             'URL_SHORTENER_PROVIDER' => $settings['url_shortener_provider'] ?? $this->getString('url_shortener_provider', 'auto'),
         ];
 
@@ -201,6 +212,14 @@ class SettingService
     public function getBitlyAccessToken(): string
     {
         return $this->getString('bitly_access_token', '');
+    }
+
+    /**
+     * TinyURL API Anahtarını / Tokenını döndürür
+     */
+    public function getTinyUrlApiKey(): string
+    {
+        return $this->getString('tinyurl_api_key', '');
     }
 
     /**

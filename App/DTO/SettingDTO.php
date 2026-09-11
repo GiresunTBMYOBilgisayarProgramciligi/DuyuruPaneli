@@ -23,6 +23,7 @@ class SettingDTO
         public bool $moduleTicker = true,
         public bool $moduleQrAnalytics = true,
         public ?string $bitlyAccessToken = null,
+        public ?string $tinyUrlApiKey = null,
         public string $urlShortenerProvider = 'auto'
     ) {
     }
@@ -47,6 +48,7 @@ class SettingDTO
             moduleTicker: !empty($data['module_ticker']),
             moduleQrAnalytics: !empty($data['module_qr_analytics']),
             bitlyAccessToken: isset($data['bitly_access_token']) ? trim((string)$data['bitly_access_token']) : null,
+            tinyUrlApiKey: isset($data['tinyurl_api_key']) ? trim((string)$data['tinyurl_api_key']) : null,
             urlShortenerProvider: (string)($data['url_shortener_provider'] ?? 'auto')
         );
     }
@@ -79,6 +81,10 @@ class SettingDTO
 
         if ($this->bitlyAccessToken !== null) {
             $arr['bitly_access_token'] = $this->bitlyAccessToken;
+        }
+
+        if ($this->tinyUrlApiKey !== null) {
+            $arr['tinyurl_api_key'] = $this->tinyUrlApiKey;
         }
 
         return $arr;

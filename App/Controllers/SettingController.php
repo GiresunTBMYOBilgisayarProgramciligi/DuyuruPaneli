@@ -52,6 +52,7 @@ class SettingController
             'php_version' => PHP_VERSION,
             'tinypng_configured' => !empty($settings['tinypng_api_key'] ?? ''),
             'bitly_configured' => !empty($settings['bitly_access_token'] ?? ''),
+            'tinyurl_configured' => !empty($settings['tinyurl_api_key'] ?? ''),
             'shortener_provider' => $settings['url_shortener_provider'] ?? 'auto'
         ];
 
@@ -87,7 +88,8 @@ class SettingController
                 'resize_dim' => $dto->imageResizeDimension,
                 'has_tinypng_key' => !empty($dto->tinyPngApiKey),
                 'shortener_provider' => $dto->urlShortenerProvider,
-                'has_bitly_token' => !empty($dto->bitlyAccessToken)
+                'has_bitly_token' => !empty($dto->bitlyAccessToken),
+                'has_tinyurl_key' => !empty($dto->tinyUrlApiKey)
             ]);
 
             Response::success('Sistem ayarları başarıyla kaydedildi.');
@@ -134,13 +136,24 @@ class SettingController
         CsrfMiddleware::handle($request);
 
         $bitlyToken = (string)$request->input('bitly_token', '');
-        $result = $this->urlShortenerService->testService(!empty($bitlyToken) ? $bitlyToken : null);
+        $tinyUrlToken = (string)$request->input('tinyurl_token', $request->input('tinyurl_api_key', ''));
+        $result = $this->urlShortenerService->testService(
+            !empty($bitlyToken) ? $bitlyToken : null,
+            !empty($tinyUrlToken) ? $tinyUrlToken : null
+        );
 
         if ($result['success']) {
+            $toSave = [];
             if (!empty($bitlyToken) && !empty($result['bitly']['success'])) {
-                // Başarıyla doğrulanan Bitly anahtarını anında hem veritabanına hem .env dosyasına kaydet
-                $this->settingService->saveSettings(['bitly_access_token' => $bitlyToken]);
-                Logger::audit("Bitly erişim belirteci başarıyla test edildi ve kaydedildi");
+                $toSave['bitly_access_token'] = $bitlyToken;
+            }
+            if (!empty($tinyUrlToken) && !empty($result['tinyurl']['authenticated'])) {
+                $toSave['tinyurl_api_key'] = $tinyUrlToken;
+            }
+
+            if (!empty($toSave)) {
+                $this->settingService->saveSettings($toSave);
+                Logger::audit("Kısaltıcı API erişim anahtarları başarıyla test edildi ve kaydedildi", array_keys($toSave));
             }
 
             Response::success($result['summary'], [

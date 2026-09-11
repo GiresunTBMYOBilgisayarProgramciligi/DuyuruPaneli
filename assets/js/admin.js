@@ -1052,6 +1052,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             setVal('setting_tinypng_api_key', s.tinypng_api_key || '');
             setVal('setting_url_shortener_provider', s.url_shortener_provider || 'auto');
+            setVal('setting_tinyurl_api_key', s.tinyurl_api_key || '');
             setVal('setting_bitly_access_token', s.bitly_access_token || '');
             setVal('setting_slide_interval', s.slide_interval || '20');
             setChecked('setting_kiosk_video_sound', s.kiosk_video_sound);
@@ -1104,13 +1105,24 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             }
 
+            const sysTinyUrl = document.getElementById('sysTinyUrlStatus');
+            if (sysTinyUrl) {
+                if (sys.tinyurl_configured) {
+                    sysTinyUrl.textContent = 'API Anahtarı Yapılandırıldı';
+                    sysTinyUrl.className = 'badge bg-success';
+                } else {
+                    sysTinyUrl.textContent = 'Anonim Mod (API Anahtarsız)';
+                    sysTinyUrl.className = 'badge bg-info text-dark';
+                }
+            }
+
             const sysBitly = document.getElementById('sysBitlyStatus');
             if (sysBitly) {
                 if (sys.bitly_configured) {
                     sysBitly.textContent = 'API Token Yapılandırıldı';
                     sysBitly.className = 'badge bg-success';
                 } else {
-                    sysBitly.textContent = 'Tanımlanmamış (TinyURL devrede)';
+                    sysBitly.textContent = 'Tanımlanmamış';
                     sysBitly.className = 'badge bg-secondary';
                 }
             }
@@ -1273,6 +1285,19 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    // TinyURL API Anahtarı Göster / Gizle
+    document.getElementById('toggleTinyUrlKeyVisibility')?.addEventListener('click', function () {
+        const input = document.getElementById('setting_tinyurl_api_key');
+        if (!input) return;
+        if (input.type === 'password') {
+            input.type = 'text';
+            this.textContent = '🔒';
+        } else {
+            input.type = 'password';
+            this.textContent = '👁️';
+        }
+    });
+
     // Bitly Belirteci Göster / Gizle
     document.getElementById('toggleBitlyKeyVisibility')?.addEventListener('click', function () {
         const input = document.getElementById('setting_bitly_access_token');
@@ -1286,21 +1311,25 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // URL Kısaltıcı & Bitly Sına & Bağlantı Kontrolü
+    // URL Kısaltıcı Servislerini (Bitly ve TinyURL) Sına & Bağlantı Kontrolü
     document.getElementById('testShortenerBtn')?.addEventListener('click', function () {
         const btn = this;
-        const keyInput = document.getElementById('setting_bitly_access_token');
+        const bitlyInput = document.getElementById('setting_bitly_access_token');
+        const tinyUrlInput = document.getElementById('setting_tinyurl_api_key');
         const resultDiv = document.getElementById('shortenerTestResult');
-        const bitlyToken = keyInput ? keyInput.value.trim() : '';
+
+        const bitlyToken = bitlyInput ? bitlyInput.value.trim() : '';
+        const tinyUrlToken = tinyUrlInput ? tinyUrlInput.value.trim() : '';
 
         const origHtml = btn.innerHTML;
         btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Test Ediliyor...';
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Sınanıyor...';
 
         const formData = new FormData();
         formData.append('action', 'testShortener');
         formData.append('csrf_token', getCsrfToken());
         formData.append('bitly_token', bitlyToken);
+        formData.append('tinyurl_token', tinyUrlToken);
 
         fetch('/admin/ajax', {
             method: 'POST',
@@ -1319,8 +1348,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (data.success) {
                     resultDiv.className = 'alert alert-success py-2 px-3 small mb-2';
                     resultDiv.innerHTML = '<strong>✅ Başarılı:</strong> ' + escapeHtml(data.message);
-                    showToast('Kısaltma servisi başarıyla doğrulandı!', 'success');
-                    loadSettings(); // Rozetleri güncelle
+                    showToast('Kısaltma servis bağlantısı doğrulandı ve kaydedildi!', 'success');
+                    loadSettings(); // Rozetleri ve ayarları güncelle
                 } else {
                     resultDiv.className = 'alert alert-danger py-2 px-3 small mb-2';
                     resultDiv.innerHTML = '<strong>❌ Bağlantı Hatası:</strong> ' + escapeHtml(data.message || 'Hata oluştu.');
